@@ -25,10 +25,11 @@ module bch(
 
 	reg [7:0] data_r [0:1023], data_w [0:1023];
 	reg [10:0] reduced_data_r [0:1023], reduced_data_w [0:1023];
+	reg [10:0] S_r [0:7], S_w [0:7];
 	reg [3:0] state_r, state_w;
 	reg [9:0] cnt_r, cnt_w;
 
-	reg [9:0] cnt_max_w;
+	reg [9:0] cnt_max_w, cnt_max_r;
 	reg [2:0] t_w;
 
 	integer i;
@@ -43,6 +44,7 @@ module bch(
 		state_w = state_r;
 		cnt_w = cnt_r;
 		ready_w = ready_r;
+		cnt_max_w = cnt_max_r;
 		for (i = 0; i < 1024; i = i + 1) data_w[i] = data_r[i];
 		for (i = 0; i < 1024; i = i + 1) reduced_data_w[i] = reduced_data_r[i];
 		case (state_r)
@@ -92,17 +94,19 @@ module bch(
 				end
 			end
 			S_SYN: begin
-				// if (cnt_r == 0) begin
-				// 	for (i = 0; i < 64; i = i + 1) begin
-				// 		$display("data_r[%d] = %b", i, data_r[i]);
-				// 	end
-				// end
-				case (cnt_max_w)
+				case (cnt_max_r)
 					63: begin
 						if (cnt_r < 63) begin
+							cnt_w = cnt_r + 1;
 							for (i = 0; i < 64; i = i + 1) begin
-								reduced_data_w[i] = (i - cnt_r > 0) ? {reduced_data_r[i][8:0], data_r[i - cnt_r]} : reduced_data_r[i];
+								if (cnt_r == 0) begin
+									reduced_data_w[i] = {3'b0, data_r[i]};
+								end
+								else begin
+									reduced_data_w[i] = (i[9:0] >= cnt_r) ? {reduced_data_r[i][9:0], 1'b0} : reduced_data_r[i];
+								end
 								if (reduced_data_w[i][6]) begin
+									// $display("reduce data_r[%d] at cnt = %d", i, cnt_r);
 									reduced_data_w[i][6] = 0;
 									reduced_data_w[i][0] = !reduced_data_w[i][0]; // xor 1
 									reduced_data_w[i][1] = !reduced_data_w[i][1]; // xor 1
@@ -111,7 +115,6 @@ module bch(
 							for (i = 0; i < 63; i = i + 1) begin
 								data_w[i] = data_r[i+1];
 							end
-							cnt_w = cnt_r + 1;
 						end
 						else begin
 							cnt_w = 0;
@@ -124,7 +127,12 @@ module bch(
 					255: begin
 						if (cnt_r < 255) begin
 							for (i = 0; i < 256; i = i + 1) begin
-								reduced_data_w[i] = (i - cnt_r > 0) ? {reduced_data_r[i][8:0], data_r[i - cnt_r]} : reduced_data_r[i];
+								if (cnt_r == 0) begin
+									reduced_data_w[i] = {3'b0, data_r[i]};
+								end
+								else begin
+									reduced_data_w[i] = (i[9:0] >= cnt_r) ? {reduced_data_r[i][9:0], 1'b0} : reduced_data_r[i];
+								end
 								if (reduced_data_w[i][8]) begin
 									reduced_data_w[i][8] = 0;
 									reduced_data_w[i][0] = !reduced_data_w[i][0]; // xor 1
@@ -149,7 +157,12 @@ module bch(
 					1023: begin
 						if (cnt_r < 1023) begin
 							for (i = 0; i < 1024; i = i + 1) begin
-								reduced_data_w[i] = (i - cnt_r > 0) ? {reduced_data_r[i][8:0], data_r[i - cnt_r]} : reduced_data_r[i];
+								if (cnt_r == 0) begin
+									reduced_data_w[i] = {3'b0, data_r[i]};
+								end
+								else begin
+									reduced_data_w[i] = (i[9:0] >= cnt_r) ? {reduced_data_r[i][9:0], 1'b0} : reduced_data_r[i];
+								end
 								if (reduced_data_w[i][10]) begin
 									reduced_data_w[i][10] = 0;
 									reduced_data_w[i][0] = !reduced_data_w[i][0]; // xor 1
@@ -175,6 +188,10 @@ module bch(
 				
 			end
 			S_OUT: begin
+				for (i = 0; i < 64; i = i + 1) begin
+					// $display("reduced_data_r[%d] = %b", i, reduced_data_r[i]);
+				end
+				state_w = S_IDLE;
 				if (cnt_r == 6) begin
 					finish = 0;
 					state_w = S_IDLE;
@@ -195,11 +212,13 @@ module bch(
 			end
 			cnt_r <= 0;
 			ready_r <= 0;
+			cnt_max_r <= 0;
 		end
 		else begin
 			cnt_r <= cnt_w;
 			state_r <= state_w;
 			ready_r <= ready_w;
+			cnt_max_r <= cnt_max_w;
 			if (load_en) begin
 				for (i = 0; i < 1024; i = i + 1) begin
 					data_r[i] <= data_w[i];
