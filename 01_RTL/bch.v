@@ -14,6 +14,7 @@ module bch(
 	reg finish;
 	reg [9:0] odata;
 	reg ready_r, ready_w;
+	reg mode_r, mode_w;
 
 	localparam S_IDLE = 0;
 	localparam S_LOAD = 1;
@@ -24,7 +25,14 @@ module bch(
 	localparam S_OUT  = 6;
 
 	reg [7:0] data_r [0:1023], data_w [0:1023];
-	reg [10:0] reduced_data_r [0:1023], reduced_data_w [0:1023];
+	reg [10:0] reduced_data0_r [0:1023], reduced_data0_w [0:1023];
+	reg [10:0] reduced_data1_r [0:1023], reduced_data1_w [0:1023];
+	reg [10:0] reduced_data2_r [0:1023], reduced_data2_w [0:1023];
+	reg [10:0] reduced_data3_r [0:1023], reduced_data3_w [0:1023];
+	reg [10:0] reduced_data4_r [0:1023], reduced_data4_w [0:1023];
+	reg [10:0] reduced_data5_r [0:1023], reduced_data5_w [0:1023];
+	reg [10:0] reduced_data6_r [0:1023], reduced_data6_w [0:1023];
+	reg [10:0] reduced_data7_r [0:1023], reduced_data7_w [0:1023];
 	reg [10:0] S_r [0:7], S_w [0:7];
 	reg [3:0] state_r, state_w;
 	reg [9:0] cnt_r, cnt_w;
@@ -32,7 +40,7 @@ module bch(
 	reg [9:0] cnt_max_w, cnt_max_r;
 	reg [2:0] t_w;
 
-	integer i;
+	integer i, j;
 
 	// clock gating
 	wire load_en = (state_r == S_LOAD);
@@ -45,8 +53,18 @@ module bch(
 		cnt_w = cnt_r;
 		ready_w = ready_r;
 		cnt_max_w = cnt_max_r;
-		for (i = 0; i < 1024; i = i + 1) data_w[i] = data_r[i];
-		for (i = 0; i < 1024; i = i + 1) reduced_data_w[i] = reduced_data_r[i];
+		for (i = 0; i < 1024; i = i + 1) begin
+			data_w[i] = data_r[i];
+			reduced_data0_w[i] = reduced_data0_r[i];
+			reduced_data1_w[i] = reduced_data1_r[i];
+			reduced_data2_w[i] = reduced_data2_r[i];
+			reduced_data3_w[i] = reduced_data3_r[i];
+			reduced_data4_w[i] = reduced_data4_r[i];
+			reduced_data5_w[i] = reduced_data5_r[i];
+			reduced_data6_w[i] = reduced_data6_r[i];
+			reduced_data7_w[i] = reduced_data7_r[i];
+		end 
+		for (i = 0; i < 8; i = i + 1) S_w[i] = S_r[i];
 		case (state_r)
 			S_IDLE: begin
 				if (set && !ready_r) begin
@@ -56,6 +74,7 @@ module bch(
 						3: cnt_w = 1023;
 						default: cnt_w = 1023;
 					endcase
+					mode_w = mode;
 					ready_w = 1;
 					cnt_max_w = cnt_w;
 					state_w = S_LOAD;
@@ -64,7 +83,7 @@ module bch(
 				else state_w = S_IDLE;
 			end  
 			S_LOAD: begin
-				if (!mode) begin // hard decision
+				if (!mode_r) begin // hard decision
 					data_w[cnt_r - 7] = ($signed(idata[7:0])   >= 0) ? 0 : 1;
 					data_w[cnt_r - 6] = ($signed(idata[15:8])  >= 0) ? 0 : 1;
 					data_w[cnt_r - 5] = ($signed(idata[23:16]) >= 0) ? 0 : 1;
@@ -100,21 +119,22 @@ module bch(
 							cnt_w = cnt_r + 1;
 							for (i = 0; i < 64; i = i + 1) begin
 								if (cnt_r == 0) begin
-									reduced_data_w[i] = {3'b0, data_r[i]};
+									reduced_data0_w[i] = {3'b0, data_r[i]};
+									reduced_data1_w[i] = {3'b0, data_r[i]};
+									reduced_data2_w[i] = {3'b0, data_r[i]};
+									reduced_data3_w[i] = {3'b0, data_r[i]};
 								end
 								else begin
-									reduced_data_w[i] = (i[9:0] >= cnt_r) ? {reduced_data_r[i][9:0], 1'b0} : reduced_data_r[i];
-								end
-								if (reduced_data_w[i][6]) begin
-									// $display("reduce data_r[%d] at cnt = %d", i, cnt_r);
-									reduced_data_w[i][6] = 0;
-									reduced_data_w[i][0] = !reduced_data_w[i][0]; // xor 1
-									reduced_data_w[i][1] = !reduced_data_w[i][1]; // xor 1
+									for (j = 0; j < 1; j = j + 1) reduced_data0_w[i] = poly_reduce_6({reduced_data0_w[i][9:0], 1'b0});
+									for (j = 0; j < 2; j = j + 1) reduced_data1_w[i] = poly_reduce_6({reduced_data1_w[i][9:0], 1'b0});
+									for (j = 0; j < 3; j = j + 1) reduced_data2_w[i] = poly_reduce_6({reduced_data2_w[i][9:0], 1'b0});
+									for (j = 0; j < 4; j = j + 1) reduced_data3_w[i] = poly_reduce_6({reduced_data3_w[i][9:0], 1'b0});
 								end
 							end
-							for (i = 0; i < 63; i = i + 1) begin
-								data_w[i] = data_r[i+1];
-							end
+							S_w[0] = poly_sum(reduced_data0_w[cnt_r], S_r[0]);
+							S_w[1] = poly_sum(reduced_data1_w[cnt_r], S_r[1]);
+							S_w[2] = poly_sum(reduced_data2_w[cnt_r], S_r[2]);
+							S_w[3] = poly_sum(reduced_data3_w[cnt_r], S_r[3]);
 						end
 						else begin
 							cnt_w = 0;
@@ -126,25 +146,25 @@ module bch(
 					end 
 					255: begin
 						if (cnt_r < 255) begin
-							for (i = 0; i < 256; i = i + 1) begin
+							cnt_w = cnt_r + 1;
+							for (i = 0; i < 64; i = i + 1) begin
 								if (cnt_r == 0) begin
-									reduced_data_w[i] = {3'b0, data_r[i]};
+									reduced_data0_w[i] = {3'b0, data_r[i]};
+									reduced_data1_w[i] = {3'b0, data_r[i]};
+									reduced_data2_w[i] = {3'b0, data_r[i]};
+									reduced_data3_w[i] = {3'b0, data_r[i]};
 								end
 								else begin
-									reduced_data_w[i] = (i[9:0] >= cnt_r) ? {reduced_data_r[i][9:0], 1'b0} : reduced_data_r[i];
-								end
-								if (reduced_data_w[i][8]) begin
-									reduced_data_w[i][8] = 0;
-									reduced_data_w[i][0] = !reduced_data_w[i][0]; // xor 1
-									reduced_data_w[i][2] = !reduced_data_w[i][2]; // xor 1
-									reduced_data_w[i][3] = !reduced_data_w[i][3]; // xor 1
-									reduced_data_w[i][4] = !reduced_data_w[i][4]; // xor 1
+									for (j = 0; j < 1; j = j + 1) reduced_data0_w[i] = poly_reduce_8({reduced_data0_w[i][9:0], 1'b0});
+									for (j = 0; j < 2; j = j + 1) reduced_data1_w[i] = poly_reduce_8({reduced_data1_w[i][9:0], 1'b0});
+									for (j = 0; j < 3; j = j + 1) reduced_data2_w[i] = poly_reduce_8({reduced_data2_w[i][9:0], 1'b0});
+									for (j = 0; j < 4; j = j + 1) reduced_data3_w[i] = poly_reduce_8({reduced_data3_w[i][9:0], 1'b0});
 								end
 							end
-							for (i = 0; i < 255; i = i + 1) begin
-								data_w[i] = data_r[i+1];
-							end
-							cnt_w = cnt_r + 1;
+							S_w[0] = poly_sum(reduced_data0_w[cnt_r], S_r[0]);
+							S_w[1] = poly_sum(reduced_data1_w[cnt_r], S_r[1]);
+							S_w[2] = poly_sum(reduced_data2_w[cnt_r], S_r[2]);
+							S_w[3] = poly_sum(reduced_data3_w[cnt_r], S_r[3]);
 						end
 						else begin
 							cnt_w = 0;
@@ -156,23 +176,37 @@ module bch(
 					end
 					1023: begin
 						if (cnt_r < 1023) begin
-							for (i = 0; i < 1024; i = i + 1) begin
+							cnt_w = cnt_r + 1;
+							for (i = 0; i < 64; i = i + 1) begin
 								if (cnt_r == 0) begin
-									reduced_data_w[i] = {3'b0, data_r[i]};
+									reduced_data0_w[i] = {3'b0, data_r[i]};
+									reduced_data1_w[i] = {3'b0, data_r[i]};
+									reduced_data2_w[i] = {3'b0, data_r[i]};
+									reduced_data3_w[i] = {3'b0, data_r[i]};
+									reduced_data4_w[i] = {3'b0, data_r[i]};
+									reduced_data5_w[i] = {3'b0, data_r[i]};
+									reduced_data6_w[i] = {3'b0, data_r[i]};
+									reduced_data7_w[i] = {3'b0, data_r[i]};
 								end
 								else begin
-									reduced_data_w[i] = (i[9:0] >= cnt_r) ? {reduced_data_r[i][9:0], 1'b0} : reduced_data_r[i];
-								end
-								if (reduced_data_w[i][10]) begin
-									reduced_data_w[i][10] = 0;
-									reduced_data_w[i][0] = !reduced_data_w[i][0]; // xor 1
-									reduced_data_w[i][3] = !reduced_data_w[i][3]; // xor 1
+									for (j = 0; j < 1; j = j + 1) reduced_data0_w[i] = poly_reduce_10({reduced_data0_w[i][9:0], 1'b0});
+									for (j = 0; j < 2; j = j + 1) reduced_data1_w[i] = poly_reduce_10({reduced_data1_w[i][9:0], 1'b0});
+									for (j = 0; j < 3; j = j + 1) reduced_data2_w[i] = poly_reduce_10({reduced_data2_w[i][9:0], 1'b0});
+									for (j = 0; j < 4; j = j + 1) reduced_data3_w[i] = poly_reduce_10({reduced_data3_w[i][9:0], 1'b0});
+									for (j = 0; j < 5; j = j + 1) reduced_data4_w[i] = poly_reduce_10({reduced_data4_w[i][9:0], 1'b0});
+									for (j = 0; j < 6; j = j + 1) reduced_data5_w[i] = poly_reduce_10({reduced_data5_w[i][9:0], 1'b0});
+									for (j = 0; j < 7; j = j + 1) reduced_data6_w[i] = poly_reduce_10({reduced_data6_w[i][9:0], 1'b0});
+									for (j = 0; j < 8; j = j + 1) reduced_data7_w[i] = poly_reduce_10({reduced_data7_w[i][9:0], 1'b0});
 								end
 							end
-							for (i = 0; i < 1023; i = i + 1) begin
-								data_w[i] = data_r[i+1];
-							end
-							cnt_w = cnt_r + 1;
+							S_w[0] = poly_sum(reduced_data0_w[cnt_r], S_r[0]);
+							S_w[1] = poly_sum(reduced_data1_w[cnt_r], S_r[1]);
+							S_w[2] = poly_sum(reduced_data2_w[cnt_r], S_r[2]);
+							S_w[3] = poly_sum(reduced_data3_w[cnt_r], S_r[3]);
+							S_w[4] = poly_sum(reduced_data4_w[cnt_r], S_r[4]);
+							S_w[5] = poly_sum(reduced_data5_w[cnt_r], S_r[5]);
+							S_w[6] = poly_sum(reduced_data6_w[cnt_r], S_r[6]);
+							S_w[7] = poly_sum(reduced_data7_w[cnt_r], S_r[7]);
 						end
 						else begin
 							cnt_w = 0;
@@ -188,8 +222,8 @@ module bch(
 				
 			end
 			S_OUT: begin
-				for (i = 0; i < 64; i = i + 1) begin
-					// $display("reduced_data_r[%d] = %b", i, reduced_data_r[i]);
+				for (i = 0; i < 8; i = i + 1) begin
+					$display("S_%d = %b", i+1, S_r[i]);
 				end
 				state_w = S_IDLE;
 				if (cnt_r == 6) begin
@@ -206,19 +240,29 @@ module bch(
 			state_r <= S_IDLE;
 			for (i = 0; i < 1024; i = i + 1) begin
 				data_r[i] <= 0;
+				reduced_data0_r[i] <= 0;
+				reduced_data1_r[i] <= 0;
+				reduced_data2_r[i] <= 0;
+				reduced_data3_r[i] <= 0;
+				reduced_data4_r[i] <= 0;
+				reduced_data5_r[i] <= 0;
+				reduced_data6_r[i] <= 0;
+				reduced_data7_r[i] <= 0;
 			end
-			for (i = 0; i < 1024; i = i + 1) begin
-				reduced_data_r[i] <= 0;
+			for (i = 0; i < 8; i = i + 1) begin
+				S_r[i] <= 0;
 			end
 			cnt_r <= 0;
 			ready_r <= 0;
 			cnt_max_r <= 0;
+			mode_r <= 0;
 		end
 		else begin
 			cnt_r <= cnt_w;
 			state_r <= state_w;
 			ready_r <= ready_w;
 			cnt_max_r <= cnt_max_w;
+			mode_r <= mode_w;
 			if (load_en) begin
 				for (i = 0; i < 1024; i = i + 1) begin
 					data_r[i] <= data_w[i];
@@ -226,10 +270,75 @@ module bch(
 			end
 			if (syn_en) begin
 				for (i = 0; i < 1024; i = i + 1) begin
-					reduced_data_r[i] <= reduced_data_w[i];
+					reduced_data0_r[i] <= reduced_data0_w[i];
+					reduced_data1_r[i] <= reduced_data1_w[i];
+					reduced_data2_r[i] <= reduced_data2_w[i];
+					reduced_data3_r[i] <= reduced_data3_w[i];
+					reduced_data4_r[i] <= reduced_data4_w[i];
+					reduced_data5_r[i] <= reduced_data5_w[i];
+					reduced_data6_r[i] <= reduced_data6_w[i];
+					reduced_data7_r[i] <= reduced_data7_w[i];
+				end
+				for (i = 0; i < 8; i = i + 1) begin
+					S_r[i] <= S_w[i];
 				end
 			end
 		end
 	end
+
+	function automatic [10:0] poly_sum;
+		input [10:0] i_poly_1;
+		input [10:0] i_poly_2;
+		integer i;
+		begin
+			poly_sum = 0;
+			for (i = 0; i < 11; i = i + 1) begin
+				poly_sum[i] = i_poly_1[i] ^ i_poly_2[i];
+			end
+		end
+		
+	endfunction
+
+	function automatic [10:0] poly_reduce_6;
+		input [10:0] i_poly;
+		begin
+			poly_reduce_6 = i_poly;
+			if (i_poly[6]) begin
+				poly_reduce_6[6] = 0;
+				poly_reduce_6[0] = !poly_reduce_6[0];
+				poly_reduce_6[1] = !poly_reduce_6[1];
+			end
+		end
+		
+	endfunction
+
+	function automatic [10:0] poly_reduce_8;
+		input [10:0] i_poly;
+		begin
+			poly_reduce_8 = i_poly;
+			if (i_poly[8]) begin
+				poly_reduce_8[8] = 0;
+				poly_reduce_8[0] = !poly_reduce_8[0];
+				poly_reduce_8[2] = !poly_reduce_8[2];
+				poly_reduce_8[3] = !poly_reduce_8[3];
+				poly_reduce_8[4] = !poly_reduce_8[4];
+			end
+		end
+		
+	endfunction
+
+	function automatic [10:0] poly_reduce_10;
+		input [10:0] i_poly;
+		begin
+			poly_reduce_10 = i_poly;
+			if (i_poly[10]) begin
+				poly_reduce_10[10] = 0;
+				poly_reduce_10[0] = !poly_reduce_10[0];
+				poly_reduce_10[3] = !poly_reduce_10[3];
+			end
+		end
+		
+	endfunction
+	
 
 endmodule
