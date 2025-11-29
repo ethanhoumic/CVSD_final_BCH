@@ -147,7 +147,7 @@ module bch(
 					255: begin
 						if (cnt_r < 255) begin
 							cnt_w = cnt_r + 1;
-							for (i = 0; i < 64; i = i + 1) begin
+							for (i = 0; i < 256; i = i + 1) begin
 								if (cnt_r == 0) begin
 									reduced_data0_w[i] = {3'b0, data_r[i]};
 									reduced_data1_w[i] = {3'b0, data_r[i]};
@@ -177,7 +177,7 @@ module bch(
 					1023: begin
 						if (cnt_r < 1023) begin
 							cnt_w = cnt_r + 1;
-							for (i = 0; i < 64; i = i + 1) begin
+							for (i = 0; i < 1024; i = i + 1) begin
 								if (cnt_r == 0) begin
 									reduced_data0_w[i] = {3'b0, data_r[i]};
 									reduced_data1_w[i] = {3'b0, data_r[i]};
