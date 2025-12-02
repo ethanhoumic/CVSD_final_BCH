@@ -111,12 +111,11 @@ module bch(
 		end 
 		for (i = 0; i < 8; i = i + 1) begin
 			S_w[i] = S_r[i];
-			root_w[i] = root_r[i];
 			temp_root_w[i] = 1;
 			temp_root_cnt_w[i] = 0;
 			power_w[i] = power_r[i];
 		end 
-		for (i = 0; i < 6; i = i + 1) begin
+		for (i = 0; i < 4; i = i + 1) begin
 			root_w[i] = root_r[i];
 		end
 		root_cnt_w = root_cnt_r;
@@ -501,6 +500,8 @@ module bch(
 					end
 					for (i = 0; i < 5; i = i + 1) begin
 						delta_w[i] = 0;
+					end
+					for (i = 0; i < 4; i = i + 1) begin
 						root_w[i] = 0;
 					end
 					for (i = 0; i < 5; i = i + 1) begin
@@ -535,6 +536,8 @@ module bch(
 			end
 			for (i = 0; i < 5; i = i + 1) begin
 				delta_r[i] <= 0;
+			end
+			for (i = 0; i < 4; i = i + 1) begin
 				root_r[i] <= 0;
 			end
 			for (i = 0; i < 5; i = i + 1) begin
