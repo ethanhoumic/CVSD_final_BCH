@@ -11,10 +11,6 @@ module bch(
 	output [9:0] odata
 );
 
-	reg finish;
-	reg [9:0] odata;
-	reg ready_r, ready_w;
-
 	localparam S_IDLE = 0;
 	localparam S_LOAD = 1;
 	localparam S_SYN  = 2;
@@ -22,6 +18,19 @@ module bch(
 	localparam S_CHI  = 4;
 	localparam S_CORR = 5;
 	localparam S_OUT  = 6;
+
+	localparam ALPHA_1 = 11'b00000000010;
+	localparam ALPHA_2 = 11'b00000000100;
+	localparam ALPHA_3 = 11'b00000001000;
+	localparam ALPHA_4 = 11'b00000010000;
+	localparam ALPHA_5 = 11'b00000100000;
+	localparam ALPHA_6 = 11'b00001000000;
+	localparam ALPHA_7 = 11'b00010000000;
+	localparam ALPHA_8 = 11'b00100000000;
+
+	reg finish;
+	reg [9:0] odata;
+	reg ready_r, ready_w;
 
 	reg [3:0] state_r, state_w;
 	reg [9:0] cnt_r, cnt_w;
@@ -32,16 +41,15 @@ module bch(
 	reg [1:0] code_r, code_w;
 
 	// syndrome calculation
-	reg [10:0] reduced_data0_r [0:1023], reduced_data0_w [0:1023];
-	reg [10:0] reduced_data1_r [0:1023], reduced_data1_w [0:1023];
-	reg [10:0] reduced_data2_r [0:1023], reduced_data2_w [0:1023];
-	reg [10:0] reduced_data3_r [0:1023], reduced_data3_w [0:1023];
-	reg [10:0] reduced_data4_r [0:1023], reduced_data4_w [0:1023];
-	reg [10:0] reduced_data5_r [0:1023], reduced_data5_w [0:1023];
-	reg [10:0] reduced_data6_r [0:1023], reduced_data6_w [0:1023];
-	reg [10:0] reduced_data7_r [0:1023], reduced_data7_w [0:1023];
 	reg [10:0] S_r [0:7], S_w [0:7];
-	
+	wire S1_S2_0 = (S_r[0] == 0 && S_r[1] == 0);
+	wire S3_S4_0 = (S_r[2] == 0 && S_r[3] == 0);
+	wire S5_S6_0 = (S_r[4] == 0 && S_r[5] == 0);
+	wire S7_S8_0 = (S_r[6] == 0 && S_r[7] == 0);
+	wire S1_S4_0 = S1_S2_0 && S3_S4_0;
+	wire S5_S8_0 = S5_S6_0 && S7_S8_0;
+	wire S1_S8_0 = S1_S4_0 && S5_S8_0;
+
 	//  ber algorithm
 	reg [10:0] delta_r [0:4], delta_w [0:4], delta_rho_r [0:4], delta_rho_w [0:4], temp1_w [0:4], temp2_w [0:4], temp3_w[0:4];
 	reg [10:0] d_r, d_w, d_rho_r, d_rho_w; 
@@ -78,14 +86,6 @@ module bch(
 		end
 		for (i = 0; i < 1024; i = i + 1) begin
 			data_w[i] = data_r[i];
-			reduced_data0_w[i] = reduced_data0_r[i];
-			reduced_data1_w[i] = reduced_data1_r[i];
-			reduced_data2_w[i] = reduced_data2_r[i];
-			reduced_data3_w[i] = reduced_data3_r[i];
-			reduced_data4_w[i] = reduced_data4_r[i];
-			reduced_data5_w[i] = reduced_data5_r[i];
-			reduced_data6_w[i] = reduced_data6_r[i];
-			reduced_data7_w[i] = reduced_data7_r[i];
 		end 
 		for (i = 0; i < 8; i = i + 1) S_w[i] = S_r[i];
 		case (state_r)
@@ -99,7 +99,7 @@ module bch(
 					endcase
 					code_w = code;
 					mode_w = mode;
-					ready_w = 1;
+					ready_w = 1'b1;
 					state_w = S_LOAD;
 				end
 				// else if (ready_r) state_w = S_LOAD;
@@ -107,14 +107,14 @@ module bch(
 			end  
 			S_LOAD: begin
 				if (!mode_r) begin // hard decision
-					data_w[cnt_r - 7] = ($signed(idata[7:0])   >= 0) ? 0 : 1;
-					data_w[cnt_r - 6] = ($signed(idata[15:8])  >= 0) ? 0 : 1;
-					data_w[cnt_r - 5] = ($signed(idata[23:16]) >= 0) ? 0 : 1;
-					data_w[cnt_r - 4] = ($signed(idata[31:24]) >= 0) ? 0 : 1;
-					data_w[cnt_r - 3] = ($signed(idata[39:32]) >= 0) ? 0 : 1;
-					data_w[cnt_r - 2] = ($signed(idata[47:40]) >= 0) ? 0 : 1;
-					data_w[cnt_r - 1] = ($signed(idata[55:48]) >= 0) ? 0 : 1;
-					data_w[cnt_r]     = ($signed(idata[63:56]) >= 0) ? 0 : 1;
+					data_w[cnt_r - 7] = {7'b0,idata[7]};
+					data_w[cnt_r - 6] = {7'b0,idata[15]};
+					data_w[cnt_r - 5] = {7'b0,idata[23]};
+					data_w[cnt_r - 4] = {7'b0,idata[31]};
+					data_w[cnt_r - 3] = {7'b0,idata[39]};
+					data_w[cnt_r - 2] = {7'b0,idata[47]};
+					data_w[cnt_r - 1] = {7'b0,idata[55]};
+					data_w[cnt_r]     = {7'b0,idata[63]};
 				end
 				else begin // soft decision
 					data_w[cnt_r - 7] = idata[7:0];
@@ -126,7 +126,7 @@ module bch(
 					data_w[cnt_r - 1] = idata[55:48];
 					data_w[cnt_r]     = idata[63:56];
 				end
-				if (cnt_r == 7) begin
+				if (cnt_r <= 7) begin
 					ready_w = 0;
 					state_w = S_SYN;
 					cnt_w = 0;
@@ -139,131 +139,133 @@ module bch(
 				case (code_r)
 					1: begin
 						if (cnt_r < 63) begin
-							cnt_w = cnt_r + 1;
-							for (i = 0; i < 64; i = i + 1) begin
-								if (cnt_r == 0) begin
-									reduced_data0_w[i] = {3'b0, data_r[i]};
-									reduced_data1_w[i] = {3'b0, data_r[i]};
-									reduced_data2_w[i] = {3'b0, data_r[i]};
-									reduced_data3_w[i] = {3'b0, data_r[i]};
-								end
-								else begin
-									for (j = 0; j < 1; j = j + 1) reduced_data0_w[i] = poly_reduce_6({reduced_data0_w[i][9:0], 1'b0});
-									for (j = 0; j < 2; j = j + 1) reduced_data1_w[i] = poly_reduce_6({reduced_data1_w[i][9:0], 1'b0});
-									for (j = 0; j < 3; j = j + 1) reduced_data2_w[i] = poly_reduce_6({reduced_data2_w[i][9:0], 1'b0});
-									for (j = 0; j < 4; j = j + 1) reduced_data3_w[i] = poly_reduce_6({reduced_data3_w[i][9:0], 1'b0});
-								end
+							if (cnt_r == 0) begin
+								S_w[0] = {3'b0, data_r[62]};
+								S_w[1] = {3'b0, data_r[62]};
+								S_w[2] = {3'b0, data_r[62]};
+								S_w[3] = {3'b0, data_r[62]};
+							end 
+							else begin
+								S_w[0] = element_mul(S_r[0], ALPHA_1) ^ {3'b0, data_r[62 - cnt_r]};
+								S_w[1] = element_mul(S_r[1], ALPHA_2) ^ {3'b0, data_r[62 - cnt_r]};
+								S_w[2] = element_mul(S_r[2], ALPHA_3) ^ {3'b0, data_r[62 - cnt_r]};
+								S_w[3] = element_mul(S_r[3], ALPHA_4) ^ {3'b0, data_r[62 - cnt_r]};
 							end
-							S_w[0] = reduced_data0_w[cnt_r] ^ S_r[0];
-							S_w[1] = reduced_data1_w[cnt_r] ^ S_r[1];
-							S_w[2] = reduced_data2_w[cnt_r] ^ S_r[2];
-							S_w[3] = reduced_data3_w[cnt_r] ^ S_r[3];
+							cnt_w = cnt_r + 1;
 						end
 						else begin
-							cnt_w = 0;
-							state_w = S_BER;
-							delta_w[0] = 1;
-							delta_rho_w[0] = 1;
-							for (i = 0; i < 4; i = i + 1) $display("S%d = %b", i+1, S_r[i]);
-							for (i = 1; i < 5; i = i + 1) begin
-								delta_w[i] = 0;
-								delta_rho_w[i] = 0;
+							if (S1_S4_0) begin
+								cnt_w = 6;
+								state_w = S_OUT;
+								finish = 1;
+								odata = 1023;
 							end
-							rho_w = -1;
-							l_rho_w = 0;
-							l_w = 0;
-							d_rho_w = 1;
-							d_w = S_r[0];
+							else begin
+								cnt_w = 0;
+								state_w = S_BER;
+								delta_w[0] = 1;
+								delta_rho_w[0] = 1;
+								// for (i = 0; i < 4; i = i + 1) $display("S%d = %b", i+1, S_r[i]);
+								for (i = 1; i < 5; i = i + 1) begin
+									delta_w[i] = 0;
+									delta_rho_w[i] = 0;
+								end
+								rho_w = -1;
+								l_rho_w = 0;
+								l_w = 0;
+								d_rho_w = 1;
+								d_w = S_r[0];
+							end
 						end
 					end 
 					2: begin
 						if (cnt_r < 255) begin
-							cnt_w = cnt_r + 1;
-							for (i = 0; i < 256; i = i + 1) begin
-								if (cnt_r == 0) begin
-									reduced_data0_w[i] = {3'b0, data_r[i]};
-									reduced_data1_w[i] = {3'b0, data_r[i]};
-									reduced_data2_w[i] = {3'b0, data_r[i]};
-									reduced_data3_w[i] = {3'b0, data_r[i]};
-								end
-								else begin
-									for (j = 0; j < 1; j = j + 1) reduced_data0_w[i] = poly_reduce_8({reduced_data0_w[i][9:0], 1'b0});
-									for (j = 0; j < 2; j = j + 1) reduced_data1_w[i] = poly_reduce_8({reduced_data1_w[i][9:0], 1'b0});
-									for (j = 0; j < 3; j = j + 1) reduced_data2_w[i] = poly_reduce_8({reduced_data2_w[i][9:0], 1'b0});
-									for (j = 0; j < 4; j = j + 1) reduced_data3_w[i] = poly_reduce_8({reduced_data3_w[i][9:0], 1'b0});
-								end
+							if (cnt_r == 0) begin
+								S_w[0] = {3'b0, data_r[254]};
+								S_w[1] = {3'b0, data_r[254]};
+								S_w[2] = {3'b0, data_r[254]};
+								S_w[3] = {3'b0, data_r[254]};
+							end 
+							else begin
+								S_w[0] = element_mul(S_r[0], ALPHA_1) ^ {3'b0, data_r[254 - cnt_r]};
+								S_w[1] = element_mul(S_r[1], ALPHA_2) ^ {3'b0, data_r[254 - cnt_r]};
+								S_w[2] = element_mul(S_r[2], ALPHA_3) ^ {3'b0, data_r[254 - cnt_r]};
+								S_w[3] = element_mul(S_r[3], ALPHA_4) ^ {3'b0, data_r[254 - cnt_r]};
 							end
-							S_w[0] = reduced_data0_w[cnt_r] ^ S_r[0];
-							S_w[1] = reduced_data1_w[cnt_r] ^ S_r[1];
-							S_w[2] = reduced_data2_w[cnt_r] ^ S_r[2];
-							S_w[3] = reduced_data3_w[cnt_r] ^ S_r[3];
+							cnt_w = cnt_r + 1;
 						end
 						else begin
-							cnt_w = 0;
-							state_w = S_BER;
-							delta_w[0] = 1;
-							delta_rho_w[0] = 1;
-							for (i = 0; i < 8; i = i + 1) $display("S%d = %b", i+1, S_r[i]);
-							for (i = 1; i < 5; i = i + 1) begin
-								delta_w[i] = 0;
-								delta_rho_w[i] = 0;
+							if (S1_S4_0) begin
+								cnt_w = 6;
+								state_w = S_OUT;
+								finish = 1;
+								odata = 1023;
 							end
-							rho_w = -1;
-							l_rho_w = 0;
-							l_w = 0;
-							d_rho_w = 1;
-							d_w = S_r[0];
+							else begin
+								cnt_w = 0;
+								state_w = S_BER;
+								delta_w[0] = 1;
+								delta_rho_w[0] = 1;
+								// for (i = 0; i < 4; i = i + 1) $display("S%d = %b", i+1, S_r[i]);
+								for (i = 1; i < 5; i = i + 1) begin
+									delta_w[i] = 0;
+									delta_rho_w[i] = 0;
+								end
+								rho_w = -1;
+								l_rho_w = 0;
+								l_w = 0;
+								d_rho_w = 1;
+								d_w = S_r[0];
+							end
 						end
 					end
 					3: begin
 						if (cnt_r < 1023) begin
-							cnt_w = cnt_r + 1;
-							for (i = 0; i < 1024; i = i + 1) begin
-								if (cnt_r == 0) begin
-									reduced_data0_w[i] = {3'b0, data_r[i]};
-									reduced_data1_w[i] = {3'b0, data_r[i]};
-									reduced_data2_w[i] = {3'b0, data_r[i]};
-									reduced_data3_w[i] = {3'b0, data_r[i]};
-									reduced_data4_w[i] = {3'b0, data_r[i]};
-									reduced_data5_w[i] = {3'b0, data_r[i]};
-									reduced_data6_w[i] = {3'b0, data_r[i]};
-									reduced_data7_w[i] = {3'b0, data_r[i]};
-								end
-								else begin
-									for (j = 0; j < 1; j = j + 1) reduced_data0_w[i] = poly_reduce_10({reduced_data0_w[i][9:0], 1'b0});
-									for (j = 0; j < 2; j = j + 1) reduced_data1_w[i] = poly_reduce_10({reduced_data1_w[i][9:0], 1'b0});
-									for (j = 0; j < 3; j = j + 1) reduced_data2_w[i] = poly_reduce_10({reduced_data2_w[i][9:0], 1'b0});
-									for (j = 0; j < 4; j = j + 1) reduced_data3_w[i] = poly_reduce_10({reduced_data3_w[i][9:0], 1'b0});
-									for (j = 0; j < 5; j = j + 1) reduced_data4_w[i] = poly_reduce_10({reduced_data4_w[i][9:0], 1'b0});
-									for (j = 0; j < 6; j = j + 1) reduced_data5_w[i] = poly_reduce_10({reduced_data5_w[i][9:0], 1'b0});
-									for (j = 0; j < 7; j = j + 1) reduced_data6_w[i] = poly_reduce_10({reduced_data6_w[i][9:0], 1'b0});
-									for (j = 0; j < 8; j = j + 1) reduced_data7_w[i] = poly_reduce_10({reduced_data7_w[i][9:0], 1'b0});
-								end
+							if (cnt_r == 0) begin
+								S_w[0] = {3'b0, data_r[1022]};
+								S_w[1] = {3'b0, data_r[1022]};
+								S_w[2] = {3'b0, data_r[1022]};
+								S_w[3] = {3'b0, data_r[1022]};
+								S_w[4] = {3'b0, data_r[1022]};
+								S_w[5] = {3'b0, data_r[1022]};
+								S_w[6] = {3'b0, data_r[1022]};
+								S_w[7] = {3'b0, data_r[1022]};
+							end 
+							else begin
+								S_w[0] = element_mul(S_r[0], ALPHA_1) ^ {3'b0, data_r[1022 - cnt_r]};
+								S_w[1] = element_mul(S_r[1], ALPHA_2) ^ {3'b0, data_r[1022 - cnt_r]};
+								S_w[2] = element_mul(S_r[2], ALPHA_3) ^ {3'b0, data_r[1022 - cnt_r]};
+								S_w[3] = element_mul(S_r[3], ALPHA_4) ^ {3'b0, data_r[1022 - cnt_r]};
+								S_w[4] = element_mul(S_r[4], ALPHA_5) ^ {3'b0, data_r[1022 - cnt_r]};
+								S_w[5] = element_mul(S_r[5], ALPHA_6) ^ {3'b0, data_r[1022 - cnt_r]};
+								S_w[6] = element_mul(S_r[6], ALPHA_7) ^ {3'b0, data_r[1022 - cnt_r]};
+								S_w[7] = element_mul(S_r[7], ALPHA_8) ^ {3'b0, data_r[1022 - cnt_r]};
 							end
-							S_w[0] = reduced_data0_w[cnt_r] ^ S_r[0];
-							S_w[1] = reduced_data1_w[cnt_r] ^ S_r[1];
-							S_w[2] = reduced_data2_w[cnt_r] ^ S_r[2];
-							S_w[3] = reduced_data3_w[cnt_r] ^ S_r[3];
-							S_w[4] = reduced_data4_w[cnt_r] ^ S_r[4];
-							S_w[5] = reduced_data5_w[cnt_r] ^ S_r[5];
-							S_w[6] = reduced_data6_w[cnt_r] ^ S_r[6];
-							S_w[7] = reduced_data7_w[cnt_r] ^ S_r[7];
+							cnt_w = cnt_r + 1;
 						end
 						else begin
-							cnt_w = 0;
-							state_w = S_BER;
-							delta_w[0] = 1;
-							delta_rho_w[0] = 1;
-							for (i = 0; i < 4; i = i + 1) $display("S%d = %b", i+1, S_r[i]);
-							for (i = 1; i < 5; i = i + 1) begin
-								delta_w[i] = 0;
-								delta_rho_w[i] = 0;
+							if (S1_S8_0) begin
+								cnt_w = 6;
+								state_w = S_OUT;
+								finish = 1;
+								odata = 1023;
 							end
-							rho_w = -1;
-							l_rho_w = 0;
-							l_w = 0;
-							d_rho_w = 1;
-							d_w = S_r[0];
+							else begin
+								cnt_w = 0;
+								state_w = S_BER;
+								delta_w[0] = 1;
+								delta_rho_w[0] = 1;
+								// for (i = 0; i < 4; i = i + 1) $display("S%d = %b", i+1, S_r[i]);
+								for (i = 1; i < 5; i = i + 1) begin
+									delta_w[i] = 0;
+									delta_rho_w[i] = 0;
+								end
+								rho_w = -1;
+								l_rho_w = 0;
+								l_w = 0;
+								d_rho_w = 1;
+								d_w = S_r[0];
+							end
 						end
 					end
 				endcase
@@ -322,11 +324,11 @@ module bch(
 				end
 			end
 			S_OUT: begin
-				$display("The error correcting function has below coefficients:");
-				for (i = 0; i < 5; i = i + 1) begin
-					$display("%b * X^ %d", delta_r[i], i[3:0]);
-				end
-				state_w = S_IDLE;
+				// $display("The error correcting function has below coefficients:");
+				// for (i = 0; i < 5; i = i + 1) begin
+				// 	$display("%b * X^ %d", delta_r[i], i[3:0]);
+				// end
+				// state_w = S_IDLE;
 				if (cnt_r == 6) begin
 					finish = 0;
 					state_w = S_IDLE;
@@ -341,14 +343,6 @@ module bch(
 			state_r <= S_IDLE;
 			for (i = 0; i < 1024; i = i + 1) begin
 				data_r[i] <= 0;
-				reduced_data0_r[i] <= 0;
-				reduced_data1_r[i] <= 0;
-				reduced_data2_r[i] <= 0;
-				reduced_data3_r[i] <= 0;
-				reduced_data4_r[i] <= 0;
-				reduced_data5_r[i] <= 0;
-				reduced_data6_r[i] <= 0;
-				reduced_data7_r[i] <= 0;
 			end
 			for (i = 0; i < 8; i = i + 1) begin
 				S_r[i] <= 0;
@@ -384,27 +378,11 @@ module bch(
 				end
 			end
 			if (syn_low_en) begin
-				for (i = 0; i < 1024; i = i + 1) begin
-					reduced_data0_r[i] <= reduced_data0_w[i];
-					reduced_data1_r[i] <= reduced_data1_w[i];
-					reduced_data2_r[i] <= reduced_data2_w[i];
-					reduced_data3_r[i] <= reduced_data3_w[i];
-				end
 				for (i = 0; i < 4; i = i + 1) begin
 					S_r[i] <= S_w[i];
 				end
 			end
 			if (syn_high_en) begin
-				for (i = 0; i < 1024; i = i + 1) begin
-					reduced_data0_r[i] <= reduced_data0_w[i];
-					reduced_data1_r[i] <= reduced_data1_w[i];
-					reduced_data2_r[i] <= reduced_data2_w[i];
-					reduced_data3_r[i] <= reduced_data3_w[i];
-					reduced_data4_r[i] <= reduced_data4_w[i];
-					reduced_data5_r[i] <= reduced_data5_w[i];
-					reduced_data6_r[i] <= reduced_data6_w[i];
-					reduced_data7_r[i] <= reduced_data7_w[i];
-				end
 				for (i = 0; i < 8; i = i + 1) begin
 					S_r[i] <= S_w[i];
 				end
