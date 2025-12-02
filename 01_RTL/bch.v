@@ -347,8 +347,7 @@ module bch(
 			for (i = 0; i < 8; i = i + 1) begin
 				S_r[i] <= 0;
 			end
-			for (i = 0; i < 10; i = i + 1) begin
-				d_r[i] <= 0;
+			for (i = 0; i < 5; i = i + 1) begin
 				l_r[i] <= 0;
 				delta_r[i] <= 0;
 			end
