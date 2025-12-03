@@ -56,6 +56,28 @@ module bch(
 	wire S1_S4_0 = S1_S2_0 && S3_S4_0;
 	wire S5_S8_0 = S5_S6_0 && S7_S8_0;
 	wire S1_S8_0 = S1_S4_0 && S5_S8_0;
+	reg [9:0] S_temp1_w [0:7], S_temp2_w [0:7], S_temp3_w [0:7], S_temp4_w [0:7], S_temp5_w [0:7], S_temp6_w [0:7], S_temp7_w [0:7];
+	
+	// soft decision
+	wire [7:0] abs_idata [0:7];
+	assign abs_idata[0] = idata[7] ? (~idata[7:0] + 1) : idata[7:0];
+	assign abs_idata[1] = idata[15] ? (~idata[15:8] + 1) : idata[15:8];
+	assign abs_idata[2] = idata[23] ? (~idata[23:16] + 1) : idata[23:16];
+	assign abs_idata[3] = idata[31] ? (~idata[31:24] + 1) : idata[31:24];
+	assign abs_idata[4] = idata[39] ? (~idata[39:32] + 1) : idata[39:32];
+	assign abs_idata[5] = idata[47] ? (~idata[47:40] + 1) : idata[47:40];
+	assign abs_idata[6] = idata[55] ? (~idata[55:48] + 1) : idata[55:48];
+	assign abs_idata[7] = idata[63] ? (~idata[63:56] + 1) : idata[63:56];
+	wire [7:0] abs_data7 = (((code_r == 3) && (cnt_r == 1023)) || ((code_r == 2) && (cnt_r == 255)) || ((code_r == 1) && (cnt_r == 63))) ? 8'b11111111 : abs_idata[7];
+	reg [7:0] min1_r, min2_r, min1_w, min2_w, min1_out, min2_out;
+	reg [9:0] index1_r, index2_r, index1_w, index2_w, index1_out, index2_out;
+	wire [63:0] abs_data = {abs_data7, abs_idata[6], abs_idata[5], abs_idata[4], abs_idata[3], abs_idata[2], abs_idata[1], abs_idata[0]};
+
+
+	find_min Min(
+	.abs_data(abs_data), .cnt(cnt_r), .min1_in(min1_r), .min2_in(min2_r), .index1_in(index1_r), .index2_in(index2_r),
+	.min1_out(min1_out), .min2_out(min2_out), .index1_out(index1_out), .index2_out(index2_out)
+);
 
 	//  ber algorithm
 	reg [10:0] delta_r [0:4], delta_w [0:4], delta_rho_r [0:4], delta_rho_w [0:4], temp1_w [0:4], temp2_w [0:4], temp3_w[0:4];
@@ -99,6 +121,18 @@ module bch(
 		rho_w = rho_r;
 		finish_w = finish_r;
 		odata_w = odata_r;
+		min1_w = min1_r;
+		min2_w = min2_r;
+		index1_w = index1_r;
+		index2_w = index2_r;
+		for (i = 0; i < 8; i = i + 1) S_w[i] = S_r[i];
+		for (i = 0; i < 8; i = i + 1) S_temp1_w[i] = 0;
+		for (i = 0; i < 8; i = i + 1) S_temp2_w[i] = 0;
+		for (i = 0; i < 8; i = i + 1) S_temp3_w[i] = 0;
+		for (i = 0; i < 8; i = i + 1) S_temp4_w[i] = 0;
+		for (i = 0; i < 8; i = i + 1) S_temp5_w[i] = 0;
+		for (i = 0; i < 8; i = i + 1) S_temp6_w[i] = 0;
+		for (i = 0; i < 8; i = i + 1) S_temp7_w[i] = 0;
 		for (i = 0; i < 5; i = i + 1) begin
 			delta_w[i] = delta_r[i];
 			delta_rho_w[i] = delta_rho_r[i];
@@ -135,35 +169,381 @@ module bch(
 				end
 				// else if (ready_r) state_w = S_LOAD;
 				else state_w = S_IDLE;
+
+				min1_w = 8'b11111111;
+				min2_w = 8'b11111111;
+
 			end  
 			S_LOAD: begin
-				if (!mode_r) begin // hard decision
-					data_w[cnt_r - 7] = {7'b0,idata[7]};
-					data_w[cnt_r - 6] = {7'b0,idata[15]};
-					data_w[cnt_r - 5] = {7'b0,idata[23]};
-					data_w[cnt_r - 4] = {7'b0,idata[31]};
-					data_w[cnt_r - 3] = {7'b0,idata[39]};
-					data_w[cnt_r - 2] = {7'b0,idata[47]};
-					data_w[cnt_r - 1] = {7'b0,idata[55]};
-					data_w[cnt_r]     = {7'b0,idata[63]};
+				case (code_r)
+					1: begin
+						if (cnt_r == 63) begin
+							S_temp2_w[0] = {9'b0, idata[55]};
+							S_temp2_w[1] = {9'b0, idata[55]};
+							S_temp2_w[2] = {9'b0, idata[55]};
+							S_temp2_w[3] = {9'b0, idata[55]};
+							S_temp3_w[0] = element_mul(S_temp2_w[0], ALPHA_1) ^ {9'b0, idata[47]};
+							S_temp3_w[1] = element_mul(S_temp2_w[1], ALPHA_2) ^ {9'b0, idata[47]};
+							S_temp3_w[2] = element_mul(S_temp2_w[2], ALPHA_3) ^ {9'b0, idata[47]};
+							S_temp3_w[3] = element_mul(S_temp2_w[3], ALPHA_4) ^ {9'b0, idata[47]};
+							S_temp4_w[0] = element_mul(S_temp3_w[0], ALPHA_1) ^ {9'b0, idata[39]};
+							S_temp4_w[1] = element_mul(S_temp3_w[1], ALPHA_2) ^ {9'b0, idata[39]};
+							S_temp4_w[2] = element_mul(S_temp3_w[2], ALPHA_3) ^ {9'b0, idata[39]};
+							S_temp4_w[3] = element_mul(S_temp3_w[3], ALPHA_4) ^ {9'b0, idata[39]};
+							S_temp5_w[0] = element_mul(S_temp4_w[0], ALPHA_1) ^ {9'b0, idata[31]};
+							S_temp5_w[1] = element_mul(S_temp4_w[1], ALPHA_2) ^ {9'b0, idata[31]};
+							S_temp5_w[2] = element_mul(S_temp4_w[2], ALPHA_3) ^ {9'b0, idata[31]};
+							S_temp5_w[3] = element_mul(S_temp4_w[3], ALPHA_4) ^ {9'b0, idata[31]};
+							S_temp6_w[0] = element_mul(S_temp5_w[0], ALPHA_1) ^ {9'b0, idata[23]};
+							S_temp6_w[1] = element_mul(S_temp5_w[1], ALPHA_2) ^ {9'b0, idata[23]};
+							S_temp6_w[2] = element_mul(S_temp5_w[2], ALPHA_3) ^ {9'b0, idata[23]};
+							S_temp6_w[3] = element_mul(S_temp5_w[3], ALPHA_4) ^ {9'b0, idata[23]};
+							S_temp7_w[0] = element_mul(S_temp6_w[0], ALPHA_1) ^ {9'b0, idata[15]};
+							S_temp7_w[1] = element_mul(S_temp6_w[1], ALPHA_2) ^ {9'b0, idata[15]};
+							S_temp7_w[2] = element_mul(S_temp6_w[2], ALPHA_3) ^ {9'b0, idata[15]};
+							S_temp7_w[3] = element_mul(S_temp6_w[3], ALPHA_4) ^ {9'b0, idata[15]};
+							S_w[0] = element_mul(S_temp7_w[0], ALPHA_1) ^ {9'b0, idata[7]};
+							S_w[1] = element_mul(S_temp7_w[1], ALPHA_2) ^ {9'b0, idata[7]};
+							S_w[2] = element_mul(S_temp7_w[2], ALPHA_3) ^ {9'b0, idata[7]};
+							S_w[3] = element_mul(S_temp7_w[3], ALPHA_4) ^ {9'b0, idata[7]};
+						end
+						else if (cnt_r >= 7) begin
+							S_temp1_w[0] = element_mul(S_r[0], ALPHA_1) ^ {9'b0, idata[63]};
+							S_temp1_w[1] = element_mul(S_r[1], ALPHA_2) ^ {9'b0, idata[63]};
+							S_temp1_w[2] = element_mul(S_r[2], ALPHA_3) ^ {9'b0, idata[63]};
+							S_temp1_w[3] = element_mul(S_r[3], ALPHA_4) ^ {9'b0, idata[63]};
+							S_temp2_w[0] = element_mul(S_temp1_w[0], ALPHA_1) ^ {9'b0, idata[55]};
+							S_temp2_w[1] = element_mul(S_temp1_w[1], ALPHA_2) ^ {9'b0, idata[55]};
+							S_temp2_w[2] = element_mul(S_temp1_w[2], ALPHA_3) ^ {9'b0, idata[55]};
+							S_temp2_w[3] = element_mul(S_temp1_w[3], ALPHA_4) ^ {9'b0, idata[55]};
+							S_temp3_w[0] = element_mul(S_temp2_w[0], ALPHA_1) ^ {9'b0, idata[47]};
+							S_temp3_w[1] = element_mul(S_temp2_w[1], ALPHA_2) ^ {9'b0, idata[47]};
+							S_temp3_w[2] = element_mul(S_temp2_w[2], ALPHA_3) ^ {9'b0, idata[47]};
+							S_temp3_w[3] = element_mul(S_temp2_w[3], ALPHA_4) ^ {9'b0, idata[47]};
+							S_temp4_w[0] = element_mul(S_temp3_w[0], ALPHA_1) ^ {9'b0, idata[39]};
+							S_temp4_w[1] = element_mul(S_temp3_w[1], ALPHA_2) ^ {9'b0, idata[39]};
+							S_temp4_w[2] = element_mul(S_temp3_w[2], ALPHA_3) ^ {9'b0, idata[39]};
+							S_temp4_w[3] = element_mul(S_temp3_w[3], ALPHA_4) ^ {9'b0, idata[39]};
+							S_temp5_w[0] = element_mul(S_temp4_w[0], ALPHA_1) ^ {9'b0, idata[31]};
+							S_temp5_w[1] = element_mul(S_temp4_w[1], ALPHA_2) ^ {9'b0, idata[31]};
+							S_temp5_w[2] = element_mul(S_temp4_w[2], ALPHA_3) ^ {9'b0, idata[31]};
+							S_temp5_w[3] = element_mul(S_temp4_w[3], ALPHA_4) ^ {9'b0, idata[31]};
+							S_temp6_w[0] = element_mul(S_temp5_w[0], ALPHA_1) ^ {9'b0, idata[23]};
+							S_temp6_w[1] = element_mul(S_temp5_w[1], ALPHA_2) ^ {9'b0, idata[23]};
+							S_temp6_w[2] = element_mul(S_temp5_w[2], ALPHA_3) ^ {9'b0, idata[23]};
+							S_temp6_w[3] = element_mul(S_temp5_w[3], ALPHA_4) ^ {9'b0, idata[23]};
+							S_temp7_w[0] = element_mul(S_temp6_w[0], ALPHA_1) ^ {9'b0, idata[15]};
+							S_temp7_w[1] = element_mul(S_temp6_w[1], ALPHA_2) ^ {9'b0, idata[15]};
+							S_temp7_w[2] = element_mul(S_temp6_w[2], ALPHA_3) ^ {9'b0, idata[15]};
+							S_temp7_w[3] = element_mul(S_temp6_w[3], ALPHA_4) ^ {9'b0, idata[15]};
+							S_w[0] = element_mul(S_temp7_w[0], ALPHA_1) ^ {9'b0, idata[7]};
+							S_w[1] = element_mul(S_temp7_w[1], ALPHA_2) ^ {9'b0, idata[7]};
+							S_w[2] = element_mul(S_temp7_w[2], ALPHA_3) ^ {9'b0, idata[7]};
+							S_w[3] = element_mul(S_temp7_w[3], ALPHA_4) ^ {9'b0, idata[7]};
+						end
+					end
+					2: begin
+						if (cnt_r == 255) begin
+							S_temp2_w[0] = {9'b0, idata[55]};
+							S_temp2_w[1] = {9'b0, idata[55]};
+							S_temp2_w[2] = {9'b0, idata[55]};
+							S_temp2_w[3] = {9'b0, idata[55]};
+							S_temp3_w[0] = element_mul(S_temp2_w[0], ALPHA_1) ^ {9'b0, idata[47]};
+							S_temp3_w[1] = element_mul(S_temp2_w[1], ALPHA_2) ^ {9'b0, idata[47]};
+							S_temp3_w[2] = element_mul(S_temp2_w[2], ALPHA_3) ^ {9'b0, idata[47]};
+							S_temp3_w[3] = element_mul(S_temp2_w[3], ALPHA_4) ^ {9'b0, idata[47]};
+							S_temp4_w[0] = element_mul(S_temp3_w[0], ALPHA_1) ^ {9'b0, idata[39]};
+							S_temp4_w[1] = element_mul(S_temp3_w[1], ALPHA_2) ^ {9'b0, idata[39]};
+							S_temp4_w[2] = element_mul(S_temp3_w[2], ALPHA_3) ^ {9'b0, idata[39]};
+							S_temp4_w[3] = element_mul(S_temp3_w[3], ALPHA_4) ^ {9'b0, idata[39]};
+							S_temp5_w[0] = element_mul(S_temp4_w[0], ALPHA_1) ^ {9'b0, idata[31]};
+							S_temp5_w[1] = element_mul(S_temp4_w[1], ALPHA_2) ^ {9'b0, idata[31]};
+							S_temp5_w[2] = element_mul(S_temp4_w[2], ALPHA_3) ^ {9'b0, idata[31]};
+							S_temp5_w[3] = element_mul(S_temp4_w[3], ALPHA_4) ^ {9'b0, idata[31]};
+							S_temp6_w[0] = element_mul(S_temp5_w[0], ALPHA_1) ^ {9'b0, idata[23]};
+							S_temp6_w[1] = element_mul(S_temp5_w[1], ALPHA_2) ^ {9'b0, idata[23]};
+							S_temp6_w[2] = element_mul(S_temp5_w[2], ALPHA_3) ^ {9'b0, idata[23]};
+							S_temp6_w[3] = element_mul(S_temp5_w[3], ALPHA_4) ^ {9'b0, idata[23]};
+							S_temp7_w[0] = element_mul(S_temp6_w[0], ALPHA_1) ^ {9'b0, idata[15]};
+							S_temp7_w[1] = element_mul(S_temp6_w[1], ALPHA_2) ^ {9'b0, idata[15]};
+							S_temp7_w[2] = element_mul(S_temp6_w[2], ALPHA_3) ^ {9'b0, idata[15]};
+							S_temp7_w[3] = element_mul(S_temp6_w[3], ALPHA_4) ^ {9'b0, idata[15]};
+							S_w[0] = element_mul(S_temp7_w[0], ALPHA_1) ^ {9'b0, idata[7]};
+							S_w[1] = element_mul(S_temp7_w[1], ALPHA_2) ^ {9'b0, idata[7]};
+							S_w[2] = element_mul(S_temp7_w[2], ALPHA_3) ^ {9'b0, idata[7]};
+							S_w[3] = element_mul(S_temp7_w[3], ALPHA_4) ^ {9'b0, idata[7]};
+						end
+						else if (cnt_r >= 7) begin
+							S_temp1_w[0] = element_mul(S_r[0], ALPHA_1) ^ {9'b0, idata[63]};
+							S_temp1_w[1] = element_mul(S_r[1], ALPHA_2) ^ {9'b0, idata[63]};
+							S_temp1_w[2] = element_mul(S_r[2], ALPHA_3) ^ {9'b0, idata[63]};
+							S_temp1_w[3] = element_mul(S_r[3], ALPHA_4) ^ {9'b0, idata[63]};
+							S_temp2_w[0] = element_mul(S_temp1_w[0], ALPHA_1) ^ {9'b0, idata[55]};
+							S_temp2_w[1] = element_mul(S_temp1_w[1], ALPHA_2) ^ {9'b0, idata[55]};
+							S_temp2_w[2] = element_mul(S_temp1_w[2], ALPHA_3) ^ {9'b0, idata[55]};
+							S_temp2_w[3] = element_mul(S_temp1_w[3], ALPHA_4) ^ {9'b0, idata[55]};
+							S_temp3_w[0] = element_mul(S_temp2_w[0], ALPHA_1) ^ {9'b0, idata[47]};
+							S_temp3_w[1] = element_mul(S_temp2_w[1], ALPHA_2) ^ {9'b0, idata[47]};
+							S_temp3_w[2] = element_mul(S_temp2_w[2], ALPHA_3) ^ {9'b0, idata[47]};
+							S_temp3_w[3] = element_mul(S_temp2_w[3], ALPHA_4) ^ {9'b0, idata[47]};
+							S_temp4_w[0] = element_mul(S_temp3_w[0], ALPHA_1) ^ {9'b0, idata[39]};
+							S_temp4_w[1] = element_mul(S_temp3_w[1], ALPHA_2) ^ {9'b0, idata[39]};
+							S_temp4_w[2] = element_mul(S_temp3_w[2], ALPHA_3) ^ {9'b0, idata[39]};
+							S_temp4_w[3] = element_mul(S_temp3_w[3], ALPHA_4) ^ {9'b0, idata[39]};
+							S_temp5_w[0] = element_mul(S_temp4_w[0], ALPHA_1) ^ {9'b0, idata[31]};
+							S_temp5_w[1] = element_mul(S_temp4_w[1], ALPHA_2) ^ {9'b0, idata[31]};
+							S_temp5_w[2] = element_mul(S_temp4_w[2], ALPHA_3) ^ {9'b0, idata[31]};
+							S_temp5_w[3] = element_mul(S_temp4_w[3], ALPHA_4) ^ {9'b0, idata[31]};
+							S_temp6_w[0] = element_mul(S_temp5_w[0], ALPHA_1) ^ {9'b0, idata[23]};
+							S_temp6_w[1] = element_mul(S_temp5_w[1], ALPHA_2) ^ {9'b0, idata[23]};
+							S_temp6_w[2] = element_mul(S_temp5_w[2], ALPHA_3) ^ {9'b0, idata[23]};
+							S_temp6_w[3] = element_mul(S_temp5_w[3], ALPHA_4) ^ {9'b0, idata[23]};
+							S_temp7_w[0] = element_mul(S_temp6_w[0], ALPHA_1) ^ {9'b0, idata[15]};
+							S_temp7_w[1] = element_mul(S_temp6_w[1], ALPHA_2) ^ {9'b0, idata[15]};
+							S_temp7_w[2] = element_mul(S_temp6_w[2], ALPHA_3) ^ {9'b0, idata[15]};
+							S_temp7_w[3] = element_mul(S_temp6_w[3], ALPHA_4) ^ {9'b0, idata[15]};
+							S_w[0] = element_mul(S_temp7_w[0], ALPHA_1) ^ {9'b0, idata[7]};
+							S_w[1] = element_mul(S_temp7_w[1], ALPHA_2) ^ {9'b0, idata[7]};
+							S_w[2] = element_mul(S_temp7_w[2], ALPHA_3) ^ {9'b0, idata[7]};
+							S_w[3] = element_mul(S_temp7_w[3], ALPHA_4) ^ {9'b0, idata[7]};
+						end
+					end
+					3: begin
+						if (cnt_r == 1023) begin
+							S_temp2_w[0] = {9'b0, idata[55]};
+							S_temp2_w[1] = {9'b0, idata[55]};
+							S_temp2_w[2] = {9'b0, idata[55]};
+							S_temp2_w[3] = {9'b0, idata[55]};
+							S_temp2_w[4] = {9'b0, idata[55]};
+							S_temp2_w[5] = {9'b0, idata[55]};
+							S_temp2_w[6] = {9'b0, idata[55]};
+							S_temp2_w[7] = {9'b0, idata[55]};
+							S_temp3_w[0] = element_mul(S_temp2_w[0], ALPHA_1) ^ {9'b0, idata[47]};
+							S_temp3_w[1] = element_mul(S_temp2_w[1], ALPHA_2) ^ {9'b0, idata[47]};
+							S_temp3_w[2] = element_mul(S_temp2_w[2], ALPHA_3) ^ {9'b0, idata[47]};
+							S_temp3_w[3] = element_mul(S_temp2_w[3], ALPHA_4) ^ {9'b0, idata[47]};
+							S_temp3_w[4] = element_mul(S_temp2_w[4], ALPHA_5) ^ {9'b0, idata[47]};
+							S_temp3_w[5] = element_mul(S_temp2_w[5], ALPHA_6) ^ {9'b0, idata[47]};
+							S_temp3_w[6] = element_mul(S_temp2_w[6], ALPHA_7) ^ {9'b0, idata[47]};
+							S_temp3_w[7] = element_mul(S_temp2_w[7], ALPHA_8) ^ {9'b0, idata[47]};
+							S_temp4_w[0] = element_mul(S_temp3_w[0], ALPHA_1) ^ {9'b0, idata[39]};
+							S_temp4_w[1] = element_mul(S_temp3_w[1], ALPHA_2) ^ {9'b0, idata[39]};
+							S_temp4_w[2] = element_mul(S_temp3_w[2], ALPHA_3) ^ {9'b0, idata[39]};
+							S_temp4_w[3] = element_mul(S_temp3_w[3], ALPHA_4) ^ {9'b0, idata[39]};
+							S_temp4_w[4] = element_mul(S_temp3_w[4], ALPHA_5) ^ {9'b0, idata[39]};
+							S_temp4_w[5] = element_mul(S_temp3_w[5], ALPHA_6) ^ {9'b0, idata[39]};
+							S_temp4_w[6] = element_mul(S_temp3_w[6], ALPHA_7) ^ {9'b0, idata[39]};
+							S_temp4_w[7] = element_mul(S_temp3_w[7], ALPHA_8) ^ {9'b0, idata[39]};
+							S_temp5_w[0] = element_mul(S_temp4_w[0], ALPHA_1) ^ {9'b0, idata[31]};
+							S_temp5_w[1] = element_mul(S_temp4_w[1], ALPHA_2) ^ {9'b0, idata[31]};
+							S_temp5_w[2] = element_mul(S_temp4_w[2], ALPHA_3) ^ {9'b0, idata[31]};
+							S_temp5_w[3] = element_mul(S_temp4_w[3], ALPHA_4) ^ {9'b0, idata[31]};
+							S_temp5_w[4] = element_mul(S_temp4_w[4], ALPHA_5) ^ {9'b0, idata[31]};
+							S_temp5_w[5] = element_mul(S_temp4_w[5], ALPHA_6) ^ {9'b0, idata[31]};
+							S_temp5_w[6] = element_mul(S_temp4_w[6], ALPHA_7) ^ {9'b0, idata[31]};
+							S_temp5_w[7] = element_mul(S_temp4_w[7], ALPHA_8) ^ {9'b0, idata[31]};
+							S_temp6_w[0] = element_mul(S_temp5_w[0], ALPHA_1) ^ {9'b0, idata[23]};
+							S_temp6_w[1] = element_mul(S_temp5_w[1], ALPHA_2) ^ {9'b0, idata[23]};
+							S_temp6_w[2] = element_mul(S_temp5_w[2], ALPHA_3) ^ {9'b0, idata[23]};
+							S_temp6_w[3] = element_mul(S_temp5_w[3], ALPHA_4) ^ {9'b0, idata[23]};
+							S_temp6_w[4] = element_mul(S_temp5_w[4], ALPHA_5) ^ {9'b0, idata[23]};
+							S_temp6_w[5] = element_mul(S_temp5_w[5], ALPHA_6) ^ {9'b0, idata[23]};
+							S_temp6_w[6] = element_mul(S_temp5_w[6], ALPHA_7) ^ {9'b0, idata[23]};
+							S_temp6_w[7] = element_mul(S_temp5_w[7], ALPHA_8) ^ {9'b0, idata[23]};
+							S_temp7_w[0] = element_mul(S_temp6_w[0], ALPHA_1) ^ {9'b0, idata[15]};
+							S_temp7_w[1] = element_mul(S_temp6_w[1], ALPHA_2) ^ {9'b0, idata[15]};
+							S_temp7_w[2] = element_mul(S_temp6_w[2], ALPHA_3) ^ {9'b0, idata[15]};
+							S_temp7_w[3] = element_mul(S_temp6_w[3], ALPHA_4) ^ {9'b0, idata[15]};
+							S_temp7_w[4] = element_mul(S_temp6_w[4], ALPHA_5) ^ {9'b0, idata[15]};
+							S_temp7_w[5] = element_mul(S_temp6_w[5], ALPHA_6) ^ {9'b0, idata[15]};
+							S_temp7_w[6] = element_mul(S_temp6_w[6], ALPHA_7) ^ {9'b0, idata[15]};
+							S_temp7_w[7] = element_mul(S_temp6_w[7], ALPHA_8) ^ {9'b0, idata[15]};
+							S_w[0] = element_mul(S_temp7_w[0], ALPHA_1) ^ {9'b0, idata[7]};
+							S_w[1] = element_mul(S_temp7_w[1], ALPHA_2) ^ {9'b0, idata[7]};
+							S_w[2] = element_mul(S_temp7_w[2], ALPHA_3) ^ {9'b0, idata[7]};
+							S_w[3] = element_mul(S_temp7_w[3], ALPHA_4) ^ {9'b0, idata[7]};
+							S_w[4] = element_mul(S_temp7_w[4], ALPHA_5) ^ {9'b0, idata[7]};
+							S_w[5] = element_mul(S_temp7_w[5], ALPHA_6) ^ {9'b0, idata[7]};
+							S_w[6] = element_mul(S_temp7_w[6], ALPHA_7) ^ {9'b0, idata[7]};
+							S_w[7] = element_mul(S_temp7_w[7], ALPHA_8) ^ {9'b0, idata[7]};
+						end
+						else if (cnt_r >= 7) begin
+							S_temp1_w[0] = element_mul(S_r[0], ALPHA_1) ^ {9'b0, idata[63]};
+							S_temp1_w[1] = element_mul(S_r[1], ALPHA_2) ^ {9'b0, idata[63]};
+							S_temp1_w[2] = element_mul(S_r[2], ALPHA_3) ^ {9'b0, idata[63]};
+							S_temp1_w[3] = element_mul(S_r[3], ALPHA_4) ^ {9'b0, idata[63]};
+							S_temp1_w[4] = element_mul(S_r[4], ALPHA_5) ^ {9'b0, idata[63]};
+							S_temp1_w[5] = element_mul(S_r[5], ALPHA_6) ^ {9'b0, idata[63]};
+							S_temp1_w[6] = element_mul(S_r[6], ALPHA_7) ^ {9'b0, idata[63]};
+							S_temp1_w[7] = element_mul(S_r[7], ALPHA_8) ^ {9'b0, idata[63]};
+							S_temp2_w[0] = element_mul(S_temp1_w[0], ALPHA_1) ^ {9'b0, idata[55]};
+							S_temp2_w[1] = element_mul(S_temp1_w[1], ALPHA_2) ^ {9'b0, idata[55]};
+							S_temp2_w[2] = element_mul(S_temp1_w[2], ALPHA_3) ^ {9'b0, idata[55]};
+							S_temp2_w[3] = element_mul(S_temp1_w[3], ALPHA_4) ^ {9'b0, idata[55]};
+							S_temp2_w[4] = element_mul(S_temp1_w[4], ALPHA_5) ^ {9'b0, idata[55]};
+							S_temp2_w[5] = element_mul(S_temp1_w[5], ALPHA_6) ^ {9'b0, idata[55]};
+							S_temp2_w[6] = element_mul(S_temp1_w[6], ALPHA_7) ^ {9'b0, idata[55]};
+							S_temp2_w[7] = element_mul(S_temp1_w[7], ALPHA_8) ^ {9'b0, idata[55]};
+							S_temp3_w[0] = element_mul(S_temp2_w[0], ALPHA_1) ^ {9'b0, idata[47]};
+							S_temp3_w[1] = element_mul(S_temp2_w[1], ALPHA_2) ^ {9'b0, idata[47]};
+							S_temp3_w[2] = element_mul(S_temp2_w[2], ALPHA_3) ^ {9'b0, idata[47]};
+							S_temp3_w[3] = element_mul(S_temp2_w[3], ALPHA_4) ^ {9'b0, idata[47]};
+							S_temp3_w[4] = element_mul(S_temp2_w[4], ALPHA_5) ^ {9'b0, idata[47]};
+							S_temp3_w[5] = element_mul(S_temp2_w[5], ALPHA_6) ^ {9'b0, idata[47]};
+							S_temp3_w[6] = element_mul(S_temp2_w[6], ALPHA_7) ^ {9'b0, idata[47]};
+							S_temp3_w[7] = element_mul(S_temp2_w[7], ALPHA_8) ^ {9'b0, idata[47]};
+							S_temp4_w[0] = element_mul(S_temp3_w[0], ALPHA_1) ^ {9'b0, idata[39]};
+							S_temp4_w[1] = element_mul(S_temp3_w[1], ALPHA_2) ^ {9'b0, idata[39]};
+							S_temp4_w[2] = element_mul(S_temp3_w[2], ALPHA_3) ^ {9'b0, idata[39]};
+							S_temp4_w[3] = element_mul(S_temp3_w[3], ALPHA_4) ^ {9'b0, idata[39]};
+							S_temp4_w[4] = element_mul(S_temp3_w[4], ALPHA_5) ^ {9'b0, idata[39]};
+							S_temp4_w[5] = element_mul(S_temp3_w[5], ALPHA_6) ^ {9'b0, idata[39]};
+							S_temp4_w[6] = element_mul(S_temp3_w[6], ALPHA_7) ^ {9'b0, idata[39]};
+							S_temp4_w[7] = element_mul(S_temp3_w[7], ALPHA_8) ^ {9'b0, idata[39]};
+							S_temp5_w[0] = element_mul(S_temp4_w[0], ALPHA_1) ^ {9'b0, idata[31]};
+							S_temp5_w[1] = element_mul(S_temp4_w[1], ALPHA_2) ^ {9'b0, idata[31]};
+							S_temp5_w[2] = element_mul(S_temp4_w[2], ALPHA_3) ^ {9'b0, idata[31]};
+							S_temp5_w[3] = element_mul(S_temp4_w[3], ALPHA_4) ^ {9'b0, idata[31]};
+							S_temp5_w[4] = element_mul(S_temp4_w[4], ALPHA_5) ^ {9'b0, idata[31]};
+							S_temp5_w[5] = element_mul(S_temp4_w[5], ALPHA_6) ^ {9'b0, idata[31]};
+							S_temp5_w[6] = element_mul(S_temp4_w[6], ALPHA_7) ^ {9'b0, idata[31]};
+							S_temp5_w[7] = element_mul(S_temp4_w[7], ALPHA_8) ^ {9'b0, idata[31]};
+							S_temp6_w[0] = element_mul(S_temp5_w[0], ALPHA_1) ^ {9'b0, idata[23]};
+							S_temp6_w[1] = element_mul(S_temp5_w[1], ALPHA_2) ^ {9'b0, idata[23]};
+							S_temp6_w[2] = element_mul(S_temp5_w[2], ALPHA_3) ^ {9'b0, idata[23]};
+							S_temp6_w[3] = element_mul(S_temp5_w[3], ALPHA_4) ^ {9'b0, idata[23]};
+							S_temp6_w[4] = element_mul(S_temp5_w[4], ALPHA_5) ^ {9'b0, idata[23]};
+							S_temp6_w[5] = element_mul(S_temp5_w[5], ALPHA_6) ^ {9'b0, idata[23]};
+							S_temp6_w[6] = element_mul(S_temp5_w[6], ALPHA_7) ^ {9'b0, idata[23]};
+							S_temp6_w[7] = element_mul(S_temp5_w[7], ALPHA_8) ^ {9'b0, idata[23]};
+							S_temp7_w[0] = element_mul(S_temp6_w[0], ALPHA_1) ^ {9'b0, idata[15]};
+							S_temp7_w[1] = element_mul(S_temp6_w[1], ALPHA_2) ^ {9'b0, idata[15]};
+							S_temp7_w[2] = element_mul(S_temp6_w[2], ALPHA_3) ^ {9'b0, idata[15]};
+							S_temp7_w[3] = element_mul(S_temp6_w[3], ALPHA_4) ^ {9'b0, idata[15]};
+							S_temp7_w[4] = element_mul(S_temp6_w[4], ALPHA_5) ^ {9'b0, idata[15]};
+							S_temp7_w[5] = element_mul(S_temp6_w[5], ALPHA_6) ^ {9'b0, idata[15]};
+							S_temp7_w[6] = element_mul(S_temp6_w[6], ALPHA_7) ^ {9'b0, idata[15]};
+							S_temp7_w[7] = element_mul(S_temp6_w[7], ALPHA_8) ^ {9'b0, idata[15]};
+							S_w[0] = element_mul(S_temp7_w[0], ALPHA_1) ^ {9'b0, idata[7]};
+							S_w[1] = element_mul(S_temp7_w[1], ALPHA_2) ^ {9'b0, idata[7]};
+							S_w[2] = element_mul(S_temp7_w[2], ALPHA_3) ^ {9'b0, idata[7]};
+							S_w[3] = element_mul(S_temp7_w[3], ALPHA_4) ^ {9'b0, idata[7]};
+							S_w[4] = element_mul(S_temp7_w[4], ALPHA_5) ^ {9'b0, idata[7]};
+							S_w[5] = element_mul(S_temp7_w[5], ALPHA_6) ^ {9'b0, idata[7]};
+							S_w[6] = element_mul(S_temp7_w[6], ALPHA_7) ^ {9'b0, idata[7]};
+							S_w[7] = element_mul(S_temp7_w[7], ALPHA_8) ^ {9'b0, idata[7]};
+						end
+					end
+					default: state_w = S_IDLE;
+				endcase
+				if (mode_r) begin
+					if (cnt_r >= 7) begin
+						data_w[cnt_r - 7] = idata[7:0];
+						data_w[cnt_r - 6] = idata[15:8];
+						data_w[cnt_r - 5] = idata[23:16];
+						data_w[cnt_r - 4] = idata[31:24];
+						data_w[cnt_r - 3] = idata[39:32];
+						data_w[cnt_r - 2] = idata[47:40];
+						data_w[cnt_r - 1] = idata[55:48];
+						data_w[cnt_r]     = idata[63:56];
+						min1_w = min1_out;
+						min2_w = min2_out;
+						index1_w = index1_out;
+						index2_w = index2_out;
+					end
 				end
-				else begin // soft decision
-					data_w[cnt_r - 7] = idata[7:0];
-					data_w[cnt_r - 6] = idata[15:8];
-					data_w[cnt_r - 5] = idata[23:16];
-					data_w[cnt_r - 4] = idata[31:24];
-					data_w[cnt_r - 3] = idata[39:32];
-					data_w[cnt_r - 2] = idata[47:40];
-					data_w[cnt_r - 1] = idata[55:48];
-					data_w[cnt_r]     = idata[63:56];
-				end
-				if (cnt_r <= 7) begin
-					ready_w = 0;
-					state_w = S_SYN;
-					cnt_w = 0;
-				end
-				else begin
+				if (cnt_r > 7) begin
 					cnt_w = cnt_r - 8;
+				end
+				else if (cnt_r == 7) begin
+					ready_w = 0;
+					cnt_w = cnt_r - 1;
+				end else begin
+					if(!mode_r) begin
+						case (code_r)
+						1: begin
+							if (S1_S4_0) begin
+								cnt_w = 3;
+								state_w = S_OUT;
+								finish_w = 1;
+								odata_w = 1023;
+							end
+							else begin
+								cnt_w = 0;
+								state_w = S_BER;
+								delta_w[0] = 1;
+								delta_rho_w[0] = 1;
+								// for (i = 0; i < 4; i = i + 1) $display("S%d = %b", i+1, S_r[i]);
+								for (i = 1; i < 5; i = i + 1) begin
+									delta_w[i] = 0;
+									delta_rho_w[i] = 0;
+								end
+								rho_w = -1;
+								l_rho_w = 0;
+								l_w = 0;
+								d_rho_w = 1;
+								d_w = S_r[0];
+							end
+						end
+						2: begin
+							if (S1_S4_0) begin
+								cnt_w = 3;
+								state_w = S_OUT;
+								finish_w = 1;
+								odata_w = 1023;
+							end
+							else begin
+								cnt_w = 0;
+								state_w = S_BER;
+								delta_w[0] = 1;
+								delta_rho_w[0] = 1;
+								// for (i = 0; i < 4; i = i + 1) $display("S%d = %b", i+1, S_r[i]);
+								for (i = 1; i < 5; i = i + 1) begin
+									delta_w[i] = 0;
+									delta_rho_w[i] = 0;
+								end
+								rho_w = -1;
+								l_rho_w = 0;
+								l_w = 0;
+								d_rho_w = 1;
+								d_w = S_r[0];
+							end
+						end
+						3: begin
+							if (S1_S8_0) begin
+								cnt_w = 5;
+								state_w = S_OUT;
+								finish_w = 1;
+								odata_w = 1023;
+							end
+							else begin
+								cnt_w = 0;
+								state_w = S_BER;
+								delta_w[0] = 1;
+								delta_rho_w[0] = 1;
+								// for (i = 0; i < 4; i = i + 1) $display("S%d = %b", i+1, S_r[i]);
+								for (i = 1; i < 5; i = i + 1) begin
+									delta_w[i] = 0;
+									delta_rho_w[i] = 0;
+								end
+								rho_w = -1;
+								l_rho_w = 0;
+								l_w = 0;
+								d_rho_w = 1;
+								d_w = S_r[0];
+							end
+						end
+						endcase	
+					end
+					else begin
+						cnt_w = 2;
+						state_w = S_OUT;
+						finish_w = 1;
+						odata_w = 1023;
+						// for(i = 63; i >= 0; i = i - 1) begin
+							// $display("data%d = %b", i, data_r[i]);
+						// end
+					end
 				end
 			end
 			S_SYN: begin
@@ -486,6 +866,8 @@ module bch(
 				// 	$display("%b * X^ %d", delta_r[i], i[3:0]);
 				// end
 				// state_w = S_IDLE;
+				// $display("index1: %d, val : %b", index1_r, min1_r);
+				// $display("index2: %d, val : %b", index2_r, min2_r);
 				odata_w = root_r[cnt_r];
 				if ((cnt_r == 2 && code_r != 3) || (cnt_r == 4 && code_r == 3)) begin
 					finish_w = 0;
@@ -556,6 +938,10 @@ module bch(
 			root_cnt_r <= 0;
 			odata_r <= 0;
 			finish_r <= 0;
+			min1_r <= 0;
+			min2_r <= 0;
+			index1_r <= 0;
+			index2_r <= 0;
 		end
 		else begin
 			cnt_r <= cnt_w;
@@ -564,6 +950,10 @@ module bch(
 			mode_r <= mode_w;
 			code_r <= code_w;
 			root_cnt_r <= root_cnt_w;
+			min1_r <= min1_w;
+			min2_r <= min2_w;
+			index1_r <= index1_w;
+			index2_r <= index2_w;
 			if (load_en) begin
 				for (i = 0; i < 1024; i = i + 1) begin
 					data_r[i] <= data_w[i];
@@ -686,4 +1076,66 @@ module bch(
 		
 	endfunction
 
+endmodule
+
+
+module find_min (
+	input [63:0] abs_data,
+	input [9:0] cnt,
+	input [7:0] min1_in,
+	input [7:0] min2_in,
+	input [9:0] index1_in,
+	input [9:0] index2_in,
+	output reg [7:0] min1_out,
+	output reg [7:0] min2_out,
+	output reg [9:0] index1_out,
+	output reg [9:0] index2_out
+);
+	wire [7:0] abs_val [0:7];
+    assign abs_val[0] = abs_data[63:56];
+    assign abs_val[1] = abs_data[55:48];
+    assign abs_val[2] = abs_data[47:40];
+    assign abs_val[3] = abs_data[39:32];
+    assign abs_val[4] = abs_data[31:24];
+    assign abs_val[5] = abs_data[23:16];
+    assign abs_val[6] = abs_data[15:8];
+    assign abs_val[7] = abs_data[7:0];
+
+	integer i;
+
+	reg [7:0] stage_min1 [0:8];
+    reg [7:0] stage_min2 [0:8];
+    reg [9:0] stage_idx1 [0:8];
+    reg [9:0] stage_idx2 [0:8];
+
+	always @(*) begin
+		stage_min1[0] = min1_in;
+        stage_min2[0] = min2_in;
+        stage_idx1[0] = index1_in;
+        stage_idx2[0] = index2_in;
+		for (i = 0; i < 8; i = i + 1) begin
+            if (abs_val[i] < stage_min1[i]) begin
+                stage_min1[i+1] = abs_val[i];
+                stage_idx1[i+1] = cnt - i;
+                stage_min2[i+1] = stage_min1[i];
+                stage_idx2[i+1] = stage_idx1[i];
+            end
+            else if (abs_val[i] < stage_min2[i]) begin
+                stage_min1[i+1] = stage_min1[i];
+                stage_idx1[i+1] = stage_idx1[i];
+                stage_min2[i+1] = abs_val[i];
+                stage_idx2[i+1] = cnt - i;
+            end
+            else begin
+                stage_min1[i+1] = stage_min1[i];
+                stage_idx1[i+1] = stage_idx1[i];
+                stage_min2[i+1] = stage_min2[i];
+                stage_idx2[i+1] = stage_idx2[i];
+            end
+		end
+		min1_out = stage_min1[8];
+        min2_out = stage_min2[8];
+        index1_out = stage_idx1[8];
+        index2_out = stage_idx2[8];
+	end
 endmodule
