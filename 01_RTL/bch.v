@@ -182,64 +182,64 @@ module bch(
 							S_temp2_w[1] = {9'b0, idata[55]};
 							S_temp2_w[2] = {9'b0, idata[55]};
 							S_temp2_w[3] = {9'b0, idata[55]};
-							S_temp3_w[0] = element_mul(S_temp2_w[0], ALPHA_1) ^ {9'b0, idata[47]};
-							S_temp3_w[1] = element_mul(S_temp2_w[1], ALPHA_2) ^ {9'b0, idata[47]};
-							S_temp3_w[2] = element_mul(S_temp2_w[2], ALPHA_3) ^ {9'b0, idata[47]};
-							S_temp3_w[3] = element_mul(S_temp2_w[3], ALPHA_4) ^ {9'b0, idata[47]};
-							S_temp4_w[0] = element_mul(S_temp3_w[0], ALPHA_1) ^ {9'b0, idata[39]};
-							S_temp4_w[1] = element_mul(S_temp3_w[1], ALPHA_2) ^ {9'b0, idata[39]};
-							S_temp4_w[2] = element_mul(S_temp3_w[2], ALPHA_3) ^ {9'b0, idata[39]};
-							S_temp4_w[3] = element_mul(S_temp3_w[3], ALPHA_4) ^ {9'b0, idata[39]};
-							S_temp5_w[0] = element_mul(S_temp4_w[0], ALPHA_1) ^ {9'b0, idata[31]};
-							S_temp5_w[1] = element_mul(S_temp4_w[1], ALPHA_2) ^ {9'b0, idata[31]};
-							S_temp5_w[2] = element_mul(S_temp4_w[2], ALPHA_3) ^ {9'b0, idata[31]};
-							S_temp5_w[3] = element_mul(S_temp4_w[3], ALPHA_4) ^ {9'b0, idata[31]};
-							S_temp6_w[0] = element_mul(S_temp5_w[0], ALPHA_1) ^ {9'b0, idata[23]};
-							S_temp6_w[1] = element_mul(S_temp5_w[1], ALPHA_2) ^ {9'b0, idata[23]};
-							S_temp6_w[2] = element_mul(S_temp5_w[2], ALPHA_3) ^ {9'b0, idata[23]};
-							S_temp6_w[3] = element_mul(S_temp5_w[3], ALPHA_4) ^ {9'b0, idata[23]};
-							S_temp7_w[0] = element_mul(S_temp6_w[0], ALPHA_1) ^ {9'b0, idata[15]};
-							S_temp7_w[1] = element_mul(S_temp6_w[1], ALPHA_2) ^ {9'b0, idata[15]};
-							S_temp7_w[2] = element_mul(S_temp6_w[2], ALPHA_3) ^ {9'b0, idata[15]};
-							S_temp7_w[3] = element_mul(S_temp6_w[3], ALPHA_4) ^ {9'b0, idata[15]};
-							S_w[0] = element_mul(S_temp7_w[0], ALPHA_1) ^ {9'b0, idata[7]};
-							S_w[1] = element_mul(S_temp7_w[1], ALPHA_2) ^ {9'b0, idata[7]};
-							S_w[2] = element_mul(S_temp7_w[2], ALPHA_3) ^ {9'b0, idata[7]};
-							S_w[3] = element_mul(S_temp7_w[3], ALPHA_4) ^ {9'b0, idata[7]};
+							S_temp3_w[0] = shift_poly_1(S_temp2_w[0]) ^ {9'b0, idata[47]};
+							S_temp3_w[1] = shift_poly_2(S_temp2_w[1]) ^ {9'b0, idata[47]};
+							S_temp3_w[2] = shift_poly_3(S_temp2_w[2]) ^ {9'b0, idata[47]};
+							S_temp3_w[3] = shift_poly_4(S_temp2_w[3]) ^ {9'b0, idata[47]};
+							S_temp4_w[0] = shift_poly_1(S_temp3_w[0]) ^ {9'b0, idata[39]};
+							S_temp4_w[1] = shift_poly_2(S_temp3_w[1]) ^ {9'b0, idata[39]};
+							S_temp4_w[2] = shift_poly_3(S_temp3_w[2]) ^ {9'b0, idata[39]};
+							S_temp4_w[3] = shift_poly_4(S_temp3_w[3]) ^ {9'b0, idata[39]};
+							S_temp5_w[0] = shift_poly_1(S_temp4_w[0]) ^ {9'b0, idata[31]};
+							S_temp5_w[1] = shift_poly_2(S_temp4_w[1]) ^ {9'b0, idata[31]};
+							S_temp5_w[2] = shift_poly_3(S_temp4_w[2]) ^ {9'b0, idata[31]};
+							S_temp5_w[3] = shift_poly_4(S_temp4_w[3]) ^ {9'b0, idata[31]};
+							S_temp6_w[0] = shift_poly_1(S_temp5_w[0]) ^ {9'b0, idata[23]};
+							S_temp6_w[1] = shift_poly_2(S_temp5_w[1]) ^ {9'b0, idata[23]};
+							S_temp6_w[2] = shift_poly_3(S_temp5_w[2]) ^ {9'b0, idata[23]};
+							S_temp6_w[3] = shift_poly_4(S_temp5_w[3]) ^ {9'b0, idata[23]};
+							S_temp7_w[0] = shift_poly_1(S_temp6_w[0]) ^ {9'b0, idata[15]};
+							S_temp7_w[1] = shift_poly_2(S_temp6_w[1]) ^ {9'b0, idata[15]};
+							S_temp7_w[2] = shift_poly_3(S_temp6_w[2]) ^ {9'b0, idata[15]};
+							S_temp7_w[3] = shift_poly_4(S_temp6_w[3]) ^ {9'b0, idata[15]};
+							S_w[0] = shift_poly_1(S_temp7_w[0]) ^ {9'b0, idata[7]};
+							S_w[1] = shift_poly_2(S_temp7_w[1]) ^ {9'b0, idata[7]};
+							S_w[2] = shift_poly_3(S_temp7_w[2]) ^ {9'b0, idata[7]};
+							S_w[3] = shift_poly_4(S_temp7_w[3]) ^ {9'b0, idata[7]};
 						end
 						else if (cnt_r >= 7) begin
-							S_temp1_w[0] = element_mul(S_r[0], ALPHA_1) ^ {9'b0, idata[63]};
-							S_temp1_w[1] = element_mul(S_r[1], ALPHA_2) ^ {9'b0, idata[63]};
-							S_temp1_w[2] = element_mul(S_r[2], ALPHA_3) ^ {9'b0, idata[63]};
-							S_temp1_w[3] = element_mul(S_r[3], ALPHA_4) ^ {9'b0, idata[63]};
-							S_temp2_w[0] = element_mul(S_temp1_w[0], ALPHA_1) ^ {9'b0, idata[55]};
-							S_temp2_w[1] = element_mul(S_temp1_w[1], ALPHA_2) ^ {9'b0, idata[55]};
-							S_temp2_w[2] = element_mul(S_temp1_w[2], ALPHA_3) ^ {9'b0, idata[55]};
-							S_temp2_w[3] = element_mul(S_temp1_w[3], ALPHA_4) ^ {9'b0, idata[55]};
-							S_temp3_w[0] = element_mul(S_temp2_w[0], ALPHA_1) ^ {9'b0, idata[47]};
-							S_temp3_w[1] = element_mul(S_temp2_w[1], ALPHA_2) ^ {9'b0, idata[47]};
-							S_temp3_w[2] = element_mul(S_temp2_w[2], ALPHA_3) ^ {9'b0, idata[47]};
-							S_temp3_w[3] = element_mul(S_temp2_w[3], ALPHA_4) ^ {9'b0, idata[47]};
-							S_temp4_w[0] = element_mul(S_temp3_w[0], ALPHA_1) ^ {9'b0, idata[39]};
-							S_temp4_w[1] = element_mul(S_temp3_w[1], ALPHA_2) ^ {9'b0, idata[39]};
-							S_temp4_w[2] = element_mul(S_temp3_w[2], ALPHA_3) ^ {9'b0, idata[39]};
-							S_temp4_w[3] = element_mul(S_temp3_w[3], ALPHA_4) ^ {9'b0, idata[39]};
-							S_temp5_w[0] = element_mul(S_temp4_w[0], ALPHA_1) ^ {9'b0, idata[31]};
-							S_temp5_w[1] = element_mul(S_temp4_w[1], ALPHA_2) ^ {9'b0, idata[31]};
-							S_temp5_w[2] = element_mul(S_temp4_w[2], ALPHA_3) ^ {9'b0, idata[31]};
-							S_temp5_w[3] = element_mul(S_temp4_w[3], ALPHA_4) ^ {9'b0, idata[31]};
-							S_temp6_w[0] = element_mul(S_temp5_w[0], ALPHA_1) ^ {9'b0, idata[23]};
-							S_temp6_w[1] = element_mul(S_temp5_w[1], ALPHA_2) ^ {9'b0, idata[23]};
-							S_temp6_w[2] = element_mul(S_temp5_w[2], ALPHA_3) ^ {9'b0, idata[23]};
-							S_temp6_w[3] = element_mul(S_temp5_w[3], ALPHA_4) ^ {9'b0, idata[23]};
-							S_temp7_w[0] = element_mul(S_temp6_w[0], ALPHA_1) ^ {9'b0, idata[15]};
-							S_temp7_w[1] = element_mul(S_temp6_w[1], ALPHA_2) ^ {9'b0, idata[15]};
-							S_temp7_w[2] = element_mul(S_temp6_w[2], ALPHA_3) ^ {9'b0, idata[15]};
-							S_temp7_w[3] = element_mul(S_temp6_w[3], ALPHA_4) ^ {9'b0, idata[15]};
-							S_w[0] = element_mul(S_temp7_w[0], ALPHA_1) ^ {9'b0, idata[7]};
-							S_w[1] = element_mul(S_temp7_w[1], ALPHA_2) ^ {9'b0, idata[7]};
-							S_w[2] = element_mul(S_temp7_w[2], ALPHA_3) ^ {9'b0, idata[7]};
-							S_w[3] = element_mul(S_temp7_w[3], ALPHA_4) ^ {9'b0, idata[7]};
+							S_temp1_w[0] = shift_poly_1(S_r[0]) ^ {9'b0, idata[63]};
+							S_temp1_w[1] = shift_poly_2(S_r[1]) ^ {9'b0, idata[63]};
+							S_temp1_w[2] = shift_poly_3(S_r[2]) ^ {9'b0, idata[63]};
+							S_temp1_w[3] = shift_poly_4(S_r[3]) ^ {9'b0, idata[63]};
+							S_temp2_w[0] = shift_poly_1(S_temp1_w[0]) ^ {9'b0, idata[55]};
+							S_temp2_w[1] = shift_poly_2(S_temp1_w[1]) ^ {9'b0, idata[55]};
+							S_temp2_w[2] = shift_poly_3(S_temp1_w[2]) ^ {9'b0, idata[55]};
+							S_temp2_w[3] = shift_poly_4(S_temp1_w[3]) ^ {9'b0, idata[55]};
+							S_temp3_w[0] = shift_poly_1(S_temp2_w[0]) ^ {9'b0, idata[47]};
+							S_temp3_w[1] = shift_poly_2(S_temp2_w[1]) ^ {9'b0, idata[47]};
+							S_temp3_w[2] = shift_poly_3(S_temp2_w[2]) ^ {9'b0, idata[47]};
+							S_temp3_w[3] = shift_poly_4(S_temp2_w[3]) ^ {9'b0, idata[47]};
+							S_temp4_w[0] = shift_poly_1(S_temp3_w[0]) ^ {9'b0, idata[39]};
+							S_temp4_w[1] = shift_poly_2(S_temp3_w[1]) ^ {9'b0, idata[39]};
+							S_temp4_w[2] = shift_poly_3(S_temp3_w[2]) ^ {9'b0, idata[39]};
+							S_temp4_w[3] = shift_poly_4(S_temp3_w[3]) ^ {9'b0, idata[39]};
+							S_temp5_w[0] = shift_poly_1(S_temp4_w[0]) ^ {9'b0, idata[31]};
+							S_temp5_w[1] = shift_poly_2(S_temp4_w[1]) ^ {9'b0, idata[31]};
+							S_temp5_w[2] = shift_poly_3(S_temp4_w[2]) ^ {9'b0, idata[31]};
+							S_temp5_w[3] = shift_poly_4(S_temp4_w[3]) ^ {9'b0, idata[31]};
+							S_temp6_w[0] = shift_poly_1(S_temp5_w[0]) ^ {9'b0, idata[23]};
+							S_temp6_w[1] = shift_poly_2(S_temp5_w[1]) ^ {9'b0, idata[23]};
+							S_temp6_w[2] = shift_poly_3(S_temp5_w[2]) ^ {9'b0, idata[23]};
+							S_temp6_w[3] = shift_poly_4(S_temp5_w[3]) ^ {9'b0, idata[23]};
+							S_temp7_w[0] = shift_poly_1(S_temp6_w[0]) ^ {9'b0, idata[15]};
+							S_temp7_w[1] = shift_poly_2(S_temp6_w[1]) ^ {9'b0, idata[15]};
+							S_temp7_w[2] = shift_poly_3(S_temp6_w[2]) ^ {9'b0, idata[15]};
+							S_temp7_w[3] = shift_poly_4(S_temp6_w[3]) ^ {9'b0, idata[15]};
+							S_w[0] = shift_poly_1(S_temp7_w[0]) ^ {9'b0, idata[7]};
+							S_w[1] = shift_poly_2(S_temp7_w[1]) ^ {9'b0, idata[7]};
+							S_w[2] = shift_poly_3(S_temp7_w[2]) ^ {9'b0, idata[7]};
+							S_w[3] = shift_poly_4(S_temp7_w[3]) ^ {9'b0, idata[7]};
 						end
 					end
 					2: begin
@@ -248,64 +248,64 @@ module bch(
 							S_temp2_w[1] = {9'b0, idata[55]};
 							S_temp2_w[2] = {9'b0, idata[55]};
 							S_temp2_w[3] = {9'b0, idata[55]};
-							S_temp3_w[0] = element_mul(S_temp2_w[0], ALPHA_1) ^ {9'b0, idata[47]};
-							S_temp3_w[1] = element_mul(S_temp2_w[1], ALPHA_2) ^ {9'b0, idata[47]};
-							S_temp3_w[2] = element_mul(S_temp2_w[2], ALPHA_3) ^ {9'b0, idata[47]};
-							S_temp3_w[3] = element_mul(S_temp2_w[3], ALPHA_4) ^ {9'b0, idata[47]};
-							S_temp4_w[0] = element_mul(S_temp3_w[0], ALPHA_1) ^ {9'b0, idata[39]};
-							S_temp4_w[1] = element_mul(S_temp3_w[1], ALPHA_2) ^ {9'b0, idata[39]};
-							S_temp4_w[2] = element_mul(S_temp3_w[2], ALPHA_3) ^ {9'b0, idata[39]};
-							S_temp4_w[3] = element_mul(S_temp3_w[3], ALPHA_4) ^ {9'b0, idata[39]};
-							S_temp5_w[0] = element_mul(S_temp4_w[0], ALPHA_1) ^ {9'b0, idata[31]};
-							S_temp5_w[1] = element_mul(S_temp4_w[1], ALPHA_2) ^ {9'b0, idata[31]};
-							S_temp5_w[2] = element_mul(S_temp4_w[2], ALPHA_3) ^ {9'b0, idata[31]};
-							S_temp5_w[3] = element_mul(S_temp4_w[3], ALPHA_4) ^ {9'b0, idata[31]};
-							S_temp6_w[0] = element_mul(S_temp5_w[0], ALPHA_1) ^ {9'b0, idata[23]};
-							S_temp6_w[1] = element_mul(S_temp5_w[1], ALPHA_2) ^ {9'b0, idata[23]};
-							S_temp6_w[2] = element_mul(S_temp5_w[2], ALPHA_3) ^ {9'b0, idata[23]};
-							S_temp6_w[3] = element_mul(S_temp5_w[3], ALPHA_4) ^ {9'b0, idata[23]};
-							S_temp7_w[0] = element_mul(S_temp6_w[0], ALPHA_1) ^ {9'b0, idata[15]};
-							S_temp7_w[1] = element_mul(S_temp6_w[1], ALPHA_2) ^ {9'b0, idata[15]};
-							S_temp7_w[2] = element_mul(S_temp6_w[2], ALPHA_3) ^ {9'b0, idata[15]};
-							S_temp7_w[3] = element_mul(S_temp6_w[3], ALPHA_4) ^ {9'b0, idata[15]};
-							S_w[0] = element_mul(S_temp7_w[0], ALPHA_1) ^ {9'b0, idata[7]};
-							S_w[1] = element_mul(S_temp7_w[1], ALPHA_2) ^ {9'b0, idata[7]};
-							S_w[2] = element_mul(S_temp7_w[2], ALPHA_3) ^ {9'b0, idata[7]};
-							S_w[3] = element_mul(S_temp7_w[3], ALPHA_4) ^ {9'b0, idata[7]};
+							S_temp3_w[0] = shift_poly_1(S_temp2_w[0]) ^ {9'b0, idata[47]};
+							S_temp3_w[1] = shift_poly_2(S_temp2_w[1]) ^ {9'b0, idata[47]};
+							S_temp3_w[2] = shift_poly_3(S_temp2_w[2]) ^ {9'b0, idata[47]};
+							S_temp3_w[3] = shift_poly_4(S_temp2_w[3]) ^ {9'b0, idata[47]};
+							S_temp4_w[0] = shift_poly_1(S_temp3_w[0]) ^ {9'b0, idata[39]};
+							S_temp4_w[1] = shift_poly_2(S_temp3_w[1]) ^ {9'b0, idata[39]};
+							S_temp4_w[2] = shift_poly_3(S_temp3_w[2]) ^ {9'b0, idata[39]};
+							S_temp4_w[3] = shift_poly_4(S_temp3_w[3]) ^ {9'b0, idata[39]};
+							S_temp5_w[0] = shift_poly_1(S_temp4_w[0]) ^ {9'b0, idata[31]};
+							S_temp5_w[1] = shift_poly_2(S_temp4_w[1]) ^ {9'b0, idata[31]};
+							S_temp5_w[2] = shift_poly_3(S_temp4_w[2]) ^ {9'b0, idata[31]};
+							S_temp5_w[3] = shift_poly_4(S_temp4_w[3]) ^ {9'b0, idata[31]};
+							S_temp6_w[0] = shift_poly_1(S_temp5_w[0]) ^ {9'b0, idata[23]};
+							S_temp6_w[1] = shift_poly_2(S_temp5_w[1]) ^ {9'b0, idata[23]};
+							S_temp6_w[2] = shift_poly_3(S_temp5_w[2]) ^ {9'b0, idata[23]};
+							S_temp6_w[3] = shift_poly_4(S_temp5_w[3]) ^ {9'b0, idata[23]};
+							S_temp7_w[0] = shift_poly_1(S_temp6_w[0]) ^ {9'b0, idata[15]};
+							S_temp7_w[1] = shift_poly_2(S_temp6_w[1]) ^ {9'b0, idata[15]};
+							S_temp7_w[2] = shift_poly_3(S_temp6_w[2]) ^ {9'b0, idata[15]};
+							S_temp7_w[3] = shift_poly_4(S_temp6_w[3]) ^ {9'b0, idata[15]};
+							S_w[0] = shift_poly_1(S_temp7_w[0]) ^ {9'b0, idata[7]};
+							S_w[1] = shift_poly_2(S_temp7_w[1]) ^ {9'b0, idata[7]};
+							S_w[2] = shift_poly_3(S_temp7_w[2]) ^ {9'b0, idata[7]};
+							S_w[3] = shift_poly_4(S_temp7_w[3]) ^ {9'b0, idata[7]};
 						end
 						else if (cnt_r >= 7) begin
-							S_temp1_w[0] = element_mul(S_r[0], ALPHA_1) ^ {9'b0, idata[63]};
-							S_temp1_w[1] = element_mul(S_r[1], ALPHA_2) ^ {9'b0, idata[63]};
-							S_temp1_w[2] = element_mul(S_r[2], ALPHA_3) ^ {9'b0, idata[63]};
-							S_temp1_w[3] = element_mul(S_r[3], ALPHA_4) ^ {9'b0, idata[63]};
-							S_temp2_w[0] = element_mul(S_temp1_w[0], ALPHA_1) ^ {9'b0, idata[55]};
-							S_temp2_w[1] = element_mul(S_temp1_w[1], ALPHA_2) ^ {9'b0, idata[55]};
-							S_temp2_w[2] = element_mul(S_temp1_w[2], ALPHA_3) ^ {9'b0, idata[55]};
-							S_temp2_w[3] = element_mul(S_temp1_w[3], ALPHA_4) ^ {9'b0, idata[55]};
-							S_temp3_w[0] = element_mul(S_temp2_w[0], ALPHA_1) ^ {9'b0, idata[47]};
-							S_temp3_w[1] = element_mul(S_temp2_w[1], ALPHA_2) ^ {9'b0, idata[47]};
-							S_temp3_w[2] = element_mul(S_temp2_w[2], ALPHA_3) ^ {9'b0, idata[47]};
-							S_temp3_w[3] = element_mul(S_temp2_w[3], ALPHA_4) ^ {9'b0, idata[47]};
-							S_temp4_w[0] = element_mul(S_temp3_w[0], ALPHA_1) ^ {9'b0, idata[39]};
-							S_temp4_w[1] = element_mul(S_temp3_w[1], ALPHA_2) ^ {9'b0, idata[39]};
-							S_temp4_w[2] = element_mul(S_temp3_w[2], ALPHA_3) ^ {9'b0, idata[39]};
-							S_temp4_w[3] = element_mul(S_temp3_w[3], ALPHA_4) ^ {9'b0, idata[39]};
-							S_temp5_w[0] = element_mul(S_temp4_w[0], ALPHA_1) ^ {9'b0, idata[31]};
-							S_temp5_w[1] = element_mul(S_temp4_w[1], ALPHA_2) ^ {9'b0, idata[31]};
-							S_temp5_w[2] = element_mul(S_temp4_w[2], ALPHA_3) ^ {9'b0, idata[31]};
-							S_temp5_w[3] = element_mul(S_temp4_w[3], ALPHA_4) ^ {9'b0, idata[31]};
-							S_temp6_w[0] = element_mul(S_temp5_w[0], ALPHA_1) ^ {9'b0, idata[23]};
-							S_temp6_w[1] = element_mul(S_temp5_w[1], ALPHA_2) ^ {9'b0, idata[23]};
-							S_temp6_w[2] = element_mul(S_temp5_w[2], ALPHA_3) ^ {9'b0, idata[23]};
-							S_temp6_w[3] = element_mul(S_temp5_w[3], ALPHA_4) ^ {9'b0, idata[23]};
-							S_temp7_w[0] = element_mul(S_temp6_w[0], ALPHA_1) ^ {9'b0, idata[15]};
-							S_temp7_w[1] = element_mul(S_temp6_w[1], ALPHA_2) ^ {9'b0, idata[15]};
-							S_temp7_w[2] = element_mul(S_temp6_w[2], ALPHA_3) ^ {9'b0, idata[15]};
-							S_temp7_w[3] = element_mul(S_temp6_w[3], ALPHA_4) ^ {9'b0, idata[15]};
-							S_w[0] = element_mul(S_temp7_w[0], ALPHA_1) ^ {9'b0, idata[7]};
-							S_w[1] = element_mul(S_temp7_w[1], ALPHA_2) ^ {9'b0, idata[7]};
-							S_w[2] = element_mul(S_temp7_w[2], ALPHA_3) ^ {9'b0, idata[7]};
-							S_w[3] = element_mul(S_temp7_w[3], ALPHA_4) ^ {9'b0, idata[7]};
+							S_temp1_w[0] = shift_poly_1(S_r[0]) ^ {9'b0, idata[63]};
+							S_temp1_w[1] = shift_poly_2(S_r[1]) ^ {9'b0, idata[63]};
+							S_temp1_w[2] = shift_poly_3(S_r[2]) ^ {9'b0, idata[63]};
+							S_temp1_w[3] = shift_poly_4(S_r[3]) ^ {9'b0, idata[63]};
+							S_temp2_w[0] = shift_poly_1(S_temp1_w[0]) ^ {9'b0, idata[55]};
+							S_temp2_w[1] = shift_poly_2(S_temp1_w[1]) ^ {9'b0, idata[55]};
+							S_temp2_w[2] = shift_poly_3(S_temp1_w[2]) ^ {9'b0, idata[55]};
+							S_temp2_w[3] = shift_poly_4(S_temp1_w[3]) ^ {9'b0, idata[55]};
+							S_temp3_w[0] = shift_poly_1(S_temp2_w[0]) ^ {9'b0, idata[47]};
+							S_temp3_w[1] = shift_poly_2(S_temp2_w[1]) ^ {9'b0, idata[47]};
+							S_temp3_w[2] = shift_poly_3(S_temp2_w[2]) ^ {9'b0, idata[47]};
+							S_temp3_w[3] = shift_poly_4(S_temp2_w[3]) ^ {9'b0, idata[47]};
+							S_temp4_w[0] = shift_poly_1(S_temp3_w[0]) ^ {9'b0, idata[39]};
+							S_temp4_w[1] = shift_poly_2(S_temp3_w[1]) ^ {9'b0, idata[39]};
+							S_temp4_w[2] = shift_poly_3(S_temp3_w[2]) ^ {9'b0, idata[39]};
+							S_temp4_w[3] = shift_poly_4(S_temp3_w[3]) ^ {9'b0, idata[39]};
+							S_temp5_w[0] = shift_poly_1(S_temp4_w[0]) ^ {9'b0, idata[31]};
+							S_temp5_w[1] = shift_poly_2(S_temp4_w[1]) ^ {9'b0, idata[31]};
+							S_temp5_w[2] = shift_poly_3(S_temp4_w[2]) ^ {9'b0, idata[31]};
+							S_temp5_w[3] = shift_poly_4(S_temp4_w[3]) ^ {9'b0, idata[31]};
+							S_temp6_w[0] = shift_poly_1(S_temp5_w[0]) ^ {9'b0, idata[23]};
+							S_temp6_w[1] = shift_poly_2(S_temp5_w[1]) ^ {9'b0, idata[23]};
+							S_temp6_w[2] = shift_poly_3(S_temp5_w[2]) ^ {9'b0, idata[23]};
+							S_temp6_w[3] = shift_poly_4(S_temp5_w[3]) ^ {9'b0, idata[23]};
+							S_temp7_w[0] = shift_poly_1(S_temp6_w[0]) ^ {9'b0, idata[15]};
+							S_temp7_w[1] = shift_poly_2(S_temp6_w[1]) ^ {9'b0, idata[15]};
+							S_temp7_w[2] = shift_poly_3(S_temp6_w[2]) ^ {9'b0, idata[15]};
+							S_temp7_w[3] = shift_poly_4(S_temp6_w[3]) ^ {9'b0, idata[15]};
+							S_w[0] = shift_poly_1(S_temp7_w[0]) ^ {9'b0, idata[7]};
+							S_w[1] = shift_poly_2(S_temp7_w[1]) ^ {9'b0, idata[7]};
+							S_w[2] = shift_poly_3(S_temp7_w[2]) ^ {9'b0, idata[7]};
+							S_w[3] = shift_poly_4(S_temp7_w[3]) ^ {9'b0, idata[7]};
 						end
 					end
 					3: begin
@@ -318,120 +318,120 @@ module bch(
 							S_temp2_w[5] = {9'b0, idata[55]};
 							S_temp2_w[6] = {9'b0, idata[55]};
 							S_temp2_w[7] = {9'b0, idata[55]};
-							S_temp3_w[0] = element_mul(S_temp2_w[0], ALPHA_1) ^ {9'b0, idata[47]};
-							S_temp3_w[1] = element_mul(S_temp2_w[1], ALPHA_2) ^ {9'b0, idata[47]};
-							S_temp3_w[2] = element_mul(S_temp2_w[2], ALPHA_3) ^ {9'b0, idata[47]};
-							S_temp3_w[3] = element_mul(S_temp2_w[3], ALPHA_4) ^ {9'b0, idata[47]};
-							S_temp3_w[4] = element_mul(S_temp2_w[4], ALPHA_5) ^ {9'b0, idata[47]};
-							S_temp3_w[5] = element_mul(S_temp2_w[5], ALPHA_6) ^ {9'b0, idata[47]};
-							S_temp3_w[6] = element_mul(S_temp2_w[6], ALPHA_7) ^ {9'b0, idata[47]};
-							S_temp3_w[7] = element_mul(S_temp2_w[7], ALPHA_8) ^ {9'b0, idata[47]};
-							S_temp4_w[0] = element_mul(S_temp3_w[0], ALPHA_1) ^ {9'b0, idata[39]};
-							S_temp4_w[1] = element_mul(S_temp3_w[1], ALPHA_2) ^ {9'b0, idata[39]};
-							S_temp4_w[2] = element_mul(S_temp3_w[2], ALPHA_3) ^ {9'b0, idata[39]};
-							S_temp4_w[3] = element_mul(S_temp3_w[3], ALPHA_4) ^ {9'b0, idata[39]};
-							S_temp4_w[4] = element_mul(S_temp3_w[4], ALPHA_5) ^ {9'b0, idata[39]};
-							S_temp4_w[5] = element_mul(S_temp3_w[5], ALPHA_6) ^ {9'b0, idata[39]};
-							S_temp4_w[6] = element_mul(S_temp3_w[6], ALPHA_7) ^ {9'b0, idata[39]};
-							S_temp4_w[7] = element_mul(S_temp3_w[7], ALPHA_8) ^ {9'b0, idata[39]};
-							S_temp5_w[0] = element_mul(S_temp4_w[0], ALPHA_1) ^ {9'b0, idata[31]};
-							S_temp5_w[1] = element_mul(S_temp4_w[1], ALPHA_2) ^ {9'b0, idata[31]};
-							S_temp5_w[2] = element_mul(S_temp4_w[2], ALPHA_3) ^ {9'b0, idata[31]};
-							S_temp5_w[3] = element_mul(S_temp4_w[3], ALPHA_4) ^ {9'b0, idata[31]};
-							S_temp5_w[4] = element_mul(S_temp4_w[4], ALPHA_5) ^ {9'b0, idata[31]};
-							S_temp5_w[5] = element_mul(S_temp4_w[5], ALPHA_6) ^ {9'b0, idata[31]};
-							S_temp5_w[6] = element_mul(S_temp4_w[6], ALPHA_7) ^ {9'b0, idata[31]};
-							S_temp5_w[7] = element_mul(S_temp4_w[7], ALPHA_8) ^ {9'b0, idata[31]};
-							S_temp6_w[0] = element_mul(S_temp5_w[0], ALPHA_1) ^ {9'b0, idata[23]};
-							S_temp6_w[1] = element_mul(S_temp5_w[1], ALPHA_2) ^ {9'b0, idata[23]};
-							S_temp6_w[2] = element_mul(S_temp5_w[2], ALPHA_3) ^ {9'b0, idata[23]};
-							S_temp6_w[3] = element_mul(S_temp5_w[3], ALPHA_4) ^ {9'b0, idata[23]};
-							S_temp6_w[4] = element_mul(S_temp5_w[4], ALPHA_5) ^ {9'b0, idata[23]};
-							S_temp6_w[5] = element_mul(S_temp5_w[5], ALPHA_6) ^ {9'b0, idata[23]};
-							S_temp6_w[6] = element_mul(S_temp5_w[6], ALPHA_7) ^ {9'b0, idata[23]};
-							S_temp6_w[7] = element_mul(S_temp5_w[7], ALPHA_8) ^ {9'b0, idata[23]};
-							S_temp7_w[0] = element_mul(S_temp6_w[0], ALPHA_1) ^ {9'b0, idata[15]};
-							S_temp7_w[1] = element_mul(S_temp6_w[1], ALPHA_2) ^ {9'b0, idata[15]};
-							S_temp7_w[2] = element_mul(S_temp6_w[2], ALPHA_3) ^ {9'b0, idata[15]};
-							S_temp7_w[3] = element_mul(S_temp6_w[3], ALPHA_4) ^ {9'b0, idata[15]};
-							S_temp7_w[4] = element_mul(S_temp6_w[4], ALPHA_5) ^ {9'b0, idata[15]};
-							S_temp7_w[5] = element_mul(S_temp6_w[5], ALPHA_6) ^ {9'b0, idata[15]};
-							S_temp7_w[6] = element_mul(S_temp6_w[6], ALPHA_7) ^ {9'b0, idata[15]};
-							S_temp7_w[7] = element_mul(S_temp6_w[7], ALPHA_8) ^ {9'b0, idata[15]};
-							S_w[0] = element_mul(S_temp7_w[0], ALPHA_1) ^ {9'b0, idata[7]};
-							S_w[1] = element_mul(S_temp7_w[1], ALPHA_2) ^ {9'b0, idata[7]};
-							S_w[2] = element_mul(S_temp7_w[2], ALPHA_3) ^ {9'b0, idata[7]};
-							S_w[3] = element_mul(S_temp7_w[3], ALPHA_4) ^ {9'b0, idata[7]};
-							S_w[4] = element_mul(S_temp7_w[4], ALPHA_5) ^ {9'b0, idata[7]};
-							S_w[5] = element_mul(S_temp7_w[5], ALPHA_6) ^ {9'b0, idata[7]};
-							S_w[6] = element_mul(S_temp7_w[6], ALPHA_7) ^ {9'b0, idata[7]};
-							S_w[7] = element_mul(S_temp7_w[7], ALPHA_8) ^ {9'b0, idata[7]};
+							S_temp3_w[0] = shift_poly_1(S_temp2_w[0]) ^ {9'b0, idata[47]};
+							S_temp3_w[1] = shift_poly_2(S_temp2_w[1]) ^ {9'b0, idata[47]};
+							S_temp3_w[2] = shift_poly_3(S_temp2_w[2]) ^ {9'b0, idata[47]};
+							S_temp3_w[3] = shift_poly_4(S_temp2_w[3]) ^ {9'b0, idata[47]};
+							S_temp3_w[4] = shift_poly_5(S_temp2_w[4]) ^ {9'b0, idata[47]};
+							S_temp3_w[5] = shift_poly_6(S_temp2_w[5]) ^ {9'b0, idata[47]};
+							S_temp3_w[6] = shift_poly_7(S_temp2_w[6]) ^ {9'b0, idata[47]};
+							S_temp3_w[7] = shift_poly_8(S_temp2_w[7]) ^ {9'b0, idata[47]};
+							S_temp4_w[0] = shift_poly_1(S_temp3_w[0]) ^ {9'b0, idata[39]};
+							S_temp4_w[1] = shift_poly_2(S_temp3_w[1]) ^ {9'b0, idata[39]};
+							S_temp4_w[2] = shift_poly_3(S_temp3_w[2]) ^ {9'b0, idata[39]};
+							S_temp4_w[3] = shift_poly_4(S_temp3_w[3]) ^ {9'b0, idata[39]};
+							S_temp4_w[4] = shift_poly_5(S_temp3_w[4]) ^ {9'b0, idata[39]};
+							S_temp4_w[5] = shift_poly_6(S_temp3_w[5]) ^ {9'b0, idata[39]};
+							S_temp4_w[6] = shift_poly_7(S_temp3_w[6]) ^ {9'b0, idata[39]};
+							S_temp4_w[7] = shift_poly_8(S_temp3_w[7]) ^ {9'b0, idata[39]};
+							S_temp5_w[0] = shift_poly_1(S_temp4_w[0]) ^ {9'b0, idata[31]};
+							S_temp5_w[1] = shift_poly_2(S_temp4_w[1]) ^ {9'b0, idata[31]};
+							S_temp5_w[2] = shift_poly_3(S_temp4_w[2]) ^ {9'b0, idata[31]};
+							S_temp5_w[3] = shift_poly_4(S_temp4_w[3]) ^ {9'b0, idata[31]};
+							S_temp5_w[4] = shift_poly_5(S_temp4_w[4]) ^ {9'b0, idata[31]};
+							S_temp5_w[5] = shift_poly_6(S_temp4_w[5]) ^ {9'b0, idata[31]};
+							S_temp5_w[6] = shift_poly_7(S_temp4_w[6]) ^ {9'b0, idata[31]};
+							S_temp5_w[7] = shift_poly_8(S_temp4_w[7]) ^ {9'b0, idata[31]};
+							S_temp6_w[0] = shift_poly_1(S_temp5_w[0]) ^ {9'b0, idata[23]};
+							S_temp6_w[1] = shift_poly_2(S_temp5_w[1]) ^ {9'b0, idata[23]};
+							S_temp6_w[2] = shift_poly_3(S_temp5_w[2]) ^ {9'b0, idata[23]};
+							S_temp6_w[3] = shift_poly_4(S_temp5_w[3]) ^ {9'b0, idata[23]};
+							S_temp6_w[4] = shift_poly_5(S_temp5_w[4]) ^ {9'b0, idata[23]};
+							S_temp6_w[5] = shift_poly_6(S_temp5_w[5]) ^ {9'b0, idata[23]};
+							S_temp6_w[6] = shift_poly_7(S_temp5_w[6]) ^ {9'b0, idata[23]};
+							S_temp6_w[7] = shift_poly_8(S_temp5_w[7]) ^ {9'b0, idata[23]};
+							S_temp7_w[0] = shift_poly_1(S_temp6_w[0]) ^ {9'b0, idata[15]};
+							S_temp7_w[1] = shift_poly_2(S_temp6_w[1]) ^ {9'b0, idata[15]};
+							S_temp7_w[2] = shift_poly_3(S_temp6_w[2]) ^ {9'b0, idata[15]};
+							S_temp7_w[3] = shift_poly_4(S_temp6_w[3]) ^ {9'b0, idata[15]};
+							S_temp7_w[4] = shift_poly_5(S_temp6_w[4]) ^ {9'b0, idata[15]};
+							S_temp7_w[5] = shift_poly_6(S_temp6_w[5]) ^ {9'b0, idata[15]};
+							S_temp7_w[6] = shift_poly_7(S_temp6_w[6]) ^ {9'b0, idata[15]};
+							S_temp7_w[7] = shift_poly_8(S_temp6_w[7]) ^ {9'b0, idata[15]};
+							S_w[0] = shift_poly_1(S_temp7_w[0]) ^ {9'b0, idata[7]};
+							S_w[1] = shift_poly_2(S_temp7_w[1]) ^ {9'b0, idata[7]};
+							S_w[2] = shift_poly_3(S_temp7_w[2]) ^ {9'b0, idata[7]};
+							S_w[3] = shift_poly_4(S_temp7_w[3]) ^ {9'b0, idata[7]};
+							S_w[4] = shift_poly_5(S_temp7_w[4]) ^ {9'b0, idata[7]};
+							S_w[5] = shift_poly_6(S_temp7_w[5]) ^ {9'b0, idata[7]};
+							S_w[6] = shift_poly_7(S_temp7_w[6]) ^ {9'b0, idata[7]};
+							S_w[7] = shift_poly_8(S_temp7_w[7]) ^ {9'b0, idata[7]};
 						end
 						else if (cnt_r >= 7) begin
-							S_temp1_w[0] = element_mul(S_r[0], ALPHA_1) ^ {9'b0, idata[63]};
-							S_temp1_w[1] = element_mul(S_r[1], ALPHA_2) ^ {9'b0, idata[63]};
-							S_temp1_w[2] = element_mul(S_r[2], ALPHA_3) ^ {9'b0, idata[63]};
-							S_temp1_w[3] = element_mul(S_r[3], ALPHA_4) ^ {9'b0, idata[63]};
-							S_temp1_w[4] = element_mul(S_r[4], ALPHA_5) ^ {9'b0, idata[63]};
-							S_temp1_w[5] = element_mul(S_r[5], ALPHA_6) ^ {9'b0, idata[63]};
-							S_temp1_w[6] = element_mul(S_r[6], ALPHA_7) ^ {9'b0, idata[63]};
-							S_temp1_w[7] = element_mul(S_r[7], ALPHA_8) ^ {9'b0, idata[63]};
-							S_temp2_w[0] = element_mul(S_temp1_w[0], ALPHA_1) ^ {9'b0, idata[55]};
-							S_temp2_w[1] = element_mul(S_temp1_w[1], ALPHA_2) ^ {9'b0, idata[55]};
-							S_temp2_w[2] = element_mul(S_temp1_w[2], ALPHA_3) ^ {9'b0, idata[55]};
-							S_temp2_w[3] = element_mul(S_temp1_w[3], ALPHA_4) ^ {9'b0, idata[55]};
-							S_temp2_w[4] = element_mul(S_temp1_w[4], ALPHA_5) ^ {9'b0, idata[55]};
-							S_temp2_w[5] = element_mul(S_temp1_w[5], ALPHA_6) ^ {9'b0, idata[55]};
-							S_temp2_w[6] = element_mul(S_temp1_w[6], ALPHA_7) ^ {9'b0, idata[55]};
-							S_temp2_w[7] = element_mul(S_temp1_w[7], ALPHA_8) ^ {9'b0, idata[55]};
-							S_temp3_w[0] = element_mul(S_temp2_w[0], ALPHA_1) ^ {9'b0, idata[47]};
-							S_temp3_w[1] = element_mul(S_temp2_w[1], ALPHA_2) ^ {9'b0, idata[47]};
-							S_temp3_w[2] = element_mul(S_temp2_w[2], ALPHA_3) ^ {9'b0, idata[47]};
-							S_temp3_w[3] = element_mul(S_temp2_w[3], ALPHA_4) ^ {9'b0, idata[47]};
-							S_temp3_w[4] = element_mul(S_temp2_w[4], ALPHA_5) ^ {9'b0, idata[47]};
-							S_temp3_w[5] = element_mul(S_temp2_w[5], ALPHA_6) ^ {9'b0, idata[47]};
-							S_temp3_w[6] = element_mul(S_temp2_w[6], ALPHA_7) ^ {9'b0, idata[47]};
-							S_temp3_w[7] = element_mul(S_temp2_w[7], ALPHA_8) ^ {9'b0, idata[47]};
-							S_temp4_w[0] = element_mul(S_temp3_w[0], ALPHA_1) ^ {9'b0, idata[39]};
-							S_temp4_w[1] = element_mul(S_temp3_w[1], ALPHA_2) ^ {9'b0, idata[39]};
-							S_temp4_w[2] = element_mul(S_temp3_w[2], ALPHA_3) ^ {9'b0, idata[39]};
-							S_temp4_w[3] = element_mul(S_temp3_w[3], ALPHA_4) ^ {9'b0, idata[39]};
-							S_temp4_w[4] = element_mul(S_temp3_w[4], ALPHA_5) ^ {9'b0, idata[39]};
-							S_temp4_w[5] = element_mul(S_temp3_w[5], ALPHA_6) ^ {9'b0, idata[39]};
-							S_temp4_w[6] = element_mul(S_temp3_w[6], ALPHA_7) ^ {9'b0, idata[39]};
-							S_temp4_w[7] = element_mul(S_temp3_w[7], ALPHA_8) ^ {9'b0, idata[39]};
-							S_temp5_w[0] = element_mul(S_temp4_w[0], ALPHA_1) ^ {9'b0, idata[31]};
-							S_temp5_w[1] = element_mul(S_temp4_w[1], ALPHA_2) ^ {9'b0, idata[31]};
-							S_temp5_w[2] = element_mul(S_temp4_w[2], ALPHA_3) ^ {9'b0, idata[31]};
-							S_temp5_w[3] = element_mul(S_temp4_w[3], ALPHA_4) ^ {9'b0, idata[31]};
-							S_temp5_w[4] = element_mul(S_temp4_w[4], ALPHA_5) ^ {9'b0, idata[31]};
-							S_temp5_w[5] = element_mul(S_temp4_w[5], ALPHA_6) ^ {9'b0, idata[31]};
-							S_temp5_w[6] = element_mul(S_temp4_w[6], ALPHA_7) ^ {9'b0, idata[31]};
-							S_temp5_w[7] = element_mul(S_temp4_w[7], ALPHA_8) ^ {9'b0, idata[31]};
-							S_temp6_w[0] = element_mul(S_temp5_w[0], ALPHA_1) ^ {9'b0, idata[23]};
-							S_temp6_w[1] = element_mul(S_temp5_w[1], ALPHA_2) ^ {9'b0, idata[23]};
-							S_temp6_w[2] = element_mul(S_temp5_w[2], ALPHA_3) ^ {9'b0, idata[23]};
-							S_temp6_w[3] = element_mul(S_temp5_w[3], ALPHA_4) ^ {9'b0, idata[23]};
-							S_temp6_w[4] = element_mul(S_temp5_w[4], ALPHA_5) ^ {9'b0, idata[23]};
-							S_temp6_w[5] = element_mul(S_temp5_w[5], ALPHA_6) ^ {9'b0, idata[23]};
-							S_temp6_w[6] = element_mul(S_temp5_w[6], ALPHA_7) ^ {9'b0, idata[23]};
-							S_temp6_w[7] = element_mul(S_temp5_w[7], ALPHA_8) ^ {9'b0, idata[23]};
-							S_temp7_w[0] = element_mul(S_temp6_w[0], ALPHA_1) ^ {9'b0, idata[15]};
-							S_temp7_w[1] = element_mul(S_temp6_w[1], ALPHA_2) ^ {9'b0, idata[15]};
-							S_temp7_w[2] = element_mul(S_temp6_w[2], ALPHA_3) ^ {9'b0, idata[15]};
-							S_temp7_w[3] = element_mul(S_temp6_w[3], ALPHA_4) ^ {9'b0, idata[15]};
-							S_temp7_w[4] = element_mul(S_temp6_w[4], ALPHA_5) ^ {9'b0, idata[15]};
-							S_temp7_w[5] = element_mul(S_temp6_w[5], ALPHA_6) ^ {9'b0, idata[15]};
-							S_temp7_w[6] = element_mul(S_temp6_w[6], ALPHA_7) ^ {9'b0, idata[15]};
-							S_temp7_w[7] = element_mul(S_temp6_w[7], ALPHA_8) ^ {9'b0, idata[15]};
-							S_w[0] = element_mul(S_temp7_w[0], ALPHA_1) ^ {9'b0, idata[7]};
-							S_w[1] = element_mul(S_temp7_w[1], ALPHA_2) ^ {9'b0, idata[7]};
-							S_w[2] = element_mul(S_temp7_w[2], ALPHA_3) ^ {9'b0, idata[7]};
-							S_w[3] = element_mul(S_temp7_w[3], ALPHA_4) ^ {9'b0, idata[7]};
-							S_w[4] = element_mul(S_temp7_w[4], ALPHA_5) ^ {9'b0, idata[7]};
-							S_w[5] = element_mul(S_temp7_w[5], ALPHA_6) ^ {9'b0, idata[7]};
-							S_w[6] = element_mul(S_temp7_w[6], ALPHA_7) ^ {9'b0, idata[7]};
-							S_w[7] = element_mul(S_temp7_w[7], ALPHA_8) ^ {9'b0, idata[7]};
+							S_temp1_w[0] = shift_poly_1(S_r[0]) ^ {9'b0, idata[63]};
+							S_temp1_w[1] = shift_poly_2(S_r[1]) ^ {9'b0, idata[63]};
+							S_temp1_w[2] = shift_poly_3(S_r[2]) ^ {9'b0, idata[63]};
+							S_temp1_w[3] = shift_poly_4(S_r[3]) ^ {9'b0, idata[63]};
+							S_temp1_w[4] = shift_poly_5(S_r[4]) ^ {9'b0, idata[63]};
+							S_temp1_w[5] = shift_poly_6(S_r[5]) ^ {9'b0, idata[63]};
+							S_temp1_w[6] = shift_poly_7(S_r[6]) ^ {9'b0, idata[63]};
+							S_temp1_w[7] = shift_poly_8(S_r[7]) ^ {9'b0, idata[63]};
+							S_temp2_w[0] = shift_poly_1(S_temp1_w[0]) ^ {9'b0, idata[55]};
+							S_temp2_w[1] = shift_poly_2(S_temp1_w[1]) ^ {9'b0, idata[55]};
+							S_temp2_w[2] = shift_poly_3(S_temp1_w[2]) ^ {9'b0, idata[55]};
+							S_temp2_w[3] = shift_poly_4(S_temp1_w[3]) ^ {9'b0, idata[55]};
+							S_temp2_w[4] = shift_poly_5(S_temp1_w[4]) ^ {9'b0, idata[55]};
+							S_temp2_w[5] = shift_poly_6(S_temp1_w[5]) ^ {9'b0, idata[55]};
+							S_temp2_w[6] = shift_poly_7(S_temp1_w[6]) ^ {9'b0, idata[55]};
+							S_temp2_w[7] = shift_poly_8(S_temp1_w[7]) ^ {9'b0, idata[55]};
+							S_temp3_w[0] = shift_poly_1(S_temp2_w[0]) ^ {9'b0, idata[47]};
+							S_temp3_w[1] = shift_poly_2(S_temp2_w[1]) ^ {9'b0, idata[47]};
+							S_temp3_w[2] = shift_poly_3(S_temp2_w[2]) ^ {9'b0, idata[47]};
+							S_temp3_w[3] = shift_poly_4(S_temp2_w[3]) ^ {9'b0, idata[47]};
+							S_temp3_w[4] = shift_poly_5(S_temp2_w[4]) ^ {9'b0, idata[47]};
+							S_temp3_w[5] = shift_poly_6(S_temp2_w[5]) ^ {9'b0, idata[47]};
+							S_temp3_w[6] = shift_poly_7(S_temp2_w[6]) ^ {9'b0, idata[47]};
+							S_temp3_w[7] = shift_poly_8(S_temp2_w[7]) ^ {9'b0, idata[47]};
+							S_temp4_w[0] = shift_poly_1(S_temp3_w[0]) ^ {9'b0, idata[39]};
+							S_temp4_w[1] = shift_poly_2(S_temp3_w[1]) ^ {9'b0, idata[39]};
+							S_temp4_w[2] = shift_poly_3(S_temp3_w[2]) ^ {9'b0, idata[39]};
+							S_temp4_w[3] = shift_poly_4(S_temp3_w[3]) ^ {9'b0, idata[39]};
+							S_temp4_w[4] = shift_poly_5(S_temp3_w[4]) ^ {9'b0, idata[39]};
+							S_temp4_w[5] = shift_poly_6(S_temp3_w[5]) ^ {9'b0, idata[39]};
+							S_temp4_w[6] = shift_poly_7(S_temp3_w[6]) ^ {9'b0, idata[39]};
+							S_temp4_w[7] = shift_poly_8(S_temp3_w[7]) ^ {9'b0, idata[39]};
+							S_temp5_w[0] = shift_poly_1(S_temp4_w[0]) ^ {9'b0, idata[31]};
+							S_temp5_w[1] = shift_poly_2(S_temp4_w[1]) ^ {9'b0, idata[31]};
+							S_temp5_w[2] = shift_poly_3(S_temp4_w[2]) ^ {9'b0, idata[31]};
+							S_temp5_w[3] = shift_poly_4(S_temp4_w[3]) ^ {9'b0, idata[31]};
+							S_temp5_w[4] = shift_poly_5(S_temp4_w[4]) ^ {9'b0, idata[31]};
+							S_temp5_w[5] = shift_poly_6(S_temp4_w[5]) ^ {9'b0, idata[31]};
+							S_temp5_w[6] = shift_poly_7(S_temp4_w[6]) ^ {9'b0, idata[31]};
+							S_temp5_w[7] = shift_poly_8(S_temp4_w[7]) ^ {9'b0, idata[31]};
+							S_temp6_w[0] = shift_poly_1(S_temp5_w[0]) ^ {9'b0, idata[23]};
+							S_temp6_w[1] = shift_poly_2(S_temp5_w[1]) ^ {9'b0, idata[23]};
+							S_temp6_w[2] = shift_poly_3(S_temp5_w[2]) ^ {9'b0, idata[23]};
+							S_temp6_w[3] = shift_poly_4(S_temp5_w[3]) ^ {9'b0, idata[23]};
+							S_temp6_w[4] = shift_poly_5(S_temp5_w[4]) ^ {9'b0, idata[23]};
+							S_temp6_w[5] = shift_poly_6(S_temp5_w[5]) ^ {9'b0, idata[23]};
+							S_temp6_w[6] = shift_poly_7(S_temp5_w[6]) ^ {9'b0, idata[23]};
+							S_temp6_w[7] = shift_poly_8(S_temp5_w[7]) ^ {9'b0, idata[23]};
+							S_temp7_w[0] = shift_poly_1(S_temp6_w[0]) ^ {9'b0, idata[15]};
+							S_temp7_w[1] = shift_poly_2(S_temp6_w[1]) ^ {9'b0, idata[15]};
+							S_temp7_w[2] = shift_poly_3(S_temp6_w[2]) ^ {9'b0, idata[15]};
+							S_temp7_w[3] = shift_poly_4(S_temp6_w[3]) ^ {9'b0, idata[15]};
+							S_temp7_w[4] = shift_poly_5(S_temp6_w[4]) ^ {9'b0, idata[15]};
+							S_temp7_w[5] = shift_poly_6(S_temp6_w[5]) ^ {9'b0, idata[15]};
+							S_temp7_w[6] = shift_poly_7(S_temp6_w[6]) ^ {9'b0, idata[15]};
+							S_temp7_w[7] = shift_poly_8(S_temp6_w[7]) ^ {9'b0, idata[15]};
+							S_w[0] = shift_poly_1(S_temp7_w[0]) ^ {9'b0, idata[7]};
+							S_w[1] = shift_poly_2(S_temp7_w[1]) ^ {9'b0, idata[7]};
+							S_w[2] = shift_poly_3(S_temp7_w[2]) ^ {9'b0, idata[7]};
+							S_w[3] = shift_poly_4(S_temp7_w[3]) ^ {9'b0, idata[7]};
+							S_w[4] = shift_poly_5(S_temp7_w[4]) ^ {9'b0, idata[7]};
+							S_w[5] = shift_poly_6(S_temp7_w[5]) ^ {9'b0, idata[7]};
+							S_w[6] = shift_poly_7(S_temp7_w[6]) ^ {9'b0, idata[7]};
+							S_w[7] = shift_poly_8(S_temp7_w[7]) ^ {9'b0, idata[7]};
 						end
 					end
 					default: state_w = S_IDLE;
@@ -463,7 +463,7 @@ module bch(
 						case (code_r)
 						1: begin
 							if (S1_S4_0) begin
-								cnt_w = 3;
+								cnt_w = 2;
 								state_w = S_OUT;
 								finish_w = 1;
 								odata_w = 1023;
@@ -487,7 +487,7 @@ module bch(
 						end
 						2: begin
 							if (S1_S4_0) begin
-								cnt_w = 3;
+								cnt_w = 2;
 								state_w = S_OUT;
 								finish_w = 1;
 								odata_w = 1023;
@@ -511,7 +511,7 @@ module bch(
 						end
 						3: begin
 							if (S1_S8_0) begin
-								cnt_w = 5;
+								cnt_w = 4;
 								state_w = S_OUT;
 								finish_w = 1;
 								odata_w = 1023;
@@ -546,141 +546,6 @@ module bch(
 					end
 				end
 			end
-			S_SYN: begin
-				case (code_r)
-					1: begin
-						if (cnt_r < 63) begin
-							if (cnt_r == 0) begin
-								S_w[0] = {3'b0, data_r[62]};
-								S_w[1] = {3'b0, data_r[62]};
-								S_w[2] = {3'b0, data_r[62]};
-								S_w[3] = {3'b0, data_r[62]};
-							end 
-							else begin
-								S_w[0] = element_mul(S_r[0], ALPHA_1) ^ {3'b0, data_r[62 - cnt_r]};
-								S_w[1] = element_mul(S_r[1], ALPHA_2) ^ {3'b0, data_r[62 - cnt_r]};
-								S_w[2] = element_mul(S_r[2], ALPHA_3) ^ {3'b0, data_r[62 - cnt_r]};
-								S_w[3] = element_mul(S_r[3], ALPHA_4) ^ {3'b0, data_r[62 - cnt_r]};
-							end
-							cnt_w = cnt_r + 1;
-						end
-						else begin
-							if (S1_S4_0) begin
-								cnt_w = 3;
-								state_w = S_OUT;
-								finish_w = 1;
-								odata_w = 1023;
-							end
-							else begin
-								cnt_w = 0;
-								state_w = S_BER;
-								delta_w[0] = 1;
-								delta_rho_w[0] = 1;
-								// for (i = 0; i < 4; i = i + 1) $display("S%d = %b", i+1, S_r[i]);
-								for (i = 1; i < 5; i = i + 1) begin
-									delta_w[i] = 0;
-									delta_rho_w[i] = 0;
-								end
-								rho_w = -1;
-								l_rho_w = 0;
-								l_w = 0;
-								d_rho_w = 1;
-								d_w = S_r[0];
-							end
-						end
-					end 
-					2: begin
-						if (cnt_r < 255) begin
-							if (cnt_r == 0) begin
-								S_w[0] = {3'b0, data_r[254]};
-								S_w[1] = {3'b0, data_r[254]};
-								S_w[2] = {3'b0, data_r[254]};
-								S_w[3] = {3'b0, data_r[254]};
-							end 
-							else begin
-								S_w[0] = element_mul(S_r[0], ALPHA_1) ^ {3'b0, data_r[254 - cnt_r]};
-								S_w[1] = element_mul(S_r[1], ALPHA_2) ^ {3'b0, data_r[254 - cnt_r]};
-								S_w[2] = element_mul(S_r[2], ALPHA_3) ^ {3'b0, data_r[254 - cnt_r]};
-								S_w[3] = element_mul(S_r[3], ALPHA_4) ^ {3'b0, data_r[254 - cnt_r]};
-							end
-							cnt_w = cnt_r + 1;
-						end
-						else begin
-							if (S1_S4_0) begin
-								cnt_w = 3;
-								state_w = S_OUT;
-								finish_w = 1;
-								odata_w = 1023;
-							end
-							else begin
-								cnt_w = 0;
-								state_w = S_BER;
-								delta_w[0] = 1;
-								delta_rho_w[0] = 1;
-								// for (i = 0; i < 4; i = i + 1) $display("S%d = %b", i+1, S_r[i]);
-								for (i = 1; i < 5; i = i + 1) begin
-									delta_w[i] = 0;
-									delta_rho_w[i] = 0;
-								end
-								rho_w = -1;
-								l_rho_w = 0;
-								l_w = 0;
-								d_rho_w = 1;
-								d_w = S_r[0];
-							end
-						end
-					end
-					3: begin
-						if (cnt_r < 1023) begin
-							if (cnt_r == 0) begin
-								S_w[0] = {3'b0, data_r[1022]};
-								S_w[1] = {3'b0, data_r[1022]};
-								S_w[2] = {3'b0, data_r[1022]};
-								S_w[3] = {3'b0, data_r[1022]};
-								S_w[4] = {3'b0, data_r[1022]};
-								S_w[5] = {3'b0, data_r[1022]};
-								S_w[6] = {3'b0, data_r[1022]};
-								S_w[7] = {3'b0, data_r[1022]};
-							end 
-							else begin
-								S_w[0] = element_mul(S_r[0], ALPHA_1) ^ {3'b0, data_r[1022 - cnt_r]};
-								S_w[1] = element_mul(S_r[1], ALPHA_2) ^ {3'b0, data_r[1022 - cnt_r]};
-								S_w[2] = element_mul(S_r[2], ALPHA_3) ^ {3'b0, data_r[1022 - cnt_r]};
-								S_w[3] = element_mul(S_r[3], ALPHA_4) ^ {3'b0, data_r[1022 - cnt_r]};
-								S_w[4] = element_mul(S_r[4], ALPHA_5) ^ {3'b0, data_r[1022 - cnt_r]};
-								S_w[5] = element_mul(S_r[5], ALPHA_6) ^ {3'b0, data_r[1022 - cnt_r]};
-								S_w[6] = element_mul(S_r[6], ALPHA_7) ^ {3'b0, data_r[1022 - cnt_r]};
-								S_w[7] = element_mul(S_r[7], ALPHA_8) ^ {3'b0, data_r[1022 - cnt_r]};
-							end
-							cnt_w = cnt_r + 1;
-						end
-						else begin
-							if (S1_S8_0) begin
-								cnt_w = 5;
-								state_w = S_OUT;
-								finish_w = 1;
-								odata_w = 1023;
-							end
-							else begin
-								cnt_w = 0;
-								state_w = S_BER;
-								delta_w[0] = 1;
-								delta_rho_w[0] = 1;
-								// for (i = 0; i < 4; i = i + 1) $display("S%d = %b", i+1, S_r[i]);
-								for (i = 1; i < 5; i = i + 1) begin
-									delta_w[i] = 0;
-									delta_rho_w[i] = 0;
-								end
-								rho_w = -1;
-								l_rho_w = 0;
-								l_w = 0;
-								d_rho_w = 1;
-								d_w = S_r[0];
-							end
-						end
-					end
-				endcase
-			end
 			S_BER: begin
 				// For μ = 0 to 2t-1:
 				// If d_μ = 0:
@@ -707,7 +572,7 @@ module bch(
 							temp1_w[i] = element_mul(d_rho_r, delta_r[i]);
 						end
 						for (i = 0; i < 5; i = i + 1) begin
-							if ($signed(i[3:0]) - $signed(cnt_r) + $signed(rho_r) >= 0) temp2_w[i] = delta_rho_r[$signed(i[3:0]) - $signed(cnt_r) + $signed(rho_r)];
+							if ($signed(i[3:0]) - $signed(cnt_r[3:0]) + $signed(rho_r) >= 0) temp2_w[i] = delta_rho_r[$signed(i[3:0]) - $signed(cnt_r[3:0]) + $signed(rho_r)];
 							else temp2_w[i] = 11'b0;
 						end
 						for (i = 0; i < 5; i = i + 1) begin
@@ -716,10 +581,10 @@ module bch(
 						for (i = 0; i < 5; i = i + 1) begin
 							delta_w[i] = temp1_w[i] ^ temp3_w[i];
 						end
-						l_w = ($signed(l_r) > $signed(cnt_r) + $signed(l_rho_r) - $signed(rho_r)) ? $signed(l_r) : $signed(cnt_r) + $signed(l_rho_r) - $signed(rho_r);
+						l_w = ($signed(l_r) > $signed(cnt_r[3:0]) + $signed(l_rho_r) - $signed(rho_r)) ? $signed(l_r) : $signed(cnt_r[3:0]) + $signed(l_rho_r) - $signed(rho_r);
 					end
-					if (d_r != 0 && $signed(cnt_r) - $signed(l_r) > $signed(rho_r) - $signed(l_rho_r)) begin
-						rho_w = cnt_r;
+					if (d_r != 0 && $signed(cnt_r[3:0]) - $signed(l_r) > $signed(rho_r) - $signed(l_rho_r)) begin
+						rho_w = cnt_r[3:0];
 						l_rho_w = l_r;
 						d_rho_w = d_r;
 						for (i = 0; i < 5; i = i + 1) begin
@@ -767,14 +632,14 @@ module bch(
 						temp_root_w[0] = delta_r[0] ^ element_mul(power_r[0], delta_r[1]) ^ element_mul(element_mul(power_r[0], power_r[0]), delta_r[2]);
 						if (temp_root_w[0] == 0) begin
 							temp_root_cnt_w[0] = root_cnt_r + 1;
-							root_w[root_cnt_r] = (7 - cnt_r) * 8;
+							root_w[root_cnt_r] = (7'd7 - cnt_r[6:0]) * 8;
 						end
 						else temp_root_cnt_w[0] = root_cnt_r;
 						for (i = 1; i < 8; i = i + 1) begin
 							temp_root_w[i] = delta_r[0] ^ element_mul(power_r[i], delta_r[1]) ^ element_mul(element_mul(power_r[i], power_r[i]), delta_r[2]);
 							if (temp_root_w[i] == 0) begin
 								temp_root_cnt_w[i] = temp_root_cnt_w[i - 1] + 1;
-								root_w[temp_root_cnt_w[i - 1]] = i[9:0] + (7 - cnt_r) * 8;
+								root_w[temp_root_cnt_w[i - 1]] = i[6:0] + (7'd7 - cnt_r[6:0]) * 8;
 							end
 							else begin
 								temp_root_cnt_w[i] = temp_root_cnt_w[i - 1];
@@ -796,14 +661,14 @@ module bch(
 						temp_root_w[0] = delta_r[0] ^ element_mul(power_r[0], delta_r[1]) ^ element_mul(element_mul(power_r[0], power_r[0]), delta_r[2]);
 						if (temp_root_w[0] == 0) begin
 							temp_root_cnt_w[0] = root_cnt_r + 1;
-							root_w[root_cnt_r] = (31 - cnt_r) * 8;
+							root_w[root_cnt_r] = (7'd31 - cnt_r[6:0]) * 8;
 						end
 						else temp_root_cnt_w[0] = root_cnt_r;
 						for (i = 1; i < 8; i = i + 1) begin
 							temp_root_w[i] = delta_r[0] ^ element_mul(power_r[i], delta_r[1]) ^ element_mul(element_mul(power_r[i], power_r[i]), delta_r[2]);
 							if (temp_root_w[i] == 0) begin
 								temp_root_cnt_w[i] = temp_root_cnt_w[i - 1] + 1;
-								root_w[temp_root_cnt_w[i - 1]] = i[9:0] + (31 - cnt_r) * 8;
+								root_w[temp_root_cnt_w[i - 1]] = i[7:0] + (7'd31 - cnt_r[6:0]) * 8;
 							end
 							else begin
 								temp_root_cnt_w[i] = temp_root_cnt_w[i - 1];
@@ -825,14 +690,14 @@ module bch(
 						temp_root_w[0] = delta_r[0] ^ element_mul(power_r[0], delta_r[1]) ^ element_mul(element_mul(power_r[0], power_r[0]), delta_r[2]) ^ element_mul(element_mul(element_mul(power_r[0], power_r[0]), power_r[0]), delta_r[3]) ^ element_mul(element_mul(element_mul(power_r[0], power_r[0]), element_mul(power_r[0], power_r[0])), delta_r[4]);
 						if (temp_root_w[0] == 0) begin
 							temp_root_cnt_w[0] = root_cnt_r + 1;
-							root_w[root_cnt_r] = (127 - cnt_r) * 8;
+							root_w[root_cnt_r] = (7'd127 - cnt_r[6:0]) * 8;
 						end
 						else temp_root_cnt_w[0] = root_cnt_r;
 						for (i = 1; i < 8; i = i + 1) begin
 							temp_root_w[i] = delta_r[0] ^ element_mul(power_r[i], delta_r[1]) ^ element_mul(element_mul(power_r[i], power_r[i]), delta_r[2]) ^ element_mul(element_mul(element_mul(power_r[i], power_r[i]), power_r[i]), delta_r[3]) ^ element_mul(element_mul(element_mul(power_r[i], power_r[i]), element_mul(power_r[i], power_r[i])), delta_r[4]);
 							if (temp_root_w[i] == 0) begin
 								temp_root_cnt_w[i] = temp_root_cnt_w[i - 1] + 1;
-								root_w[temp_root_cnt_w[i - 1]] = i[9:0] + (127 - cnt_r) * 8;
+								root_w[temp_root_cnt_w[i - 1]] = i[7:0] + (7'd127 - cnt_r[6:0]) * 8;
 							end
 							else begin
 								temp_root_cnt_w[i] = temp_root_cnt_w[i - 1];
@@ -868,7 +733,7 @@ module bch(
 				// state_w = S_IDLE;
 				// $display("index1: %d, val : %b", index1_r, min1_r);
 				// $display("index2: %d, val : %b", index2_r, min2_r);
-				odata_w = root_r[cnt_r];
+				odata_w = root_r[cnt_r[3:0]];
 				if ((cnt_r == 2 && code_r != 3) || (cnt_r == 4 && code_r == 3)) begin
 					finish_w = 0;
 					odata_w = 0;
@@ -915,9 +780,6 @@ module bch(
 			for (i = 0; i < 8; i = i + 1) begin
 				S_r[i] <= 0;
 				power_r[i] <= 0;
-			end
-			for (i = 0; i < 5; i = i + 1) begin
-				delta_r[i] <= 0;
 			end
 			for (i = 0; i < 4; i = i + 1) begin
 				root_r[i] <= 0;
@@ -1031,6 +893,102 @@ module bch(
 		end
 		
 	endfunction
+
+	function automatic [10:0] shift_poly_1;
+		input [9:0] i_poly;
+		begin
+			case (code_r)
+				1: shift_poly_1 = poly_reduce_6(i_poly << 1);
+				2: shift_poly_1 = poly_reduce_8(i_poly << 1);
+				3: shift_poly_1 = poly_reduce_10(i_poly << 1); 
+				default: shift_poly_1 = poly_reduce_6(i_poly << 1);
+			endcase			
+		end
+	endfunction
+
+	function automatic [10:0] shift_poly_2;
+		input [9:0] i_poly;
+		begin
+			case (code_r)
+				1: shift_poly_2 = poly_reduce_6(poly_reduce_6(i_poly << 1) << 1);
+				2: shift_poly_2 = poly_reduce_8(poly_reduce_8(i_poly << 1) << 1);
+				3: shift_poly_2 = poly_reduce_10(poly_reduce_10(i_poly << 1) << 1); 
+				default: shift_poly_2 = poly_reduce_6(poly_reduce_6(i_poly << 1) << 1);
+			endcase			
+		end
+	endfunction
+
+	function automatic [10:0] shift_poly_3;
+		input [9:0] i_poly;
+		begin
+			case (code_r)
+				1: shift_poly_3 = poly_reduce_6(poly_reduce_6(poly_reduce_6(i_poly << 1) << 1) << 1);
+				2: shift_poly_3 = poly_reduce_8(poly_reduce_8(poly_reduce_8(i_poly << 1) << 1) << 1);
+				3: shift_poly_3 = poly_reduce_10(poly_reduce_10(poly_reduce_10(i_poly << 1) << 1) << 1); 
+				default: shift_poly_3 = poly_reduce_6(poly_reduce_6(poly_reduce_6(i_poly << 1) << 1) << 1);
+			endcase
+		end
+	endfunction
+
+	function automatic [10:0] shift_poly_4;
+		input [9:0] i_poly;
+		begin
+			case (code_r)
+				1: shift_poly_4 = poly_reduce_6(poly_reduce_6(poly_reduce_6(poly_reduce_6(i_poly << 1) << 1) << 1) << 1);
+				2: shift_poly_4 = poly_reduce_8(poly_reduce_8(poly_reduce_8(poly_reduce_8(i_poly << 1) << 1) << 1) << 1);
+				3: shift_poly_4 = poly_reduce_10(poly_reduce_10(poly_reduce_10(poly_reduce_10(i_poly << 1) << 1) << 1) << 1); 
+				default: shift_poly_4 = poly_reduce_6(poly_reduce_6(poly_reduce_6(poly_reduce_6(i_poly << 1) << 1) << 1) << 1);
+			endcase
+		end
+	endfunction
+
+	function automatic [10:0] shift_poly_5;
+		input [9:0] i_poly;
+		begin
+			case (code_r)
+				1: shift_poly_5 = poly_reduce_6(poly_reduce_6(poly_reduce_6(poly_reduce_6(poly_reduce_6(i_poly << 1) << 1) << 1) << 1) << 1);
+				2: shift_poly_5 = poly_reduce_8(poly_reduce_8(poly_reduce_8(poly_reduce_8(poly_reduce_8(i_poly << 1) << 1) << 1) << 1) << 1);
+				3: shift_poly_5 = poly_reduce_10(poly_reduce_10(poly_reduce_10(poly_reduce_10(poly_reduce_10(i_poly << 1) << 1) << 1) << 1) << 1); 
+				default: shift_poly_5 = poly_reduce_6(poly_reduce_6(poly_reduce_6(poly_reduce_6(poly_reduce_6(i_poly << 1) << 1) << 1) << 1) << 1);
+			endcase
+		end
+	endfunction
+
+	function automatic[10:0] shift_poly_6;
+        input [9:0] i_poly;
+        begin
+            case (code_r)
+                1: shift_poly_6 = poly_reduce_6(poly_reduce_6(poly_reduce_6(poly_reduce_6(poly_reduce_6(poly_reduce_6(i_poly << 1) << 1) << 1) << 1) << 1) << 1);
+                2: shift_poly_6 = poly_reduce_8(poly_reduce_8(poly_reduce_8(poly_reduce_8(poly_reduce_8(poly_reduce_8(i_poly << 1) << 1) << 1) << 1) << 1) << 1);
+                3: shift_poly_6 = poly_reduce_10(poly_reduce_10(poly_reduce_10(poly_reduce_10(poly_reduce_10(poly_reduce_10(i_poly << 1) << 1) << 1) << 1) << 1) << 1);
+                default: shift_poly_6 = poly_reduce_6(poly_reduce_6(poly_reduce_6(poly_reduce_6(poly_reduce_6(poly_reduce_6(i_poly << 1) << 1) << 1) << 1) << 1) << 1);
+            endcase			
+        end
+    endfunction
+
+    function automatic [10:0] shift_poly_7;
+        input [9:0] i_poly;
+        begin
+            case (code_r)
+                1: shift_poly_7 = poly_reduce_6(poly_reduce_6(poly_reduce_6(poly_reduce_6(poly_reduce_6(poly_reduce_6(poly_reduce_6(i_poly << 1) << 1) << 1) << 1) << 1) << 1) << 1);
+                2: shift_poly_7 = poly_reduce_8(poly_reduce_8(poly_reduce_8(poly_reduce_8(poly_reduce_8(poly_reduce_8(poly_reduce_8(i_poly << 1) << 1) << 1) << 1) << 1) << 1) << 1);
+                3: shift_poly_7 = poly_reduce_10(poly_reduce_10(poly_reduce_10(poly_reduce_10(poly_reduce_10(poly_reduce_10(poly_reduce_10(i_poly << 1) << 1) << 1) << 1) << 1) << 1) << 1);
+                default: shift_poly_7 = poly_reduce_6(poly_reduce_6(poly_reduce_6(poly_reduce_6(poly_reduce_6(poly_reduce_6(poly_reduce_6(i_poly << 1) << 1) << 1) << 1) << 1) << 1) << 1);
+            endcase			
+        end
+    endfunction
+
+    function automatic [10:0] shift_poly_8;
+        input [9:0] i_poly;
+        begin
+            case (code_r)
+                1: shift_poly_8 = poly_reduce_6(poly_reduce_6(poly_reduce_6(poly_reduce_6(poly_reduce_6(poly_reduce_6(poly_reduce_6(poly_reduce_6(i_poly << 1) << 1) << 1) << 1) << 1) << 1) << 1) << 1);
+                2: shift_poly_8 = poly_reduce_8(poly_reduce_8(poly_reduce_8(poly_reduce_8(poly_reduce_8(poly_reduce_8(poly_reduce_8(poly_reduce_8(i_poly << 1) << 1) << 1) << 1) << 1) << 1) << 1) << 1);
+                3: shift_poly_8 = poly_reduce_10(poly_reduce_10(poly_reduce_10(poly_reduce_10(poly_reduce_10(poly_reduce_10(poly_reduce_10(poly_reduce_10(i_poly << 1) << 1) << 1) << 1) << 1) << 1) << 1) << 1);
+                default: shift_poly_8 = poly_reduce_6(poly_reduce_6(poly_reduce_6(poly_reduce_6(poly_reduce_6(poly_reduce_6(poly_reduce_6(poly_reduce_6(i_poly << 1) << 1) << 1) << 1) << 1) << 1) << 1) << 1);
+            endcase			
+        end
+    endfunction
 
 	function automatic [10:0] element_mul;
 		input [10:0] i_element1;
