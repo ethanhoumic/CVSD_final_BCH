@@ -102,7 +102,6 @@ module bch(
 	reg [9:0] index1_r, index2_r, index1_w, index2_w, index1_out, index2_out;
 	wire [63:0] abs_data = {abs_data7, abs_idata[6], abs_idata[5], abs_idata[4], abs_idata[3], abs_idata[2], abs_idata[1], abs_idata[0]};
 
-
 	find_min Min(
 	.abs_data(abs_data), .cnt(cnt_r), .min1_in(min1_r), .min2_in(min2_r), .index1_in(index1_r), .index2_in(index2_r),
 	.min1_out(min1_out), .min2_out(min2_out), .index1_out(index1_out), .index2_out(index2_out)
@@ -113,6 +112,7 @@ module bch(
 	reg [10:0] d_r, d_w, d_rho_r, d_rho_w; 
 	reg [3:0]  l_r, l_w, l_rho_r, l_rho_w;
 	reg [3:0]  rho_r, rho_w;
+	reg [3:0]  cnt_temp_w;
 
 	// chien search
 	// reg [10:0] power_r [0:7], power_w [0:7];
@@ -164,6 +164,9 @@ module bch(
 		assign delta_poly_w[7][4] = shift_poly_7(shift_poly_7(shift_poly_7(shift_poly_7(delta_r[4]))));
 	endgenerate
 
+	// correlation
+	reg [6:0] corr_r[0:3], corr_w[0:3]; // 0 for first stage and 1 - 3 for second stage
+
 	// output 
 	reg [9:0] odata_r, odata_w;
 	reg finish_r, finish_w;
@@ -197,6 +200,7 @@ module bch(
 		min2_w = min2_r;
 		index1_w = index1_r;
 		index2_w = index2_r;
+		cnt_temp_w = 0;
 		for (i = 0; i < 8; i = i + 1) S_w[i] = S_r[i];
 		for (i = 0; i < 8; i = i + 1) S_temp1_w[i] = 0;
 		for (i = 0; i < 8; i = i + 1) S_temp2_w[i] = 0;
@@ -229,6 +233,7 @@ module bch(
 		end 
 		for (i = 0; i < 4; i = i + 1) begin
 			root_w[i] = root_r[i];
+			corr_w[i] = corr_r[i];
 		end
 		root_cnt_w = root_cnt_r;
 		case (state_r)
@@ -638,89 +643,64 @@ module bch(
 				
 				// Compute next discrepancy:
 				// 	d_μ+1 = S_μ+2 + Δ_1^(μ+1) · S_μ+1 + ... + Δ_l_{μ+1}^(μ+1) · S_μ+2-l_{μ+1}
-
-				if ((cnt_r < 4 && code_r != 3) || (cnt_r < 8 && code_r == 3)) begin
-					cnt_w = cnt_r + 1;
-					if (d_r == 0) begin
-						for (i = 0; i < 5; i = i + 1) delta_w[i] = delta_r[i];
-						l_w = l_r;
-					end
-					else begin
-						for (i = 0; i < 5; i = i + 1) begin
-							temp1_w[i] = element_mul(d_rho_r, delta_r[i]);
-						end
-						for (i = 0; i < 5; i = i + 1) begin
-							if ($signed(i[3:0]) - $signed(cnt_r[3:0]) + $signed(rho_r) >= 0) temp2_w[i] = delta_rho_r[$signed(i[3:0]) - $signed(cnt_r[3:0]) + $signed(rho_r)];
-							else temp2_w[i] = 11'b0;
-						end
-						for (i = 0; i < 5; i = i + 1) begin
-							temp3_w[i] = element_mul(d_r, temp2_w[i]);
-						end
-						for (i = 0; i < 5; i = i + 1) begin
-							delta_w[i] = temp1_w[i] ^ temp3_w[i];
-						end
-						l_w = ($signed(l_r) > $signed(cnt_r[3:0]) + $signed(l_rho_r) - $signed(rho_r)) ? $signed(l_r) : $signed(cnt_r[3:0]) + $signed(l_rho_r) - $signed(rho_r);
-					end
-					if (d_r != 0 && $signed(cnt_r[3:0]) - $signed(l_r) > $signed(rho_r) - $signed(l_rho_r)) begin
-						rho_w = cnt_r[3:0];
-						l_rho_w = l_r;
-						d_rho_w = d_r;
-						for (i = 0; i < 5; i = i + 1) begin
-							delta_rho_w[i] = delta_r[i];
-						end
-					end
-					d_w = compute_d(cnt_w, l_w);  // mu + 1 and l_{mu + 1}
-				end
-				else begin
+				if (code_r != 3) begin
+					delta_w[0] = S_r[0];
+					delta_w[1] = element_mul(S_r[0], S_r[0]);
+					delta_w[2] = S_r[2] ^ element_mul(S_r[0], S_r[1]);
 					state_w = (mode_r) ? S_CHI_SOFT1 : S_CHI_HARD;
-					// power_w[0] = 1;
 					case (code_r)
 						1: begin
 							cnt_w = 8;
-							// power_w[1] = ALPHA_NEG1_6;
-							// power_w[2] = ALPHA_NEG2_6;
-							// power_w[3] = ALPHA_NEG3_6;
-							// power_w[4] = ALPHA_NEG4_6;
-							// power_w[5] = ALPHA_NEG5_6;
-							// power_w[6] = ALPHA_NEG6_6;
-							// power_w[7] = ALPHA_NEG7_6;
 						end
 						2: begin
 							cnt_w = 32;
-							// power_w[1] = ALPHA_NEG1_8;
-							// power_w[2] = ALPHA_NEG2_8;
-							// power_w[3] = ALPHA_NEG3_8;
-							// power_w[4] = ALPHA_NEG4_8;
-							// power_w[5] = ALPHA_NEG5_8;
-							// power_w[6] = ALPHA_NEG6_8;
-							// power_w[7] = ALPHA_NEG7_8;
-						end
-						3: begin
-							cnt_w = 128;
-							// power_w[1] = ALPHA_NEG1_10;
-							// power_w[2] = ALPHA_NEG2_10;
-							// power_w[3] = ALPHA_NEG3_10;
-							// power_w[4] = ALPHA_NEG4_10;
-							// power_w[5] = ALPHA_NEG5_10;
-							// power_w[6] = ALPHA_NEG6_10;
-							// power_w[7] = ALPHA_NEG7_10;
 						end
 						default: begin
 							cnt_w = 7;
-							// power_w[1] = ALPHA_NEG1_6;
-							// power_w[2] = ALPHA_NEG2_6;
-							// power_w[3] = ALPHA_NEG3_6;
-							// power_w[4] = ALPHA_NEG4_6;
-							// power_w[5] = ALPHA_NEG5_6;
-							// power_w[6] = ALPHA_NEG6_6;
-							// power_w[7] = ALPHA_NEG7_6;
 						end
 					endcase
-					// for (i = 0; i < 8; i = i + 1) begin
-					// 	power2_w[i] = element_mul(power_w[i], power_w[i]);
-					// 	power3_w[i] = element_mul(power2_w[i], power_w[i]);
-					// 	power4_w[i] = element_mul(power2_w[i], power2_w[i]);
-					// end
+				end
+				else if (cnt_r < 16) begin
+					cnt_w = cnt_r + 1;
+					if (!cnt_r[0]) begin
+						if (d_r == 0) begin
+							for (i = 0; i < 5; i = i + 1) delta_w[i] = delta_r[i];
+							l_w = l_r;
+						end
+						else begin
+							cnt_temp_w = cnt_r >> 1;
+							for (i = 0; i < 5; i = i + 1) begin
+								temp1_w[i] = element_mul(d_rho_r, delta_r[i]);
+							end
+							for (i = 0; i < 5; i = i + 1) begin
+								if ($signed(i[3:0]) - $signed(cnt_temp_w) + $signed(rho_r) >= 0) temp2_w[i] = delta_rho_r[$signed(i[3:0]) - $signed(cnt_temp_w) + $signed(rho_r)];
+								else temp2_w[i] = 11'b0;
+							end
+							for (i = 0; i < 5; i = i + 1) begin
+								temp3_w[i] = element_mul(d_r, temp2_w[i]);
+							end
+							for (i = 0; i < 5; i = i + 1) begin
+								delta_w[i] = temp1_w[i] ^ temp3_w[i];
+							end
+							l_w = ($signed(l_r) > $signed(cnt_temp_w) + $signed(l_rho_r) - $signed(rho_r)) ? $signed(l_r) : $signed(cnt_temp_w) + $signed(l_rho_r) - $signed(rho_r);
+						end
+						if (d_r != 0 && $signed(cnt_temp_w) - $signed(l_r) > $signed(rho_r) - $signed(l_rho_r)) begin
+							rho_w = cnt_temp_w;
+							l_rho_w = l_r;
+							d_rho_w = d_r;
+							for (i = 0; i < 5; i = i + 1) begin
+								delta_rho_w[i] = delta_r[i];
+							end
+						end
+					end
+					else begin
+						cnt_temp_w = (cnt_r >> 1) + 3'd1;
+						d_w = compute_d(cnt_temp_w, l_r);  // mu + 1 and l_{mu + 1}
+					end
+				end
+				else begin
+					state_w = (mode_r) ? S_CHI_SOFT1 : S_CHI_HARD;
+					cnt_w = 128;
 				end
 			end
 			S_CHI_HARD: begin
@@ -737,6 +717,9 @@ module bch(
 							else if (temp_root_w[0] == 0) begin
 								temp_root_cnt_w[0] = root_cnt_r + 1;
 								root_w[3'd1 - root_cnt_r] = (cnt_r[6:0] << 3) + 7'd7;
+								if ((cnt_r[6:0] << 3) + 7'd7 != index1_out || (cnt_r[6:0] << 3) + 7'd7 != index2_out) begin
+									corr_w[0] = corr_r[0] ^ 
+								end
 							end
 							else temp_root_cnt_w[0] = root_cnt_r;
 							for (i = 1; i < 8; i = i + 1) begin
@@ -760,34 +743,6 @@ module bch(
 						delta_w[0] = delta_r[0];
 						delta_w[1] = shift_poly_8(delta_r[1]);
 						delta_w[2] = shift_poly_8(shift_poly_8(delta_r[2]));
-						// temp_root_w[0] = delta_r[0] ^ element_mul(power_r[0], delta_r[1]) ^ element_mul(power2_r[0], delta_r[2]);
-						// if (temp_root_w[0] == 0) begin
-						// 	temp_root_cnt_w[0] = root_cnt_r + 1;
-						// 	root_w[root_cnt_r] = (7'd7 - cnt_r[6:0]) * 8;
-						// end
-						// else temp_root_cnt_w[0] = root_cnt_r;
-						// for (i = 1; i < 8; i = i + 1) begin
-						// 	temp_root_w[i] = delta_r[0] ^ element_mul(power_r[i], delta_r[1]) ^ element_mul(power2_r[i], delta_r[2]);
-						// 	if (temp_root_w[i] == 0) begin
-						// 		temp_root_cnt_w[i] = temp_root_cnt_w[i - 1] + 1;
-						// 		root_w[temp_root_cnt_w[i - 1]] = i[6:0] + (7'd7 - cnt_r[6:0]) * 8;
-						// 	end
-						// 	else begin
-						// 		temp_root_cnt_w[i] = temp_root_cnt_w[i - 1];
-						// 	end
-						// end
-						// root_cnt_w = temp_root_cnt_w[7];
-						// cnt_w = cnt_r - 1;
-						// for (i = 0; i < 8; i = i + 1) begin
-						// 	power_w[i] = element_mul(power_r[i], ALPHA_NEG8_6);
-						// 	power2_w[i] = element_mul(power2_r[i], ALPHA_NEG16_6);
-						// end
-						// if (root_cnt_w == 2) begin
-						// 	state_w = S_OUT;
-						// 	cnt_w = 1;
-						// 	odata_w = root_w[0];
-						// 	finish_w = 1;
-						// end
 					end 
 					
 					2: begin
@@ -825,34 +780,6 @@ module bch(
 						delta_w[0] = delta_r[0];
 						delta_w[1] = shift_poly_8(delta_r[1]);
 						delta_w[2] = shift_poly_8(shift_poly_8(delta_r[2]));
-					// 	temp_root_w[0] = delta_r[0] ^ element_mul(power_r[0], delta_r[1]) ^ element_mul(power2_r[0], delta_r[2]);
-					// 	if (temp_root_w[0] == 0) begin
-					// 		temp_root_cnt_w[0] = root_cnt_r + 1;
-					// 		root_w[root_cnt_r] = (7'd31 - cnt_r[6:0]) * 8;
-					// 	end
-					// 	else temp_root_cnt_w[0] = root_cnt_r;
-					// 	for (i = 1; i < 8; i = i + 1) begin
-					// 		temp_root_w[i] = delta_r[0] ^ element_mul(power_r[i], delta_r[1]) ^ element_mul(power2_r[i], delta_r[2]);
-					// 		if (temp_root_w[i] == 0) begin
-					// 			temp_root_cnt_w[i] = temp_root_cnt_w[i - 1] + 1;
-					// 			root_w[temp_root_cnt_w[i - 1]] = i[7:0] + (7'd31 - cnt_r[6:0]) * 8;
-					// 		end
-					// 		else begin
-					// 			temp_root_cnt_w[i] = temp_root_cnt_w[i - 1];
-					// 		end
-					// 	end
-					// 	root_cnt_w = temp_root_cnt_w[7];
-					// 	cnt_w = cnt_r - 1;
-					// 	for (i = 0; i < 8; i = i + 1) begin
-					// 		power_w[i] = element_mul(power_r[i], ALPHA_NEG8_8);
-					// 		power2_w[i] = element_mul(power2_r[i], ALPHA_NEG16_8);
-					// 	end
-					// 	if (root_cnt_w == 2) begin
-					// 		state_w = S_OUT;
-					// 		cnt_w = 1;
-					// 		odata_w = root_w[0];
-					// 		finish_w = 1;
-					// 	end
 					end
 					3: begin
 						if (cnt_r == 128) begin
@@ -891,36 +818,6 @@ module bch(
 						delta_w[2] = shift_poly_8(shift_poly_8(delta_r[2]));
 						delta_w[3] = shift_poly_8(shift_poly_8(shift_poly_8(delta_r[3])));
 						delta_w[4] = shift_poly_8(shift_poly_8(shift_poly_8(shift_poly_8(delta_r[4]))));
-					// 	temp_root_w[0] = delta_r[0] ^ element_mul(power_r[0], delta_r[1]) ^ element_mul(power2_r[0], delta_r[2]) ^ element_mul(power3_r[0], delta_r[3]) ^ element_mul(power4_r[0], delta_r[4]);
-					// 	if (temp_root_w[0] == 0) begin
-					// 		temp_root_cnt_w[0] = root_cnt_r + 1;
-					// 		root_w[root_cnt_r] = (7'd127 - cnt_r[6:0]) * 8;
-					// 	end
-					// 	else temp_root_cnt_w[0] = root_cnt_r;
-					// 	for (i = 1; i < 8; i = i + 1) begin
-					// 		temp_root_w[i] = delta_r[0] ^ element_mul(power_r[i], delta_r[1]) ^ element_mul(power2_r[i], delta_r[2]) ^ element_mul(power3_r[i], delta_r[3]) ^ element_mul(power4_r[i], delta_r[4]);
-					// 		if (temp_root_w[i] == 0) begin
-					// 			temp_root_cnt_w[i] = temp_root_cnt_w[i - 1] + 1;
-					// 			root_w[temp_root_cnt_w[i - 1]] = i[7:0] + (7'd127 - cnt_r[6:0]) * 8;
-					// 		end
-					// 		else begin
-					// 			temp_root_cnt_w[i] = temp_root_cnt_w[i - 1];
-					// 		end
-					// 	end
-					// 	root_cnt_w = temp_root_cnt_w[7];
-					// 	cnt_w = cnt_r - 1;
-					// 	for (i = 0; i < 8; i = i + 1) begin
-					// 		power_w[i] = element_mul(power_r[i], ALPHA_NEG8_10);
-					// 		power2_w[i] = element_mul(power2_r[i], ALPHA_NEG16_10);
-					// 		power3_w[i] = element_mul(power3_r[i], ALPHA_NEG24_10);
-					// 		power4_w[i] = element_mul(power4_r[i], ALPHA_NEG32_10);
-					// 	end
-					// 	if (root_cnt_w == 4) begin
-					// 		state_w = S_OUT;
-					// 		cnt_w = 1;
-					// 		odata_w = root_w[0];
-					// 		finish_w = 1;
-					// 	end
 					end
 					default: begin
 					end
@@ -933,7 +830,128 @@ module bch(
 				end
 			end
 			S_CHI_SOFT1: begin
-				
+				case (code_r)
+					1: begin
+						if (cnt_r == 8) begin
+
+						end
+						else begin
+							temp_root_w[0] = stage1_buff_r[0][0] ^ stage1_buff_r[0][1] ^ stage1_buff_r[0][2];
+							if (cnt_r == 7) begin
+
+							end
+							else if (temp_root_w[0] == 0) begin
+								temp_root_cnt_w[0] = root_cnt_r + 1;
+								root_w[3'd1 - root_cnt_r] = (cnt_r[6:0] << 3) + 7'd7;
+							end
+							else temp_root_cnt_w[0] = root_cnt_r;
+							for (i = 1; i < 8; i = i + 1) begin
+								temp_root_w[i] = stage1_buff_r[i][0] ^ stage1_buff_r[i][1] ^ stage1_buff_r[i][2];
+								if (temp_root_w[i] == 0) begin
+									temp_root_cnt_w[i] = temp_root_cnt_w[i - 1] + 1;
+									root_w[3'd1 - temp_root_cnt_w[i - 1]] = (cnt_r[6:0] << 3) + 7'd7 - i[6:0];
+								end
+								else begin
+									temp_root_cnt_w[i] = temp_root_cnt_w[i - 1];
+								end
+							end
+						end
+						root_cnt_w = temp_root_cnt_w[7];
+						cnt_w = cnt_r - 1;
+						for (i = 0; i < 8; i = i + 1) begin
+							for (j = 0; j < 3; j = j + 1) begin
+								stage1_buff_w[i][j] = delta_poly_w[i][j];
+							end
+						end
+						delta_w[0] = delta_r[0];
+						delta_w[1] = shift_poly_8(delta_r[1]);
+						delta_w[2] = shift_poly_8(shift_poly_8(delta_r[2]));
+					end 
+					
+					2: begin
+						if (cnt_r == 32) begin
+
+						end
+						else begin
+							temp_root_w[0] = stage1_buff_r[0][0] ^ stage1_buff_r[0][1] ^ stage1_buff_r[0][2];
+							if (cnt_r == 31) begin
+
+							end
+							else if (temp_root_w[0] == 0) begin
+								temp_root_cnt_w[0] = root_cnt_r + 1;
+								root_w[3'd1 - root_cnt_r] = (cnt_r[6:0] << 3) + 7'd7;
+							end
+							else temp_root_cnt_w[0] = root_cnt_r;
+							for (i = 1; i < 8; i = i + 1) begin
+								temp_root_w[i] = stage1_buff_r[i][0] ^ stage1_buff_r[i][1] ^ stage1_buff_r[i][2];
+								if (temp_root_w[i] == 0) begin
+									temp_root_cnt_w[i] = temp_root_cnt_w[i - 1] + 1;
+									root_w[3'd1 - temp_root_cnt_w[i - 1]] = (cnt_r[6:0] << 3) + 7'd7 - i[6:0];
+								end
+								else begin
+									temp_root_cnt_w[i] = temp_root_cnt_w[i - 1];
+								end
+							end
+						end
+						root_cnt_w = temp_root_cnt_w[7];
+						cnt_w = cnt_r - 1;
+						for (i = 0; i < 8; i = i + 1) begin
+							for (j = 0; j < 3; j = j + 1) begin
+								stage1_buff_w[i][j] = delta_poly_w[i][j];
+							end
+						end
+						delta_w[0] = delta_r[0];
+						delta_w[1] = shift_poly_8(delta_r[1]);
+						delta_w[2] = shift_poly_8(shift_poly_8(delta_r[2]));
+					end
+					3: begin
+						if (cnt_r == 128) begin
+
+						end
+						else begin
+							temp_root_w[0] = stage1_buff_r[0][0] ^ stage1_buff_r[0][1] ^ stage1_buff_r[0][2] ^ stage1_buff_r[0][3] ^ stage1_buff_r[0][4];
+							if (cnt_r == 127) begin
+
+							end
+							else if (temp_root_w[0] == 0) begin
+								temp_root_cnt_w[0] = root_cnt_r + 1;
+								root_w[3'd3 - root_cnt_r] = (cnt_r[6:0] << 3) + 7'd7;
+							end
+							else temp_root_cnt_w[0] = root_cnt_r;
+							for (i = 1; i < 8; i = i + 1) begin
+								temp_root_w[i] = stage1_buff_r[i][0] ^ stage1_buff_r[i][1] ^ stage1_buff_r[i][2] ^ stage1_buff_r[i][3] ^ stage1_buff_r[i][4];
+								if (temp_root_w[i] == 0) begin
+									temp_root_cnt_w[i] = temp_root_cnt_w[i - 1] + 1;
+									root_w[3'd3 - temp_root_cnt_w[i - 1]] = (cnt_r[6:0] << 3) + 7'd7 - i[6:0];
+								end
+								else begin
+									temp_root_cnt_w[i] = temp_root_cnt_w[i - 1];
+								end
+							end
+						end
+						root_cnt_w = temp_root_cnt_w[7];
+						cnt_w = cnt_r - 1;
+						for (i = 0; i < 8; i = i + 1) begin
+							for (j = 0; j < 5; j = j + 1) begin
+								stage1_buff_w[i][j] = delta_poly_w[i][j];
+							end
+						end
+						delta_w[0] = delta_r[0];
+						delta_w[1] = shift_poly_8(delta_r[1]);
+						delta_w[2] = shift_poly_8(shift_poly_8(delta_r[2]));
+						delta_w[3] = shift_poly_8(shift_poly_8(shift_poly_8(delta_r[3])));
+						delta_w[4] = shift_poly_8(shift_poly_8(shift_poly_8(shift_poly_8(delta_r[4]))));
+
+					end
+					default: begin
+					end
+				endcase
+				if (cnt_r == 0) begin
+					state_w = S_OUT;
+					cnt_w = 1;
+					odata_w = root_r[0];
+					finish_w = 1;
+				end
 			end
 			S_CHI_SOFT2: begin
 				
@@ -990,7 +1008,7 @@ module bch(
 		endcase
 	end
 
-	always @(posedge clk or negedge rstn) begin
+	always @(posedge clk) begin
 		if (!rstn) begin
 			state_r <= S_IDLE;
 			for (i = 0; i < 1024; i = i + 1) begin
@@ -1008,6 +1026,7 @@ module bch(
 			end
 			for (i = 0; i < 4; i = i + 1) begin
 				root_r[i] <= 0;
+				corr_r[i] <= 0;
 			end
 			for (i = 0; i < 5; i = i + 1) begin
 				delta_r[i] <= 0;
@@ -1078,6 +1097,7 @@ module bch(
 			end
 			for (i = 0; i < 4; i = i + 1) begin
 				root_r[i] <= root_w[i];
+				corr_r[i] <= corr_w[i];
 			end
 			odata_r <= odata_w;
 			finish_r <= finish_w;
