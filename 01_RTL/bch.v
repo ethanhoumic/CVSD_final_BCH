@@ -21,8 +21,11 @@ module bch(
 	localparam S_CHI_SOFT1 = 7;
 	localparam S_CHI_SOFT2 = 8;
 	localparam S_CORR = 9;
-	localparam S_OUT_HARD  = 10;
-	localparam S_OUT_SOFT  = 11;
+	localparam S_OUT_HARD_BUFF = 10;
+	localparam S_OUT_HARD  = 11;
+	localparam S_OUT_SOFT_BUFF = 13;
+	localparam S_OUT_SOFT_BUFF2 = 14;
+	localparam S_OUT_SOFT  = 15;
 
 	reg ready_r, ready_w;
 
@@ -30,7 +33,7 @@ module bch(
 	reg [9:0] cnt_r, cnt_w;
 
 	// input data
-	reg [7:0] data_r [0:1023], data_w [0:1023];
+	reg [6:0] data_r [0:1023], data_w [0:1023];
 	reg mode_r, mode_w;
 	reg [1:0] code_r, code_w;
 
@@ -45,25 +48,33 @@ module bch(
 	wire S1_S8_0 = S1_S4_0 && S5_S8_0;
 	reg [9:0] S_temp1_w [0:7], S_temp2_w [0:7], S_temp3_w [0:7], S_temp4_w [0:7], S_temp5_w [0:7], S_temp6_w [0:7], S_temp7_w [0:7];
 	
-	// soft decision
-	wire [7:0] abs_idata [0:7];
-	assign abs_idata[0] = idata[7] ? (~idata[7:0] + 1) : idata[7:0];
-	assign abs_idata[1] = idata[15] ? (~idata[15:8] + 1) : idata[15:8];
-	assign abs_idata[2] = idata[23] ? (~idata[23:16] + 1) : idata[23:16];
-	assign abs_idata[3] = idata[31] ? (~idata[31:24] + 1) : idata[31:24];
-	assign abs_idata[4] = idata[39] ? (~idata[39:32] + 1) : idata[39:32];
-	assign abs_idata[5] = idata[47] ? (~idata[47:40] + 1) : idata[47:40];
-	assign abs_idata[6] = idata[55] ? (~idata[55:48] + 1) : idata[55:48];
-	assign abs_idata[7] = idata[63] ? (~idata[63:56] + 1) : idata[63:56];
-	wire [7:0] abs_data7 = (((code_r == 3) && (cnt_r == 1023)) || ((code_r == 2) && (cnt_r == 255)) || ((code_r == 1) && (cnt_r == 63))) ? 8'b11111111 : abs_idata[7];
-	reg [7:0] min1_r, min2_r, min1_w, min2_w, min1_out, min2_out;
-	reg [9:0] index1_r, index2_r, index1_w, index2_w, index1_out, index2_out;
-	wire [63:0] abs_data = {abs_data7, abs_idata[6], abs_idata[5], abs_idata[4], abs_idata[3], abs_idata[2], abs_idata[1], abs_idata[0]};
+	reg [9:0] alpha_w [0:1][0:7], alpha_r[0:1][0:7];
 
-	find_min Min(
-	.abs_data(abs_data), .cnt(cnt_r), .min1_in(min1_r), .min2_in(min2_r), .index1_in(index1_r), .index2_in(index2_r),
-	.min1_out(min1_out), .min2_out(min2_out), .index1_out(index1_out), .index2_out(index2_out)
-);
+	// soft decision
+	wire [6:0] abs_idata [0:7];
+	assign abs_idata[7] = idata[7] ? (~idata[6:0] + 1) : idata[6:0];
+	assign abs_idata[6] = idata[15] ? (~idata[14:8] + 1) : idata[14:8];
+	assign abs_idata[5] = idata[23] ? (~idata[22:16] + 1) : idata[22:16];
+	assign abs_idata[4] = idata[31] ? (~idata[30:24] + 1) : idata[30:24];
+	assign abs_idata[3] = idata[39] ? (~idata[38:32] + 1) : idata[38:32];
+	assign abs_idata[2] = idata[47] ? (~idata[46:40] + 1) : idata[46:40];
+	assign abs_idata[1] = idata[55] ? (~idata[54:48] + 1) : idata[54:48];
+	assign abs_idata[0] = idata[63] ? (~idata[62:56] + 1) : idata[62:56];
+	wire [6:0] abs_data0 = (((code_r == 3) && (cnt_r == 1023)) || ((code_r == 2) && (cnt_r == 255)) || ((code_r == 1) && (cnt_r == 63))) ? 7'b1111111 : abs_idata[0];
+	wire [6:0] min1_cand, min2_cand;
+	reg [6:0] min1_r, min2_r, min1_w, min2_w;
+	reg [9:0] index1_r, index2_r, index1_w, index2_w;
+	wire [9:0] index1_out, index2_out;
+	wire [9:0] index1_cand, index2_cand;
+	reg [9:0] index1_temp_w, index1_temp_r, index2_temp_w, index2_temp_r;
+
+	wire [9:0] min1_out = 8'b0;
+	wire [9:0] min2_out = 8'b0;
+
+	swiss pipe_3_min(
+		.clk(clk), .rst_n(rstn), .abs_data0(abs_data0), .abs_data1(abs_idata[1]), .abs_data2(abs_idata[2]), .abs_data3(abs_idata[3]), .abs_data4(abs_idata[4]), .abs_data5(abs_idata[5]), .abs_data6(abs_idata[6]), .abs_data7(abs_idata[7]), .cnt(cnt_r),
+    	.min_1(min1_cand), .min_2(min2_cand), .index_1(index1_cand),. index_2(index2_cand)
+	);
 
 	//  ber algorithm
 	reg [10:0] delta_r [0:2][0:4], delta_w [0:2][0:4], delta_rho_r [0:2][0:4], delta_rho_w [0:2][0:4], temp1_w [0:2][0:4], temp2_w [0:2][0:4], temp3_w [0:2][0:4];  // first index: big parallel number
@@ -71,6 +82,7 @@ module bch(
 	reg [3:0]  l_r [0:2], l_w [0:2], l_rho_r [0:2], l_rho_w [0:2];
 	reg [3:0]  rho_r [0:2], rho_w [0:2];
 	reg [3:0]  cnt_temp_w [0:2];
+	reg [2:0]  power_r [0:3], power_w [0:3];
 
 	// chien search
 	reg [10:0] stage1_buff_r [0:2][0:7][0:4], stage1_buff_w [0:2][0:7][0:4]; // first index: big parallel number, second index: small parallel number
@@ -78,6 +90,8 @@ module bch(
 	reg [10:0] temp_root_w [0:2][0:7];
 	reg [2:0]  temp_root_cnt_w [0:2][0:7];
 	reg [9:0]  root_r [0:3][0:3], root_w [0:3][0:3];
+	reg [2:0]  root_valid_cnt_r [0:3], root_valid_cnt_w [0:3];
+	reg [2:0]  temp_root_valid_cnt_w [0:2][0:7];
 	wire [10:0] delta_poly_w [0:2][0:7][0:4];    // first index: parallel number, second index: degree
 
 	genvar k, m;
@@ -125,16 +139,16 @@ module bch(
 	endgenerate
 
 	// correlation
-	reg [6:0] corr_r[0:3], corr_w[0:3]; // 0 for first stage and 1 - 3 for second stage
-	reg [6:0] temp_corr_w [0:3][0:7];
-	wire [6:0] min_01_w = (corr_r[0] < corr_r[1]) ? corr_r[0] : corr_r[1];
-	wire [6:0] min_23_w = (corr_r[2] < corr_r[3]) ? corr_r[2] : corr_r[3];
-	wire [6:0] min_final_w = (min_01_w < min_23_w) ? min_01_w : min_23_w;
+	reg [9:0] corr_r[0:3], corr_w[0:3]; // 0 for first stage and 1 - 3 for second stage
+	reg [9:0] corr_sel_r, corr_sel_w;
+	reg [9:0] temp_corr_w [0:3][0:7];
 
 	// output 
 	reg [9:0] odata_r, odata_w;
+	reg [9:0] flipped_stack_r [0:1], flipped_stack_w [0:1];
+	reg [1:0] flipped_stack_ptr_r, flipped_stack_ptr_w;
+	reg index1_invalid_r [0:3], index1_invalid_w [0:3], index2_invalid_r [0:3], index2_invalid_w [0:3];
 	reg finish_r, finish_w;
-	reg index1_invalid_r, index1_invalid_w, index2_invalid_r, index2_invalid_w;
 	assign odata = odata_r;
 	assign finish = finish_r;
 
@@ -156,12 +170,9 @@ module bch(
 		mode_w = mode_r;
 		finish_w = finish_r;;
 		odata_w = odata_r;
-		min1_w = min1_r;
-		min2_w = min2_r;
-		index1_w = index1_r;
-		index2_w = index2_r;
-		index1_invalid_w = index1_invalid_r;
-		index2_invalid_w = index2_invalid_r;
+		corr_sel_w = corr_sel_r;
+		flipped_stack_ptr_w = flipped_stack_ptr_r;
+		for (i = 0; i < 2; i = i + 1) flipped_stack_w[i] = flipped_stack_r[i];
 		for (i = 0; i < 8; i = i + 1) S_temp1_w[i] = 0;
 		for (i = 0; i < 8; i = i + 1) S_temp2_w[i] = 0;
 		for (i = 0; i < 8; i = i + 1) S_temp3_w[i] = 0;
@@ -184,14 +195,19 @@ module bch(
 				temp_root_w[j][i] = 1;
 				temp_root_cnt_w[j][i] = 0;
 				S_w[j][i] = S_r[j][i];
-			end
-			for (j = 0; j < 5; j = j + 1) begin
-				stage1_buff_w[i][j] = stage1_buff_r[i][j];
+				temp_root_valid_cnt_w[j][i] = 0;
 			end
 		end 
 		for (i = 0; i < 4; i = i + 1) begin
+			power_w[i] = power_r[i];
 			corr_w[i] = corr_r[i];
 			root_cnt_w[i] = root_cnt_r[i];
+			root_valid_cnt_w[i] = root_valid_cnt_r[i];
+			index1_invalid_w[i] = index1_invalid_r[i];
+			index2_invalid_w[i] = index2_invalid_r[i];
+			for (j = 0; j < 4; j = j + 1) begin
+				root_w[i][j] = root_r[i][j];
+			end
 		end
 		for (i = 0; i < 3; i = i + 1) begin
 			d_w[i] = d_r[i];
@@ -207,24 +223,20 @@ module bch(
 				temp2_w[i][j] = 11'b0;
 				temp3_w[i][j] = 11'b0;
 			end
-			
-			for (j = 0; j < 4; j = j + 1) begin
-				root_w[i][j] = root_r[i][j];
-			end
-			
 			for (j = 0; j < 8; j = j + 1) begin
 				temp_root_w[i][j] = 1;
-				temp_root_cnt_w[i][j] = 0;
 				temp_corr_w[i][j] = 0;
 				for (l = 0; l < 5; l = l + 1) begin
 					stage1_buff_w[i][j][l] = stage1_buff_r[i][j][l];
 				end
 			end
 		end
-		case (state_r)
+		case (state_r) // synopsys parallel_case
 			S_IDLE: begin
+				finish_w = 0;
+				odata_w = 0;
 				if (set && !ready_r) begin
-					case (code)
+					case (code) // synopsys parallel_case
 						1: cnt_w = 63;
 						2: cnt_w = 255;
 						3: cnt_w = 1023;
@@ -238,12 +250,10 @@ module bch(
 				// else if (ready_r) state_w = S_LOAD;
 				else state_w = S_IDLE;
 
-				min1_w = 8'b11111111;
-				min2_w = 8'b11111111;
 
 			end  
 			S_LOAD: begin
-				case (code_r)
+				case (code_r) // synopsys parallel_case
 					1: begin
 						if (cnt_r == 63) begin
 							S_temp2_w[0] = {9'b0, idata[55]};
@@ -506,39 +516,34 @@ module bch(
 				endcase
 				if (mode_r) begin
 					if (cnt_r >= 7) begin
-						data_w[cnt_r - 7] = idata[7:0];
-						data_w[cnt_r - 6] = idata[15:8];
-						data_w[cnt_r - 5] = idata[23:16];
-						data_w[cnt_r - 4] = idata[31:24];
-						data_w[cnt_r - 3] = idata[39:32];
-						data_w[cnt_r - 2] = idata[47:40];
-						data_w[cnt_r - 1] = idata[55:48];
-						data_w[cnt_r]     = idata[63:56];
-						min1_w = min1_out;
-						min2_w = min2_out;
-						index1_w = index1_out;
-						index2_w = index2_out;
+						data_w[cnt_r - 7] = (idata[7]) ? (~idata[6:0] + 1) : idata[6:0];
+						data_w[cnt_r - 6] = (idata[15]) ? (~idata[14:8] + 1) : idata[14:8];
+						data_w[cnt_r - 5] = (idata[23]) ? (~idata[22:16] + 1) : idata[22:16];
+						data_w[cnt_r - 4] = (idata[31]) ? (~idata[30:24] + 1) : idata[30:24];
+						data_w[cnt_r - 3] = (idata[39]) ? (~idata[38:32] + 1) : idata[38:32];
+						data_w[cnt_r - 2] = (idata[47]) ? (~idata[46:40] + 1) : idata[46:40];
+						data_w[cnt_r - 1] = (idata[55]) ? (~idata[54:48] + 1) : idata[54:48];
+						data_w[cnt_r]     = (idata[63]) ? (~idata[62:56] + 1) : idata[62:56];
 					end
 				end
 				if (cnt_r > 7) begin
 					cnt_w = cnt_r - 8;
 				end
-				else if (cnt_r == 7) begin
+				else if (cnt_r > 4) begin
 					ready_w = 0;
 					cnt_w = cnt_r - 1;
 				end else begin
-					if(!mode_r) begin
-						case (code_r)
+					case (code_r) // synopsys parallel_case
 						1: begin
 							if (S1_S4_0) begin
-								cnt_w = 2;
+								cnt_w = 1023;
 								state_w = S_OUT_HARD;
 								finish_w = 1;
 								odata_w = 1023;
 							end
 							else begin
 								cnt_w = 0;
-								state_w = S_BER_HARD;
+								state_w = (mode_r) ? S_BER_SOFT1 : S_BER_HARD;
 								delta_w[0][0] = 1;
 								delta_rho_w[0][0] = 1;
 								for (i = 1; i < 5; i = i + 1) begin
@@ -554,14 +559,14 @@ module bch(
 						end
 						2: begin
 							if (S1_S4_0) begin
-								cnt_w = 2;
+								cnt_w = 1023;
 								state_w = S_OUT_HARD;
 								finish_w = 1;
 								odata_w = 1023;
 							end
 							else begin
 								cnt_w = 0;
-								state_w = S_BER_HARD;
+								state_w = (mode_r) ? S_BER_SOFT1 : S_BER_HARD;
 								delta_w[0][0] = 1;
 								delta_rho_w[0][0] = 1;
 								for (i = 1; i < 5; i = i + 1) begin
@@ -577,14 +582,14 @@ module bch(
 						end
 						3: begin
 							if (S1_S8_0) begin
-								cnt_w = 4;
+								cnt_w = 1023;
 								state_w = S_OUT_HARD;
 								finish_w = 1;
 								odata_w = 1023;
 							end
 							else begin
 								cnt_w = 0;
-								state_w = S_BER_HARD;
+								state_w = (mode_r) ? S_BER_SOFT1 : S_BER_HARD;
 								delta_w[0][0] = 1;
 								delta_rho_w[0][0] = 1;
 								for (i = 1; i < 5; i = i + 1) begin
@@ -598,17 +603,7 @@ module bch(
 								d_w[0] = S_r[0][0];
 							end
 						end
-						endcase	
-					end
-					else begin
-						state_w = S_BER_SOFT1;
-						cnt_w = 2;
-						finish_w = 1;
-						odata_w = 1023;
-						// for(i = 63; i >= 0; i = i - 1) begin
-							// $display("data%d = %b", i, data_r[i]);
-						// end
-					end
+					endcase	
 				end
 			end
 			S_BER_HARD, S_BER_SOFT1: begin
@@ -617,7 +612,14 @@ module bch(
 					delta_w[0][1] = element_mul(S_r[0][0], S_r[0][0]);
 					delta_w[0][2] = S_r[0][2] ^ element_mul(S_r[0][0], S_r[0][1]);
 					state_w = (mode_r) ? S_CHI_SOFT1 : S_CHI_HARD;
-					case (code_r)
+					if (delta_w[0][2] == 0) begin
+						if (delta_w[0][1] == 0) begin
+							power_w[0] = 0;
+						end
+						else power_w[0] = 1;
+					end
+					else power_w[0] = 2;
+					case (code_r) // synopsys parallel_case
 						1: begin
 							cnt_w = 8;
 						end
@@ -625,7 +627,7 @@ module bch(
 							cnt_w = 32;
 						end
 						default: begin
-							cnt_w = 7;
+							cnt_w = 8;
 						end
 					endcase
 				end
@@ -660,8 +662,19 @@ module bch(
 					end
 				end
 				else begin
+					if (delta_r[0][4] == 0) begin
+						if (delta_r[0][3] == 0) begin
+							if (delta_r[0][2] == 0) begin
+								if (delta_r[0][1] == 0) power_w[0] = 0;
+								else power_w[0] = 1;
+							end
+							else power_w[0] = 2;
+						end
+						else power_w[0] = 3;
+					end
+					else power_w[0] = 4;
 					state_w = (mode_r) ? S_CHI_SOFT1 : S_CHI_HARD;
-					corr_w[0] = corr_r[0] + min1_out + min2_out;
+					// corr_w[0] = 0;
 					cnt_w = 128;
 				end
 			end
@@ -671,8 +684,15 @@ module bch(
 						delta_w[i][0] = S_r[i][0];
 						delta_w[i][1] = element_mul(S_r[i][0], S_r[i][0]);
 						delta_w[i][2] = S_r[i][2] ^ element_mul(S_r[i][0], S_r[i][1]);
-						state_w = (mode_r) ? S_CHI_SOFT1 : S_CHI_HARD;
-						case (code_r)
+						state_w = (mode_r) ? S_CHI_SOFT2 : S_CHI_HARD;
+						if (delta_w[i][2] == 0) begin
+							if (delta_w[i][1] == 0) begin
+								power_w[i + 1] = 0;
+							end
+							else power_w[i + 1] = 1;
+						end
+						else power_w[i + 1] = 2;
+						case (code_r) // synopsys parallel_case
 							1: begin
 								cnt_w = 8;
 							end
@@ -716,15 +736,31 @@ module bch(
 					end
 					else begin
 						state_w = S_CHI_SOFT2;
-						for (i = 1; i < 4; i = i + 1) begin
-							corr_w[i] = corr_r[i] + min1_out + min2_out;
+						if (delta_r[i][4] == 0) begin
+							if (delta_r[i][3] == 0) begin
+								if (delta_r[i][2] == 0) begin
+									if (delta_r[i][1] == 0) power_w[i + 1] = 0;
+									else power_w[i + 1] = 1;
+								end
+								else power_w[i + 1] = 2;
+							end
+							else power_w[i + 1] = 3;
 						end
-						cnt_w = 128;
+						else power_w[i + 1] = 4;
+						// corr_w[1] = min1_r;
+						// corr_w[2] = min2_r;
+						// corr_w[3] = min1_r + min2_r;
+						case (code_r)
+							1: cnt_w = 8;
+							2: cnt_w = 32;
+							3: cnt_w = 128;
+							default: cnt_w = 8;
+						endcase
 					end
 				end
 			end
 			S_CHI_HARD: begin
-				case (code_r)
+				case (code_r) // synopsys parallel_case
 					1: begin
 						if (cnt_r == 8) begin
 
@@ -735,15 +771,15 @@ module bch(
 
 							end
 							else if (temp_root_w[0][0] == 0) begin
+								root_w[0][root_cnt_r[0]] = (cnt_r[6:0] << 3) + 7'd7;
 								temp_root_cnt_w[0][0] = root_cnt_r[0] + 1;
-								root_w[0][3'd1 - root_cnt_r[0]] = (cnt_r[6:0] << 3) + 7'd7;
 							end
 							else temp_root_cnt_w[0][0] = root_cnt_r[0];
 							for (i = 1; i < 8; i = i + 1) begin
 								temp_root_w[0][i] = stage1_buff_r[0][i][0] ^ stage1_buff_r[0][i][1] ^ stage1_buff_r[0][i][2];
 								if (temp_root_w[0][i] == 0) begin
 									temp_root_cnt_w[0][i] = temp_root_cnt_w[0][i - 1] + 1;
-									root_w[0][3'd1 - temp_root_cnt_w[0][i - 1]] = (cnt_r[6:0] << 3) + 7'd7 - i[6:0];
+									root_w[0][temp_root_cnt_w[0][i - 1]] = (cnt_r[6:0] << 3) + 7'd7 - i[6:0];
 								end
 								else begin
 									temp_root_cnt_w[0][i] = temp_root_cnt_w[0][i - 1];
@@ -751,15 +787,22 @@ module bch(
 							end
 						end
 						root_cnt_w[0] = temp_root_cnt_w[0][7];
-						cnt_w = cnt_r - 1;
-						for (i = 0; i < 8; i = i + 1) begin
-							for (j = 0; j < 3; j = j + 1) begin
-								stage1_buff_w[0][i][j] = delta_poly_w[0][i][j];
-							end
+						
+						if (root_cnt_w[0] == 2) begin
+							state_w = S_OUT_HARD_BUFF;
+							cnt_w = 1;
 						end
-						delta_w[0][0] = delta_r[0][0];
-						delta_w[0][1] = shift_poly_8(delta_r[0][1]);
-						delta_w[0][2] = shift_poly_8(shift_poly_8(delta_r[0][2]));
+						else begin
+							cnt_w = cnt_r - 1;
+							for (i = 0; i < 8; i = i + 1) begin
+								for (j = 0; j < 3; j = j + 1) begin
+									stage1_buff_w[0][i][j] = delta_poly_w[0][i][j];
+								end
+							end
+							delta_w[0][0] = delta_r[0][0];
+							delta_w[0][1] = shift_poly_8(delta_r[0][1]);
+							delta_w[0][2] = shift_poly_8(shift_poly_8(delta_r[0][2]));
+						end
 					end 
 					
 					2: begin
@@ -773,14 +816,14 @@ module bch(
 							end
 							else if (temp_root_w[0][0] == 0) begin
 								temp_root_cnt_w[0][0] = root_cnt_r[0] + 1;
-								root_w[0][3'd1 - root_cnt_r[0]] = (cnt_r[6:0] << 3) + 7'd7;
+								root_w[0][root_cnt_r[0]] = (cnt_r[6:0] << 3) + 7'd7;
 							end
 							else temp_root_cnt_w[0][0] = root_cnt_r[0];
 							for (i = 1; i < 8; i = i + 1) begin
 								temp_root_w[0][i] = stage1_buff_r[0][i][0] ^ stage1_buff_r[0][i][1] ^ stage1_buff_r[0][i][2];
 								if (temp_root_w[0][i] == 0) begin
 									temp_root_cnt_w[0][i] = temp_root_cnt_w[0][i - 1] + 1;
-									root_w[0][3'd1 - temp_root_cnt_w[0][i - 1]] = (cnt_r[6:0] << 3) + 7'd7 - i[6:0];
+									root_w[0][temp_root_cnt_w[0][i - 1]] = (cnt_r[6:0] << 3) + 7'd7 - i[6:0];
 								end
 								else begin
 									temp_root_cnt_w[0][i] = temp_root_cnt_w[0][i - 1];
@@ -788,15 +831,21 @@ module bch(
 							end
 						end
 						root_cnt_w[0] = temp_root_cnt_w[0][7];
-						cnt_w = cnt_r - 1;
-						for (i = 0; i < 8; i = i + 1) begin
-							for (j = 0; j < 3; j = j + 1) begin
-								stage1_buff_w[0][i][j] = delta_poly_w[0][i][j];
-							end
+						if (root_cnt_w[0] == 2) begin
+							state_w = S_OUT_HARD_BUFF;
+							cnt_w = 1;
 						end
-						delta_w[0][0] = delta_r[0][0];
-						delta_w[0][1] = shift_poly_8(delta_r[0][1]);
-						delta_w[0][2] = shift_poly_8(shift_poly_8(delta_r[0][2]));
+						else begin
+							cnt_w = cnt_r - 1;
+							for (i = 0; i < 8; i = i + 1) begin
+								for (j = 0; j < 3; j = j + 1) begin
+									stage1_buff_w[0][i][j] = delta_poly_w[0][i][j];
+								end
+							end
+							delta_w[0][0] = delta_r[0][0];
+							delta_w[0][1] = shift_poly_8(delta_r[0][1]);
+							delta_w[0][2] = shift_poly_8(shift_poly_8(delta_r[0][2]));
+						end
 					end
 					3: begin
 						if (cnt_r == 128) begin
@@ -809,14 +858,14 @@ module bch(
 							end
 							else if (temp_root_w[0][0] == 0) begin
 								temp_root_cnt_w[0][0] = root_cnt_r[0] + 1;
-								root_w[0][3'd3 - root_cnt_r[0]] = (cnt_r[6:0] << 3) + 7'd7;
+								root_w[0][root_cnt_r[0]] = (cnt_r[6:0] << 3) + 7'd7;
 							end
 							else temp_root_cnt_w[0][0] = root_cnt_r[0];
 							for (i = 1; i < 8; i = i + 1) begin
 								temp_root_w[0][i] = stage1_buff_r[0][i][0] ^ stage1_buff_r[0][i][1] ^ stage1_buff_r[0][i][2] ^ stage1_buff_r[0][i][3] ^ stage1_buff_r[0][i][4];
 								if (temp_root_w[0][i] == 0) begin
 									temp_root_cnt_w[0][i] = temp_root_cnt_w[0][i - 1] + 1;
-									root_w[0][3'd3 - temp_root_cnt_w[0][i - 1]] = (cnt_r[6:0] << 3) + 7'd7 - i[6:0];
+									root_w[0][temp_root_cnt_w[0][i - 1]] = (cnt_r[6:0] << 3) + 7'd7 - i[6:0];
 								end
 								else begin
 									temp_root_cnt_w[0][i] = temp_root_cnt_w[0][i - 1];
@@ -824,30 +873,34 @@ module bch(
 							end
 						end
 						root_cnt_w[0] = temp_root_cnt_w[0][7];
-						cnt_w = cnt_r - 1;
-						for (i = 0; i < 8; i = i + 1) begin
-							for (j = 0; j < 5; j = j + 1) begin
-								stage1_buff_w[0][i][j] = delta_poly_w[0][i][j];
-							end
+						if (root_cnt_w[0] == 4) begin
+							state_w = S_OUT_HARD_BUFF;
+							cnt_w = 3;
 						end
-						delta_w[0][0] = delta_r[0][0];
-						delta_w[0][1] = shift_poly_8(delta_r[0][1]);
-						delta_w[0][2] = shift_poly_8(shift_poly_8(delta_r[0][2]));
-						delta_w[0][3] = shift_poly_8(shift_poly_8(shift_poly_8(delta_r[0][3])));
-						delta_w[0][4] = shift_poly_8(shift_poly_8(shift_poly_8(shift_poly_8(delta_r[0][4]))));
+						else begin
+							cnt_w = cnt_r - 1;
+							for (i = 0; i < 8; i = i + 1) begin
+								for (j = 0; j < 5; j = j + 1) begin
+									stage1_buff_w[0][i][j] = delta_poly_w[0][i][j];
+								end
+							end
+							delta_w[0][0] = delta_r[0][0];
+							delta_w[0][1] = shift_poly_8(delta_r[0][1]);
+							delta_w[0][2] = shift_poly_8(shift_poly_8(delta_r[0][2]));
+							delta_w[0][3] = shift_poly_8(shift_poly_8(shift_poly_8(delta_r[0][3])));
+							delta_w[0][4] = shift_poly_8(shift_poly_8(shift_poly_8(shift_poly_8(delta_r[0][4]))));
+						end
 					end
 					default: begin
 					end
 				endcase
 				if (cnt_r == 0) begin
-					state_w = S_OUT_HARD;
-					cnt_w = 1;
-					odata_w = root_r[0][0];
-					finish_w = 1;
+					state_w = S_OUT_HARD_BUFF;
+					cnt_w = root_cnt_w[0] - 1;
 				end
 			end
 			S_CHI_SOFT1: begin
-				case (code_r)
+				case (code_r) // synopsys parallel_case
 					1: begin
 						if (cnt_r == 8) begin
 
@@ -858,55 +911,34 @@ module bch(
 
 							end
 							else if (temp_root_w[0][0] == 0) begin
-								if (((cnt_r[6:0] << 3) + 7'd7 != index1_out) && ((cnt_r[6:0] << 3) + 7'd7 != index2_out)) begin
-									temp_root_cnt_w[0][0] = root_cnt_r[0] + 1;
-									root_w[0][3'd1 - root_cnt_r[0]] = (cnt_r[6:0] << 3) + 7'd7;
-									temp_corr_w[0][0] = corr_r[0] + data_r[(cnt_r[6:0] << 3) + 7'd7];
-								end
-								else begin
-									if ((cnt_r[6:0] << 3) + 7'd7 == index1_out) begin 
-										index1_invalid_w = 1;
-										temp_corr_w[0][0] = corr_r[0] - min1_out;
-									end
-									else begin
-										index2_invalid_w = 1;
-										temp_corr_w[0][0] = corr_r[0] - min2_out;
-									end
-									temp_root_cnt_w[0][0] = root_cnt_r[0];
-								end
+								temp_root_cnt_w[0][0] = root_cnt_r[0] + 1;
+								root_w[0][root_valid_cnt_r[0]] = (cnt_r[6:0] << 3) + 7'd7;
+								// temp_corr_w[0][0] = corr_r[0] + data_r[(cnt_r[6:0] << 3) + 7'd7];
+								temp_root_valid_cnt_w[0][0] = root_valid_cnt_r[0] + 1;
 							end
 							else begin 
 								temp_root_cnt_w[0][0] = root_cnt_r[0];
-								temp_corr_w[0][0] = corr_r[0];
+								// temp_corr_w[0][0] = corr_r[0];
+								temp_root_valid_cnt_w[0][0] = root_valid_cnt_r[0];
 							end
 							for (i = 1; i < 8; i = i + 1) begin
 								temp_root_w[0][i] = stage1_buff_r[0][i][0] ^ stage1_buff_r[0][i][1] ^ stage1_buff_r[0][i][2];
 								if (temp_root_w[0][i] == 0) begin
-									if (((cnt_r[6:0] << 3) + 7'd7 - i[6:0] != index1_out) && ((cnt_r[6:0] << 3) + 7'd7 - i[6:0] != index2_out)) begin
-										temp_root_cnt_w[0][i] = temp_root_cnt_w[0][i - 1] + 1;
-										root_w[0][3'd1 - temp_root_cnt_w[0][i - 1]] = (cnt_r[6:0] << 3) + 7'd7 - i[6:0];
-										temp_corr_w[0][i] = corr_r[0] + data_r[(cnt_r[6:0] << 3) + 7'd7 - i[6:0]];
-									end
-									else begin
-										if ((cnt_r[6:0] << 3) + 7'd7 - i[6:0] == index1_out) begin 
-											index1_invalid_w = 1;
-											temp_corr_w[0][i] = temp_corr_w[0][i - 1] - min1_out;
-										end
-										else begin
-											index2_invalid_w = 1;
-											temp_corr_w[0][i] = temp_corr_w[0][i - 1] - min2_out;
-										end
-										temp_root_cnt_w[0][i] = temp_root_cnt_w[0][i - 1];
-									end
+									temp_root_cnt_w[0][i] = temp_root_cnt_w[0][i - 1] + 1;
+									temp_root_valid_cnt_w[0][i] = temp_root_valid_cnt_w[0][i - 1] + 1;
+									root_w[0][temp_root_valid_cnt_w[0][i - 1]] = (cnt_r[6:0] << 3) + 7'd7 - i[6:0];
+									// temp_corr_w[0][i] = temp_corr_w[0][i - 1] + data_r[(cnt_r[6:0] << 3) + 7'd7 - i[6:0]];
 								end
 								else begin
 									temp_root_cnt_w[0][i] = temp_root_cnt_w[0][i - 1];
-									temp_corr_w[0][i] = corr_r[0];
+									// temp_corr_w[0][i] = temp_corr_w[0][i - 1];
+									temp_root_valid_cnt_w[0][i] = temp_root_valid_cnt_w[0][i - 1];
 								end
 							end
 						end
 						root_cnt_w[0] = temp_root_cnt_w[0][7];
-						corr_w[0] = temp_corr_w[0][7];
+						root_valid_cnt_w[0] = temp_root_valid_cnt_w[0][7];
+						// corr_w[0] = temp_corr_w[0][7];
 						cnt_w = cnt_r - 1;
 						for (i = 0; i < 8; i = i + 1) begin
 							for (j = 0; j < 3; j = j + 1) begin
@@ -925,58 +957,37 @@ module bch(
 						else begin
 							temp_root_w[0][0] = stage1_buff_r[0][0][0] ^ stage1_buff_r[0][0][1] ^ stage1_buff_r[0][0][2];
 							if (cnt_r == 31) begin
-
+								
 							end
 							else if (temp_root_w[0][0] == 0) begin
-								if (((cnt_r[6:0] << 3) + 7'd7 != index1_out) && ((cnt_r[6:0] << 3) + 7'd7 != index2_out)) begin
-									temp_root_cnt_w[0][0] = root_cnt_r[0] + 1;
-									root_w[0][3'd1 - root_cnt_r[0]] = (cnt_r[6:0] << 3) + 7'd7;
-									temp_corr_w[0][0] = corr_r[0] + data_r[(cnt_r[6:0] << 3) + 7'd7];
-								end
-								else begin
-									if ((cnt_r[6:0] << 3) + 7'd7 == index1_out) begin 
-										index1_invalid_w = 1;
-										temp_corr_w[0][0] = corr_r[0] - min1_out;
-									end
-									else begin
-										index2_invalid_w = 1;
-										temp_corr_w[0][0] = corr_r[0] - min2_out;
-									end
-									temp_root_cnt_w[0][0] = root_cnt_r[0];
-								end
+								temp_root_cnt_w[0][0] = root_cnt_r[0] + 1;
+								temp_root_valid_cnt_w[0][0] = root_valid_cnt_r[0] + 1;
+								root_w[0][root_valid_cnt_r[0]] = (cnt_r[6:0] << 3) + 7'd7;
+								// temp_corr_w[0][0] = corr_r[0] + data_r[(cnt_r[6:0] << 3) + 7'd7];
 							end
 							else begin 
 								temp_root_cnt_w[0][0] = root_cnt_r[0];
-								temp_corr_w[0][0] = corr_r[0];
+								// temp_corr_w[0][0] = corr_r[0];
+								temp_root_valid_cnt_w[0][0] = root_valid_cnt_r[0];
 							end
 							for (i = 1; i < 8; i = i + 1) begin
 								temp_root_w[0][i] = stage1_buff_r[0][i][0] ^ stage1_buff_r[0][i][1] ^ stage1_buff_r[0][i][2];
 								if (temp_root_w[0][i] == 0) begin
-									if (((cnt_r[6:0] << 3) + 7'd7 - i[6:0] != index1_out) && ((cnt_r[6:0] << 3) + 7'd7 - i[6:0] != index2_out)) begin
-										temp_root_cnt_w[0][i] = temp_root_cnt_w[0][i - 1] + 1;
-										root_w[0][3'd1 - temp_root_cnt_w[0][i - 1]] = (cnt_r[6:0] << 3) + 7'd7 - i[6:0];
-										temp_corr_w[0][i] = corr_r[0] + data_r[(cnt_r[6:0] << 3) + 7'd7 - i[6:0]];
-									end
-									else begin
-										if ((cnt_r[6:0] << 3) + 7'd7 - i[6:0] == index1_out) begin 
-											index1_invalid_w = 1;
-											temp_corr_w[0][i] = temp_corr_w[0][i - 1] - min1_out;
-										end
-										else begin
-											index2_invalid_w = 1;
-											temp_corr_w[0][i] = temp_corr_w[0][i - 1] - min2_out;
-										end
-										temp_root_cnt_w[0][i] = temp_root_cnt_w[0][i - 1];
-									end
+									temp_root_cnt_w[0][i] = temp_root_cnt_w[0][i - 1] + 1;
+									root_w[0][temp_root_valid_cnt_w[0][i - 1]] = (cnt_r[6:0] << 3) + 7'd7 - i[6:0];
+									// temp_corr_w[0][i] = temp_corr_w[0][i - 1] + data_r[(cnt_r[6:0] << 3) + 7'd7 - i[6:0]];
+									temp_root_valid_cnt_w[0][i] = temp_root_valid_cnt_w[0][i - 1] + 1;
 								end
 								else begin
 									temp_root_cnt_w[0][i] = temp_root_cnt_w[0][i - 1];
-									temp_corr_w[0][i] = corr_r[0];
+									// temp_corr_w[0][i] = temp_corr_w[0][i - 1];
+									temp_root_valid_cnt_w[0][i] = temp_root_valid_cnt_w[0][i - 1];
 								end
 							end
 						end
 						root_cnt_w[0] = temp_root_cnt_w[0][7];
-						corr_w[0] = temp_corr_w[0][7];
+						// corr_w[0] = temp_corr_w[0][7];
+						root_valid_cnt_w[0] = temp_root_valid_cnt_w[0][7];
 						cnt_w = cnt_r - 1;
 						for (i = 0; i < 8; i = i + 1) begin
 							for (j = 0; j < 3; j = j + 1) begin
@@ -994,58 +1005,34 @@ module bch(
 						else begin
 							temp_root_w[0][0] = stage1_buff_r[0][0][0] ^ stage1_buff_r[0][0][1] ^ stage1_buff_r[0][0][2] ^ stage1_buff_r[0][0][3] ^ stage1_buff_r[0][0][4];
 							if (cnt_r == 127) begin
-
+								
 							end
 							else if (temp_root_w[0][0] == 0) begin
-								if (((cnt_r[6:0] << 3) + 7'd7 != index1_out) && ((cnt_r[6:0] << 3) + 7'd7 != index2_out)) begin
-									temp_root_cnt_w[0][0] = root_cnt_r[0] + 1;
-									root_w[0][3'd3 - root_cnt_r[0]] = (cnt_r[6:0] << 3) + 7'd7;
-									temp_corr_w[0][0] = corr_r[0] + data_r[(cnt_r[6:0] << 3) + 7'd7];
-								end
-								else begin
-									if ((cnt_r[6:0] << 3) + 7'd7 == index1_out) begin 
-										index1_invalid_w = 1;
-										temp_corr_w[0][0] = corr_r[0] - min1_out;
-									end
-									else begin
-										index2_invalid_w = 1;
-										temp_corr_w[0][0] = corr_r[0] - min2_out;
-									end
-									temp_root_cnt_w[0][0] = root_cnt_r[0];
-								end
+								temp_root_cnt_w[0][0] = root_cnt_r[0] + 1;
+								root_w[0][root_valid_cnt_r[0]] = (cnt_r[6:0] << 3) + 7'd7;
+								temp_root_valid_cnt_w[0][0] = root_valid_cnt_r[0] + 1;
 							end
 							else begin 
 								temp_root_cnt_w[0][0] = root_cnt_r[0];
-								temp_corr_w[0][0] = corr_r[0];
+								// temp_corr_w[0][0] = corr_r[0];
+								temp_root_valid_cnt_w[0][0] = root_valid_cnt_r[0];
 							end
 							for (i = 1; i < 8; i = i + 1) begin
 								temp_root_w[0][i] = stage1_buff_r[0][i][0] ^ stage1_buff_r[0][i][1] ^ stage1_buff_r[0][i][2] ^ stage1_buff_r[0][i][3] ^ stage1_buff_r[0][i][4];
 								if (temp_root_w[0][i] == 0) begin
-									if (((cnt_r[6:0] << 3) + 7'd7 - i[6:0] != index1_out) && ((cnt_r[6:0] << 3) + 7'd7 - i[6:0] != index2_out)) begin
-										temp_root_cnt_w[0][i] = temp_root_cnt_w[0][i - 1] + 1;
-										root_w[0][3'd3 - temp_root_cnt_w[0][i - 1]] = (cnt_r[6:0] << 3) + 7'd7 - i[6:0];
-										temp_corr_w[0][i] = temp_corr_w[0][i - 1] + data_r[(cnt_r[6:0] << 3) + 7'd7 - i[6:0]];
-									end
-									else begin
-										if ((cnt_r[6:0] << 3) + 7'd7 - i[6:0] == index1_out) begin 
-											index1_invalid_w = 1;
-											temp_corr_w[0][i] = temp_corr_w[0][i - 1] - min1_out;
-										end
-										else begin
-											index2_invalid_w = 1;
-											temp_corr_w[0][i] = temp_corr_w[0][i - 1] - min2_out;
-										end
-										temp_root_cnt_w[0][i] = temp_root_cnt_w[0][i - 1];
-									end
+									temp_root_cnt_w[0][i] = temp_root_cnt_w[0][i - 1] + 1;
+									root_w[0][temp_root_valid_cnt_w[0][i - 1]] = (cnt_r[6:0] << 3) + 7'd7 - i[6:0];
+									temp_root_valid_cnt_w[0][i] = temp_root_valid_cnt_w[0][i - 1] + 1;
 								end
 								else begin
 									temp_root_cnt_w[0][i] = temp_root_cnt_w[0][i - 1];
-									temp_corr_w[0][i] = temp_corr_w[0][i - 1];
+									temp_root_valid_cnt_w[0][i] = temp_root_valid_cnt_w[0][i - 1];
 								end
 							end
 						end
 						root_cnt_w[0] = temp_root_cnt_w[0][7];
-						corr_w[0] = temp_corr_w[0][7];
+						// corr_w[0] = temp_corr_w[0][7];
+						root_valid_cnt_w[0] = temp_root_valid_cnt_w[0][7];
 						cnt_w = cnt_r - 1;
 						for (i = 0; i < 8; i = i + 1) begin
 							for (j = 0; j < 5; j = j + 1) begin
@@ -1065,12 +1052,34 @@ module bch(
 				if (cnt_r == 0) begin
 					state_w = S_BER_SOFT2;
 					cnt_w = 0;
-					// TODO: need to initialize other variables here
+					for(i = 0; i < 8; i = i + 1) begin
+						S_w[0][i] = S_r[0][i] ^ alpha_r[0][i];
+						S_w[1][i] = S_r[0][i] ^ alpha_r[1][i];
+						S_w[2][i] = S_w[0][i] ^ alpha_r[1][i];
+					end
+					for (i = 0; i < 8; i = i + 1) begin
+						for (j = 0; j < 5; j = j + 1) begin
+							stage1_buff_w[0][i][j] = 0;
+						end
+					end
+					for (i = 0; i < 3; i = i + 1) begin
+						delta_w[i][0] = 1;
+						delta_rho_w[i][0] = 1;
+						rho_w[i] = -1;
+						l_rho_w[i] = 0;
+						l_w[i] = 0;
+						d_rho_w[i] = 1;
+						d_w[i] = S_w[i][0];
+						for (j = 1; j < 5; j = j + 1) begin
+							delta_w[i][j] = 0;
+							delta_rho_w[i][j] = 0;
+						end
+					end
 				end
 			end
 			S_CHI_SOFT2: begin
 				for (l = 0; l < 3; l = l + 1) begin
-					case (code_r)
+					case (code_r) // synopsys parallel_case
 						1: begin
 							if (cnt_r == 8) begin
 
@@ -1081,58 +1090,108 @@ module bch(
 
 								end
 								else if (temp_root_w[l][0] == 0) begin
-									if (temp_root_w[l][0] != index1_out && temp_root_w[l][0] != index2_out) begin
-										temp_root_cnt_w[l][0] = root_cnt_r[l + 1] + 1;
-										root_w[l + 1][3'd1 - root_cnt_r[l + 1]] = (cnt_r[6:0] << 3) + 7'd7;
-										temp_corr_w[l][0] = corr_r[l + 1] + data_r[(cnt_r[6:0] << 3) + 7'd7];
-									end
-									else begin
-										if ((cnt_r[6:0] << 3) + 7'd7 == index1_out) begin 
-											index1_invalid_w = 1;
-											temp_corr_w[l][0] = corr_r[l + 1] - min1_out;
+									temp_root_cnt_w[l][0] = root_cnt_r[l + 1] + 1;
+									case (l[1:0]) // synopsys parallel_case
+										2'd0: begin
+											if ((cnt_r[6:0] << 3) + 7'd7 != index1_r) begin
+												root_w[1][root_valid_cnt_r[1]] = (cnt_r[6:0] << 3) + 7'd7;
+												temp_root_valid_cnt_w[0][0] = root_valid_cnt_r[1] + 1;
+											end
+											else begin
+												index1_invalid_w[1] = 1;
+												temp_root_valid_cnt_w[0][0] = root_valid_cnt_r[1];
+											end
 										end
-										else begin
-											index2_invalid_w = 1;
-											temp_corr_w[l][0] = corr_r[l + 1] - min2_out;
+										2'd1: begin
+											if ((cnt_r[6:0] << 3) + 7'd7 != index2_r) begin
+												root_w[2][root_valid_cnt_r[2]] = (cnt_r[6:0] << 3) + 7'd7;
+												temp_root_valid_cnt_w[1][0] = root_valid_cnt_r[2] + 1;
+											end
+											else begin
+												index2_invalid_w[2] = 1;
+												temp_root_valid_cnt_w[1][0] = root_valid_cnt_r[2];
+											end
 										end
-										temp_root_cnt_w[l][0] = root_cnt_r[l + 1];
-									end
+										2'd2: begin
+											if ((cnt_r[6:0] << 3) + 7'd7 != index1_r && (cnt_r[6:0] << 3) + 7'd7 != index2_r) begin
+												root_w[3][root_valid_cnt_r[3]] = (cnt_r[6:0] << 3) + 7'd7;
+												temp_root_valid_cnt_w[2][0] = root_valid_cnt_r[3] + 1;
+											end
+											else begin
+												if ((cnt_r[6:0] << 3) + 7'd7 == index1_r) begin 
+													index1_invalid_w[3] = 1;
+												end
+												else if ((cnt_r[6:0] << 3) + 7'd7 == index2_r) begin 
+													index2_invalid_w[3] = 1;
+												end
+												temp_root_valid_cnt_w[2][0] = root_valid_cnt_r[3];
+											end
+										end
+										default: begin
+											
+										end
+									endcase
 								end
 								else begin
 									temp_root_cnt_w[l][0] = root_cnt_r[l + 1];
-									temp_corr_w[l][0] = corr_r[l + 1];
+									temp_root_valid_cnt_w[l][0] = root_valid_cnt_r[l + 1];
 								end 
 								for (i = 1; i < 8; i = i + 1) begin
 									temp_root_w[l][i] = stage1_buff_r[l][i][0] ^ stage1_buff_r[l][i][1] ^ stage1_buff_r[l][i][2];
 									if (temp_root_w[l][i] == 0) begin
-										if (((cnt_r[6:0] << 3) + 7'd7 - i[6:0] != index1_out) && ((cnt_r[6:0] << 3) + 7'd7 - i[6:0] != index2_out)) begin
-											temp_root_cnt_w[l][i] = temp_root_cnt_w[l][i - 1] + 1;
-											root_w[l + 1][3'd1 - temp_root_cnt_w[l][i - 1]] = (cnt_r[6:0] << 3) + 7'd7 - i[6:0];
-											temp_corr_w[l][i] = corr_r[l + 1] + data_r[(cnt_r[6:0] << 3) + 7'd7 - i[6:0]];
-										end
-										else begin
-											if ((cnt_r[6:0] << 3) + 7'd7 - i[6:0] == index1_out) begin
-												index1_invalid_w = 1;
-												temp_corr_w[l][i] = temp_corr_w[l][i - 1] - min1_out;
+										temp_root_cnt_w[l][i] = temp_root_cnt_w[l][i - 1] + 1;
+										case (l[1:0]) // synopsys parallel_case
+											2'd0: begin
+												if ((cnt_r[6:0] << 3) + 7'd7 - i[6:0] != index1_r) begin
+													root_w[1][temp_root_valid_cnt_w[0][i - 1]] = (cnt_r[6:0] << 3) + 7'd7 - i[6:0];
+													temp_root_valid_cnt_w[0][i] = temp_root_valid_cnt_w[0][i - 1] + 1;
+												end
+												else begin
+													index1_invalid_w[1] = 1;
+													temp_root_valid_cnt_w[0][i] = temp_root_valid_cnt_w[0][i - 1];
+												end
 											end
-											else begin
-												index2_invalid_w = 1;
-												temp_corr_w[l][i] = temp_corr_w[l][i - 1] - min2_out;
+											2'd1: begin
+												if ((cnt_r[6:0] << 3) + 7'd7 - i[6:0] != index2_r) begin
+													root_w[2][temp_root_valid_cnt_w[1][i - 1]] = (cnt_r[6:0] << 3) + 7'd7 - i[6:0];
+													temp_root_valid_cnt_w[1][i] = temp_root_valid_cnt_w[1][i - 1] + 1;
+												end
+												else begin
+													index2_invalid_w[2] = 1;
+													temp_root_valid_cnt_w[1][i] = temp_root_valid_cnt_w[1][i - 1];
+												end
 											end
-											temp_root_cnt_w[l][i] = temp_root_cnt_w[l][i - 1];
-										end
+											2'd2: begin
+												if (((cnt_r[6:0] << 3) + 7'd7 - i[6:0] != index1_r) && ((cnt_r[6:0] << 3) + 7'd7 - i[6:0] != index2_r)) begin
+													root_w[l + 1][temp_root_valid_cnt_w[l][i - 1]] = (cnt_r[6:0] << 3) + 7'd7 - i[6:0];
+													temp_root_valid_cnt_w[l][i] = temp_root_valid_cnt_w[l][i - 1] + 1;
+												end
+												else begin
+													if ((cnt_r[6:0] << 3) + 7'd7 - i[6:0] == index1_r) begin 
+														index1_invalid_w[l + 1] = 1;
+													end
+													else if ((cnt_r[6:0] << 3) + 7'd7 - i[6:0] == index2_r) begin 
+														index2_invalid_w[l + 1] = 1;
+													end
+													temp_root_valid_cnt_w[l][i] = temp_root_valid_cnt_w[l][i - 1];
+												end
+											end
+											default: begin
+												
+											end
+										endcase
 									end
 									else begin
 										temp_root_cnt_w[l][i] = temp_root_cnt_w[l][i - 1];
-										temp_corr_w[l][i] = temp_corr_w[l][i - 1];
+										temp_root_valid_cnt_w[l][i] = temp_root_valid_cnt_w[l][i - 1];
 									end
 								end
 							end
 							root_cnt_w[l + 1] = temp_root_cnt_w[l][7];
-							corr_w[l + 1] = temp_corr_w[l][7];
+							root_valid_cnt_w[l + 1] = temp_root_valid_cnt_w[l][7];
 							cnt_w = cnt_r - 1;
 							for (i = 0; i < 8; i = i + 1) begin
-								for (j = 0; j < 3; j = j + 1) begin
+								for (j = 0; j < 5; j = j + 1) begin
 									stage1_buff_w[l][i][j] = delta_poly_w[l][i][j];
 								end
 							end
@@ -1151,58 +1210,108 @@ module bch(
 
 								end
 								else if (temp_root_w[l][0] == 0) begin
-									if (temp_root_w[l][0] != index1_out && temp_root_w[l][0] != index2_out) begin
-										temp_root_cnt_w[l][0] = root_cnt_r[l + 1] + 1;
-										root_w[l + 1][3'd1 - root_cnt_r[l + 1]] = (cnt_r[6:0] << 3) + 7'd7;
-										temp_corr_w[l][0] = corr_r[l + 1] + data_r[(cnt_r[6:0] << 3) + 7'd7];
-									end
-									else begin
-										if ((cnt_r[6:0] << 3) + 7'd7 == index1_out) begin 
-											index1_invalid_w = 1;
-											temp_corr_w[l][0] = corr_r[l + 1] - min1_out;
+									temp_root_cnt_w[l][0] = root_cnt_r[l + 1] + 1;
+									case (l[1:0]) // synopsys parallel_case
+										2'd0: begin
+											if ((cnt_r[6:0] << 3) + 7'd7 != index1_r) begin
+												root_w[1][root_valid_cnt_r[1]] = (cnt_r[6:0] << 3) + 7'd7;
+												temp_root_valid_cnt_w[0][0] = root_valid_cnt_r[1] + 1;
+											end
+											else begin
+												index1_invalid_w[l + 1] = 1;
+												temp_root_valid_cnt_w[l][0] = root_valid_cnt_r[l + 1];
+											end
 										end
-										else begin 
-											index2_invalid_w = 1;
-											temp_corr_w[l][0] = corr_r[l + 1] - min2_out;
+										2'd1: begin
+											if ((cnt_r[6:0] << 3) + 7'd7 != index2_r) begin
+												root_w[l + 1][root_valid_cnt_r[l + 1]] = (cnt_r[6:0] << 3) + 7'd7;
+												temp_root_valid_cnt_w[l][0] = root_valid_cnt_r[l + 1] + 1;
+											end
+											else begin
+												index2_invalid_w[l + 1] = 1;
+												temp_root_valid_cnt_w[l][0] = root_valid_cnt_r[l + 1];
+											end
 										end
-										temp_root_cnt_w[l][0] = root_cnt_r[l + 1];
-									end
+										2'd2: begin
+											if ((cnt_r[6:0] << 3) + 7'd7 != index1_r && (cnt_r[6:0] << 3) + 7'd7 != index2_r) begin
+												root_w[l + 1][root_valid_cnt_r[l + 1]] = (cnt_r[6:0] << 3) + 7'd7;
+												temp_root_valid_cnt_w[l][0] = root_valid_cnt_r[l + 1] + 1;
+											end
+											else begin
+												if ((cnt_r[6:0] << 3) + 7'd7 == index1_r) begin 
+													index1_invalid_w[l + 1] = 1;
+												end
+												else if ((cnt_r[6:0] << 3) + 7'd7 == index2_r) begin 
+													index2_invalid_w[l + 1] = 1;
+												end
+												temp_root_valid_cnt_w[l][0] = root_valid_cnt_r[l + 1];
+											end
+										end
+										default: begin
+											
+										end
+									endcase
 								end
 								else begin
 									temp_root_cnt_w[l][0] = root_cnt_r[l + 1];
-									temp_corr_w[l][0] = corr_r[l + 1];
+									temp_root_valid_cnt_w[l][0] = root_valid_cnt_r[l + 1];
 								end 
 								for (i = 1; i < 8; i = i + 1) begin
 									temp_root_w[l][i] = stage1_buff_r[l][i][0] ^ stage1_buff_r[l][i][1] ^ stage1_buff_r[l][i][2];
 									if (temp_root_w[l][i] == 0) begin
-										if (((cnt_r[6:0] << 3) + 7'd7 - i[6:0] != index1_out) && ((cnt_r[6:0] << 3) + 7'd7 - i[6:0] != index2_out)) begin
-											temp_root_cnt_w[l][i] = temp_root_cnt_w[l][i - 1] + 1;
-											root_w[l + 1][3'd1 - temp_root_cnt_w[l][i - 1]] = (cnt_r[6:0] << 3) + 7'd7 - i[6:0];
-											temp_corr_w[l][i] = temp_corr_w[l][i - 1] + data_r[(cnt_r[6:0] << 3) + 7'd7 - i[6:0]];
-										end
-										else begin
-											if ((cnt_r[6:0] << 3) + 7'd7 - i[6:0] == index1_out) begin 
-												index1_invalid_w = 1;
-												temp_corr_w[l][i] = temp_corr_w[l][i - 1] - min1_out;
+										temp_root_cnt_w[l][i] = temp_root_cnt_w[l][i - 1] + 1;
+										case (l[1:0]) // synopsys parallel_case)
+											2'd0: begin
+												if ((cnt_r[6:0] << 3) + 7'd7 - i[6:0] != index1_r) begin
+													root_w[l + 1][temp_root_valid_cnt_w[l][i - 1]] = (cnt_r[6:0] << 3) + 7'd7 - i[6:0];
+													temp_root_valid_cnt_w[l][i] = temp_root_valid_cnt_w[l][i - 1] + 1;
+												end
+												else begin
+													index1_invalid_w[l + 1] = 1;
+													temp_root_valid_cnt_w[l][i] = temp_root_valid_cnt_w[l][i - 1];
+												end
 											end
-											else begin 
-												index2_invalid_w = 1;
-												temp_corr_w[l][i] = temp_corr_w[l][i - 1] - min2_out;
+											2'd1: begin
+												if ((cnt_r[6:0] << 3) + 7'd7 - i[6:0] != index2_r) begin
+													root_w[l + 1][temp_root_valid_cnt_w[l][i - 1]] = (cnt_r[6:0] << 3) + 7'd7 - i[6:0];
+													temp_root_valid_cnt_w[l][i] = temp_root_valid_cnt_w[l][i - 1] + 1;
+												end
+												else begin
+													index2_invalid_w[l + 1] = 1;
+													temp_root_valid_cnt_w[l][i] = temp_root_valid_cnt_w[l][i - 1];
+												end
 											end
-											temp_root_cnt_w[l][i] = temp_root_cnt_w[l][i - 1];
-										end
+											2'd2: begin
+												if (((cnt_r[6:0] << 3) + 7'd7 - i[6:0] != index1_r) && ((cnt_r[6:0] << 3) + 7'd7 - i[6:0] != index2_r)) begin
+													root_w[l + 1][temp_root_valid_cnt_w[l][i - 1]] = (cnt_r[6:0] << 3) + 7'd7 - i[6:0];
+													temp_root_valid_cnt_w[l][i] = temp_root_valid_cnt_w[l][i - 1] + 1;
+												end
+												else begin
+													if ((cnt_r[6:0] << 3) + 7'd7 - i[6:0] == index1_r) begin 
+														index1_invalid_w[l + 1] = 1;
+													end
+													else if ((cnt_r[6:0] << 3) + 7'd7 - i[6:0] == index2_r) begin 
+														index2_invalid_w[l + 1] = 1;
+													end
+													temp_root_valid_cnt_w[l][i] = temp_root_valid_cnt_w[l][i - 1];
+												end
+											end
+											default: begin
+												
+											end
+										endcase
 									end
 									else begin
 										temp_root_cnt_w[l][i] = temp_root_cnt_w[l][i - 1];
-										temp_corr_w[l][i] = temp_corr_w[l][i - 1];
+										temp_root_valid_cnt_w[l][i] = temp_root_valid_cnt_w[l][i - 1];
 									end
 								end
 							end
 							root_cnt_w[l + 1] = temp_root_cnt_w[l][7];
-							corr_w[l + 1] = temp_corr_w[l][7];
+							root_valid_cnt_w[l + 1] = temp_root_valid_cnt_w[l][7];
 							cnt_w = cnt_r - 1;
 							for (i = 0; i < 8; i = i + 1) begin
-								for (j = 0; j < 3; j = j + 1) begin
+								for (j = 0; j < 5; j = j + 1) begin
 									stage1_buff_w[l][i][j] = delta_poly_w[l][i][j];
 								end
 							end
@@ -1215,64 +1324,130 @@ module bch(
 
 							end
 							else begin
-								temp_root_w[l][0] = stage1_buff_r[l][0][0] ^ stage1_buff_r[l][0][1] ^ stage1_buff_r[l][0][2];
+								temp_root_w[l][0] = stage1_buff_r[l][0][0] ^ stage1_buff_r[l][0][1] ^ stage1_buff_r[l][0][2] ^ stage1_buff_r[l][0][3] ^ stage1_buff_r[l][0][4];
 								if (cnt_r == 127) begin
 
 								end
 								else if (temp_root_w[l][0] == 0) begin
-									if (temp_root_w[l][0] != index1_out && temp_root_w[l][0] != index2_out) begin
-										temp_root_cnt_w[l][0] = root_cnt_r[l + 1] + 1;
-										root_w[l + 1][3'd1 - root_cnt_r[l + 1]] = (cnt_r[6:0] << 3) + 7'd7;
-										temp_corr_w[l][0] = corr_r[l + 1] + data_r[(cnt_r[6:0] << 3) + 7'd7];
-									end
-									else begin
-										if ((cnt_r[6:0] << 3) + 7'd7 == index1_out) begin 
-											index1_invalid_w = 1;
-											temp_corr_w[l][0] = corr_r[l + 1] - min1_out;
+									temp_root_cnt_w[l][0] = root_cnt_r[l + 1] + 1;
+									case (l[1:0]) // synopsys parallel_case
+										2'd0: begin
+											if ((cnt_r[6:0] << 3) + 7'd7 != index1_r) begin
+												root_w[l + 1][root_valid_cnt_r[l + 1]] = (cnt_r[6:0] << 3) + 7'd7;
+												// temp_corr_w[l][0] = corr_r[l + 1] + data_r[(cnt_r[6:0] << 3) + 7'd7];
+												temp_root_valid_cnt_w[l][0] = root_valid_cnt_r[l + 1] + 1;
+											end
+											else begin
+												// temp_corr_w[l][0] = corr_r[l + 1] - min1_r;
+												index1_invalid_w[l + 1] = 1;
+												temp_root_valid_cnt_w[l][0] = root_valid_cnt_r[l + 1];
+											end
 										end
-										else begin
-											index2_invalid_w = 1;
-											temp_corr_w[l][0] = corr_r[l + 1] - min2_out;
+										2'd1: begin
+											if ((cnt_r[6:0] << 3) + 7'd7 != index2_r) begin
+												root_w[l + 1][root_valid_cnt_r[l + 1]] = (cnt_r[6:0] << 3) + 7'd7;
+												// temp_corr_w[l][0] = corr_r[l + 1] + data_r[(cnt_r[6:0] << 3) + 7'd7];
+												temp_root_valid_cnt_w[l][0] = root_valid_cnt_r[l + 1] + 1;
+											end
+											else begin
+												// temp_corr_w[l][0] = corr_r[l + 1] - min2_r;
+												index2_invalid_w[l + 1] = 1;
+												temp_root_valid_cnt_w[l][0] = root_valid_cnt_r[l + 1];
+											end
 										end
-										temp_root_cnt_w[l][0] = root_cnt_r[l + 1];
-										temp_corr_w[l][0] = corr_r[l + 1];
-									end
+										2'd2: begin
+											if ((cnt_r[6:0] << 3) + 7'd7 != index1_r && (cnt_r[6:0] << 3) + 7'd7 != index2_r) begin
+												root_w[l + 1][root_valid_cnt_r[l + 1]] = (cnt_r[6:0] << 3) + 7'd7;
+												// temp_corr_w[l][0] = corr_r[l + 1] + data_r[(cnt_r[6:0] << 3) + 7'd7];
+												temp_root_valid_cnt_w[l][0] = root_valid_cnt_r[l + 1] + 1;
+											end
+											else begin
+												if ((cnt_r[6:0] << 3) + 7'd7 == index1_r) begin 
+													// temp_corr_w[l][0] = corr_r[l + 1] - min1_r;
+													index1_invalid_w[l + 1] = 1;
+												end
+												else if ((cnt_r[6:0] << 3) + 7'd7 == index2_r) begin 
+													// temp_corr_w[l][0] = corr_r[l + 1] - min2_r;
+													index2_invalid_w[l + 1] = 1;
+												end
+												temp_root_valid_cnt_w[l][0] = root_valid_cnt_r[l + 1];
+											end
+										end 
+										default: begin
+											
+										end
+									endcase
 								end
 								else begin
 									temp_root_cnt_w[l][0] = root_cnt_r[l + 1];
-									temp_corr_w[l][0] = corr_r[l + 1];
+									// temp_corr_w[l][0] = corr_r[l + 1];
+									temp_root_valid_cnt_w[l][0] = root_valid_cnt_r[l + 1];
 								end 
 								for (i = 1; i < 8; i = i + 1) begin
-									temp_root_w[l][i] = stage1_buff_r[l][i][0] ^ stage1_buff_r[l][i][1] ^ stage1_buff_r[l][i][2];
+									temp_root_w[l][i] = stage1_buff_r[l][i][0] ^ stage1_buff_r[l][i][1] ^ stage1_buff_r[l][i][2] ^ stage1_buff_r[l][i][3] ^ stage1_buff_r[l][i][4];
 									if (temp_root_w[l][i] == 0) begin
-										if (((cnt_r[6:0] << 3) + 7'd7 - i[6:0] != index1_out) && ((cnt_r[6:0] << 3) + 7'd7 - i[6:0] != index2_out)) begin
-											temp_root_cnt_w[l][i] = temp_root_cnt_w[l][i - 1] + 1;
-											root_w[l + 1][3'd1 - temp_root_cnt_w[l][i - 1]] = (cnt_r[6:0] << 3) + 7'd7 - i[6:0];
-											temp_corr_w[l][i] = temp_corr_w[l][i - 1] + data_r[(cnt_r[6:0] << 3) + 7'd7 - i[6:0]];
-										end
-										else begin
-											if ((cnt_r[6:0] << 3) + 7'd7 - i[6:0] == index1_out) begin
-												index1_invalid_w = 1;
-												temp_corr_w[l][i] = temp_corr_w[l][i - 1] - min1_out;
+										temp_root_cnt_w[l][i] = temp_root_cnt_w[l][i - 1] + 1;
+										case (l[1:0]) // synopsys parallel_case
+											2'd0: begin
+												if ((cnt_r[6:0] << 3) + 7'd7 - i[6:0] != index1_r) begin
+													root_w[l + 1][temp_root_valid_cnt_w[l][i - 1]] = (cnt_r[6:0] << 3) + 7'd7 - i[6:0];
+													// temp_corr_w[l][i] = temp_corr_w[l][i - 1] + data_r[(cnt_r[6:0] << 3) + 7'd7 - i[6:0]];
+													temp_root_valid_cnt_w[l][i] = temp_root_valid_cnt_w[l][i - 1] + 1;
+												end
+												else begin
+													// temp_corr_w[l][i] = temp_corr_w[l][i - 1] - min1_r;
+													index1_invalid_w[l + 1] = 1;
+													temp_root_valid_cnt_w[l][i] = temp_root_valid_cnt_w[l][i - 1];
+												end
 											end
-											else begin
-												index2_invalid_w = 1;
-												temp_corr_w[l][i] = temp_corr_w[l][i - 1] - min2_out; 
+											2'd1: begin
+												if ((cnt_r[6:0] << 3) + 7'd7 - i[6:0] != index2_r) begin
+													root_w[l + 1][temp_root_valid_cnt_w[l][i - 1]] = (cnt_r[6:0] << 3) + 7'd7 - i[6:0];
+													// temp_corr_w[l][i] = temp_corr_w[l][i - 1] + data_r[(cnt_r[6:0] << 3) + 7'd7 - i[6:0]];
+													temp_root_valid_cnt_w[l][i] = temp_root_valid_cnt_w[l][i - 1] + 1;
+												end
+												else begin
+													// temp_corr_w[l][i] = temp_corr_w[l][i - 1] - min2_r;
+													index2_invalid_w[l + 1] = 1;
+													temp_root_valid_cnt_w[l][i] = temp_root_valid_cnt_w[l][i - 1];
+												end
 											end
-											temp_root_cnt_w[l][i] = temp_root_cnt_w[l][i - 1];
-										end
+											2'd2: begin
+												if (((cnt_r[6:0] << 3) + 7'd7 - i[6:0] != index1_r) && ((cnt_r[6:0] << 3) + 7'd7 - i[6:0] != index2_r)) begin
+													root_w[l + 1][temp_root_valid_cnt_w[l][i - 1]] = (cnt_r[6:0] << 3) + 7'd7 - i[6:0];
+													// temp_corr_w[l][i] = temp_corr_w[l][i - 1] + data_r[(cnt_r[6:0] << 3) + 7'd7 - i[6:0]];
+													temp_root_valid_cnt_w[l][i] = temp_root_valid_cnt_w[l][i - 1] + 1;
+												end
+												else begin
+													if ((cnt_r[6:0] << 3) + 7'd7 - i[6:0] == index1_r) begin 
+														// temp_corr_w[l][i] = temp_corr_w[l][i - 1] - min1_r;
+														index1_invalid_w[l + 1] = 1;
+													end
+													else if ((cnt_r[6:0] << 3) + 7'd7 - i[6:0] == index2_r) begin 
+														// temp_corr_w[l][i] = temp_corr_w[l][i - 1]  - min2_r;
+														index2_invalid_w[l + 1] = 1;
+													end
+													temp_root_valid_cnt_w[l][i] = temp_root_valid_cnt_w[l][i - 1];
+												end
+											end 
+											default: begin
+												
+											end
+										endcase
 									end
 									else begin
 										temp_root_cnt_w[l][i] = temp_root_cnt_w[l][i - 1];
-										temp_corr_w[l][i] = temp_corr_w[l][i - 1];
+										// temp_corr_w[l][i] = temp_corr_w[l][i - 1];
+										temp_root_valid_cnt_w[l][i] = temp_root_valid_cnt_w[l][i - 1];
 									end
 								end
 							end
 							root_cnt_w[l + 1] = temp_root_cnt_w[l][7];
-							corr_w[l + 1] = temp_corr_w[l][7];
+							// corr_w[l + 1] = temp_corr_w[l][7];
+							root_valid_cnt_w[l + 1] = temp_root_valid_cnt_w[l][7];
 							cnt_w = cnt_r - 1;
 							for (i = 0; i < 8; i = i + 1) begin
-								for (j = 0; j < 3; j = j + 1) begin
+								for (j = 0; j < 5; j = j + 1) begin
 									stage1_buff_w[l][i][j] = delta_poly_w[l][i][j];
 								end
 							end
@@ -1286,65 +1461,258 @@ module bch(
 						end
 					endcase
 					if (cnt_r == 0) begin
-						state_w = S_OUT_SOFT;
+						state_w = S_CORR;
 						cnt_w = 0;
-						// cnt_w = 1;
-						// odata_w = root_r[l][0];
-						// finish_w = 1;
 					end
 				end
 			end
+			S_OUT_HARD_BUFF: begin
+				odata_w = root_r[0][cnt_r[1:0]];
+				finish_w = 1;
+				state_w = S_OUT_HARD;
+				cnt_w = cnt_r - 1;
+			end
 			S_OUT_HARD: begin
-				odata_w = root_r[0][cnt_r[3:0]];
-				if ((cnt_r == 2 && code_r != 3) || (cnt_r == 4 && code_r == 3)) begin
+				odata_w = root_r[0][cnt_r[1:0]];
+				if (cnt_r == 1023) begin
 					finish_w = 0;
 					odata_w = 0;
 					state_w = S_IDLE;
-					for (i = 0; i < 1024; i = i + 1) begin
-						data_w[i] = 0;
-					end
 					for (i = 0; i < 8; i = i + 1) begin
 						S_w[0][i] = 0;
 						for (j = 0; j < 5; j = j + 1) begin
-							for (l = 0; l < 3; l = l + 1) begin
-								stage1_buff_w[l][i][j] = 0;
-							end
+							stage1_buff_w[0][i][j] = 0;
 						end
 					end
 					for (i = 0; i < 4; i = i + 1) begin
-						for (j = 0; j < 3; j = j + 1) begin
-							root_w[j][i] = 0;
-						end
+						power_w[0] = 0;
+						root_w[0][i] = 0;
 					end
 					for (i = 0; i < 5; i = i + 1) begin
-						for (j = 0; j < 3; j = j + 1) begin
-							delta_w[j][i] = 0;
-							delta_rho_w[j][i] = 0;
-						end
+						delta_w[0][i] = 0;
+						delta_rho_w[0][i] = 0;
 					end
-					for (j = 0; j < 3; j = j + 1) begin
-						d_w[j] = 0;
-						d_rho_w[j] = 0;
-						l_w[j] = 0;
-						l_rho_w[j] = 0;
-						rho_w[j] = 0;
-						root_cnt_w[j] = 0;
-					end
+					d_w[0] = 0;
+					d_rho_w[0] = 0;
+					l_w[0] = 0;
+					l_rho_w[0] = 0;
+					rho_w[0] = 0;
+					root_cnt_w[0] = 0;
 					cnt_w = 0;
 					ready_w = 0;
 					mode_w = 0;
 					code_w = 0;
 				end
-				else cnt_w = cnt_r + 1;
+				else cnt_w = cnt_r - 1;
+			end
+			S_CORR: begin
+				for (i = 0; i < 4; i = i + 1) begin
+					temp_corr_w[i][0] = 0;
+					for (j = 1; j < 5; j = j + 1) begin
+						if (j <= root_valid_cnt_r[i]) begin
+							temp_corr_w[i][j] = temp_corr_w[i][j - 1] + data_r[root_r[i][j - 1]];
+						end
+						else temp_corr_w[i][j] = temp_corr_w[i][j - 1];
+					end
+				end
+				corr_w[0] = temp_corr_w[0][4];
+				corr_w[1] = (index1_invalid_r[1]) ? temp_corr_w[1][4] : min1_r + temp_corr_w[1][4];
+				corr_w[2] = (index2_invalid_r[2]) ? temp_corr_w[2][4] : min2_r + temp_corr_w[2][4];
+				temp_corr_w[3][5] = (index1_invalid_r[3]) ? temp_corr_w[3][4] : min1_r + temp_corr_w[3][4];
+				corr_w[3] = (index2_invalid_r[3]) ? temp_corr_w[3][5] : min2_r + temp_corr_w[3][5];
+				state_w = S_OUT_SOFT_BUFF;
+			end
+			S_OUT_SOFT_BUFF: begin
+				for (i = 0; i < 4; i = i + 1) begin
+					if (root_cnt_r[i] < power_r[i]) begin // decode failure
+						corr_w[i] = 10'd1023;
+					end
+					else begin
+						if (power_r[i] == 0) begin
+							index1_invalid_w[i] = 0;
+							index2_invalid_w[i] = 0;
+							case (i[1:0])
+								0: corr_w[0] = 0;
+								1: corr_w[1] = min1_r;
+								2: corr_w[2] = min2_r;
+								3: corr_w[3] = min1_r + min2_r;
+								default: begin
+									
+								end
+							endcase
+						end
+					end
+				end
+				corr_sel_w = compare_corr(corr_w[0], corr_w[1], corr_w[2], corr_w[3]);
+				state_w = S_OUT_SOFT_BUFF2;
+			end
+			S_OUT_SOFT_BUFF2: begin
+				for (i = 0; i < 4; i = i + 1) begin
+					// $display("root list %3d is %4d, %4d, %4d, and %4d.", i + 1, root_r[i][0], root_r[i][1], root_r[i][2], root_r[i][3]);
+				end
+				case (corr_sel_r)
+					corr_r[0]: begin
+						if (power_r[0] == 0) cnt_w = 1023;
+						else cnt_w = root_valid_cnt_r[0] - 1;
+						flipped_stack_ptr_w = 2;
+					end 
+					corr_r[1]: begin
+						if (power_r[1] == 0) cnt_w = 1023;
+						else cnt_w = root_valid_cnt_r[1] - 1;
+						if (index1_invalid_r[1]) begin
+							flipped_stack_ptr_w = 2;
+						end
+						else begin
+							flipped_stack_w[1] = index1_r;
+							flipped_stack_ptr_w = 1;
+						end
+					end 
+					corr_r[2]: begin
+						if (power_r[2] == 0) cnt_w = 1023;
+						else cnt_w = root_valid_cnt_r[2] - 1;
+						if (index2_invalid_r[2]) begin
+							flipped_stack_ptr_w = 2;
+						end
+						else begin
+							flipped_stack_w[1] = index2_r;
+							flipped_stack_ptr_w = 1;
+						end
+					end 
+					corr_r[3]: begin
+						if (power_r[3] == 0) cnt_w = 1023;
+						else cnt_w = root_valid_cnt_r[3] - 1;
+						if (index1_invalid_r[3] && index2_invalid_r[3]) begin
+							flipped_stack_ptr_w = 2;
+						end
+						else if (index1_invalid_r[3] && !index2_invalid_r[3]) begin
+							flipped_stack_w[1] = index2_r;
+							flipped_stack_ptr_w = 1;
+						end
+						else if (!index1_invalid_r[3] && index2_invalid_r[3]) begin
+							flipped_stack_w[1] = index1_r;
+							flipped_stack_ptr_w = 1;
+						end
+						else begin
+							if (index1_r < index2_r) begin
+								flipped_stack_w[0] = index1_r;
+								flipped_stack_w[1] = index2_r;
+							end
+							else begin
+								flipped_stack_w[0] = index2_r;
+								flipped_stack_w[1] = index1_r;
+							end
+							flipped_stack_ptr_w = 0;
+						end
+					end 
+					default: begin
+						
+					end
+				endcase
+				state_w = S_OUT_SOFT;
 			end
 			S_OUT_SOFT: begin
-				if ((cnt_r == root_cnt_r[0] && min_final_w == corr_r[0]) ||
-					(cnt_r == root_cnt_r[1] && min_final_w == corr_r[1]) ||
-					(cnt_r == root_cnt_r[2] && min_final_w == corr_r[2]) ||
-					(cnt_r == root_cnt_r[3] && min_final_w == corr_r[3])) begin
-					finish_w = 1;
+				if (cnt_r != 1023) begin
+					case (corr_sel_r) // synopsys parallel_case
+						corr_r[0]: begin
+							finish_w = 1;
+							odata_w = root_r[0][cnt_r[1:0]];
+							cnt_w = cnt_r - 1;
+						end
+						corr_r[1]: begin
+							finish_w = 1;
+							if (flipped_stack_ptr_r < 2) begin
+								if (root_r[1][cnt_r[1:0]] < flipped_stack_r[flipped_stack_ptr_r]) begin
+									odata_w = root_r[1][cnt_r[1:0]];
+									cnt_w = cnt_r - 1;
+								end
+								else begin
+									odata_w = flipped_stack_r[flipped_stack_ptr_r];
+									flipped_stack_ptr_w = flipped_stack_ptr_r + 1;
+								end
+							end
+							else begin
+								odata_w = root_r[1][cnt_r[1:0]];
+								cnt_w = cnt_r - 1;
+							end
+						end
+						corr_r[2]: begin
+							finish_w = 1;
+							if (flipped_stack_ptr_r < 2) begin
+								if (root_r[2][cnt_r[1:0]] < flipped_stack_r[flipped_stack_ptr_r]) begin
+									odata_w = root_r[2][cnt_r[1:0]];
+									cnt_w = cnt_r - 1;
+								end
+								else begin
+									odata_w = flipped_stack_r[flipped_stack_ptr_r];
+									flipped_stack_ptr_w = flipped_stack_ptr_r + 1;
+								end
+							end
+							else begin
+								odata_w = root_r[2][cnt_r[1:0]];
+								cnt_w = cnt_r - 1;
+							end
+						end
+						corr_r[3]: begin
+							finish_w = 1;
+							if (flipped_stack_ptr_r < 2) begin
+								if (root_r[3][cnt_r[1:0]] < flipped_stack_r[flipped_stack_ptr_r]) begin
+									odata_w = root_r[3][cnt_r[1:0]];
+									cnt_w = cnt_r - 1;
+								end
+								else begin
+									odata_w = flipped_stack_r[flipped_stack_ptr_r];
+									flipped_stack_ptr_w = flipped_stack_ptr_r + 1;
+								end
+							end
+							else begin
+								odata_w = root_r[3][cnt_r[1:0]];
+								cnt_w = cnt_r - 1;
+							end
+						end
+						default: begin
+							
+						end
+					endcase
+				end
+				else begin
+					case (corr_sel_r) // synopsys parallel_case
+						corr_r[0]: begin
+							finish_w = 1;
+						end
+						corr_r[1]: begin
+							finish_w = 1;
+							if (flipped_stack_ptr_r < 2) begin
+								odata_w = flipped_stack_r[flipped_stack_ptr_r];
+								flipped_stack_ptr_w = flipped_stack_ptr_r + 1;
+							end
+						end
+						corr_r[2]: begin
+							finish_w = 1;
+							if (flipped_stack_ptr_r < 2) begin
+								odata_w = flipped_stack_r[flipped_stack_ptr_r];
+								flipped_stack_ptr_w = flipped_stack_ptr_r + 1;
+							end
+						end
+						corr_r[3]: begin
+							finish_w = 1;
+							if (flipped_stack_ptr_r < 2) begin
+								odata_w = flipped_stack_r[flipped_stack_ptr_r];
+								flipped_stack_ptr_w = flipped_stack_ptr_r + 1;
+							end
+						end
+						default: begin
+							
+						end
+					endcase
+				end
+				if (cnt_r == 1023 && flipped_stack_ptr_r == 2) begin
+					finish_w = 0;
 					odata_w = 0;
 					state_w = S_IDLE;
+					corr_sel_w = 0;
+					flipped_stack_ptr_w = 0;
+					flipped_stack_w[0] = 0;
+					flipped_stack_w[1] = 0;
 					for (i = 0; i < 1024; i = i + 1) begin
 						data_w[i] = 0;
 					end
@@ -1365,6 +1733,12 @@ module bch(
 						end
 					end
 					for (i = 0; i < 4; i = i + 1) begin
+						power_w[i] = 0;
+						root_cnt_w[i] = 0;
+						root_valid_cnt_w[i] = 0;
+						corr_w[i] = 0;
+						index1_invalid_w[i] = 0;
+						index2_invalid_w[i] = 0;
 						for (j = 0; j < 4; j = j + 1) begin
 							root_w[j][i] = 0;
 						end
@@ -1375,110 +1749,290 @@ module bch(
 						l_w[j] = 0;
 						l_rho_w[j] = 0;
 						rho_w[j] = 0;
-						root_cnt_w[j] = 0;
 					end
+					flipped_stack_ptr_w = 0;
 					cnt_w = 0;
-					ready_w = 0;
 					mode_w = 0;
 					code_w = 0;
 				end
-				else begin
-					case (min_final_w)
-						corr_r[0]: begin
-							if (root_r[0][cnt_r] < index1_out) begin
-								odata_w = root_r[0][cnt_r];
-								cnt_w = cnt_r + 1;
-							end
-							else if (root_r[0][cnt_r] > index1_out && !index1_invalid_r) begin
-								odata_w = index1_out;
-								index1_invalid_w = 1;
-							end
-							else if (root_r[0][cnt_r] < index2_out) begin
-								odata_w = root_r[0][cnt_r];
-								cnt_w = cnt_r + 1;
-							end
-							else if (root_r[0][cnt_r] > index2_out && !index2_invalid_r) begin
-								odata_w = index2_out;
-								index2_invalid_w = 1;
-							end
-							else begin
-								odata_w = root_r[0][cnt_r];
-								cnt_w = cnt_r + 1;
-							end
-						end 
-						corr_r[1]: begin
-							if (root_r[1][cnt_r] < index1_out) begin
-								odata_w = root_r[1][cnt_r];
-								cnt_w = cnt_r + 1;
-							end
-							else if (root_r[1][cnt_r] > index1_out && !index1_invalid_r) begin
-								odata_w = index1_out;
-								index1_invalid_w = 1;
-							end
-							else if (root_r[1][cnt_r] < index2_out) begin
-								odata_w = root_r[1][cnt_r];
-								cnt_w = cnt_r + 1;
-							end
-							else if (root_r[1][cnt_r] > index2_out && !index2_invalid_r) begin
-								odata_w = index2_out;
-								index2_invalid_w = 1;
-							end
-							else begin
-								odata_w = root_r[1][cnt_r];
-								cnt_w = cnt_r + 1;
-							end
-						end
-						corr_r[2]: begin
-							if (root_r[2][cnt_r] < index1_out) begin
-								odata_w = root_r[2][cnt_r];
-								cnt_w = cnt_r + 1;
-							end
-							else if (root_r[2][cnt_r] > index1_out && !index1_invalid_r) begin
-								odata_w = index1_out;
-								index1_invalid_w = 1;
-							end
-							else if (root_r[2][cnt_r] < index2_out) begin
-								odata_w = root_r[2][cnt_r];
-								cnt_w = cnt_r + 1;
-							end
-							else if (root_r[2][cnt_r] > index2_out && !index2_invalid_r) begin
-								odata_w = index2_out;
-								index2_invalid_w = 1;
-							end
-							else begin
-								odata_w = root_r[2][cnt_r];
-								cnt_w = cnt_r + 1;
-							end
-						end
-						corr_r[3]: begin
-							if (root_r[3][cnt_r] < index1_out) begin
-								odata_w = root_r[3][cnt_r];
-								cnt_w = cnt_r + 1;
-							end
-							else if (root_r[3][cnt_r] > index1_out && !index1_invalid_r) begin
-								odata_w = index1_out;
-								index1_invalid_w = 1;
-							end
-							else if (root_r[3][cnt_r] < index2_out) begin
-								odata_w = root_r[3][cnt_r];
-								cnt_w = cnt_r + 1;
-							end
-							else if (root_r[3][cnt_r] > index2_out && !index2_invalid_r) begin
-								odata_w = index2_out;
-								index2_invalid_w = 1;
-							end
-							else begin
-								odata_w = root_r[3][cnt_r];
-								cnt_w = cnt_r + 1;
-							end
-						end
-						default: begin
-							
-						end
-					endcase
-				end
 			end
 		endcase
+	end
+
+	// least reliability calc
+	always @(*) begin
+		min1_w = min1_r;
+		min2_w = min2_r;
+		index1_w = index1_r;
+		index2_w = index2_r;
+		if (state_r == S_LOAD) begin
+			case (code_r)
+				1: begin
+					if (cnt_r == 47) begin
+						min1_w = 7'b1111111;
+						min2_w = 7'b1111111;
+					end
+					else if (cnt_r <= 39) begin	
+						if (min1_cand < min1_r) begin
+							min1_w = min1_cand;
+							index1_w = index1_cand;
+							min2_w = (min2_cand < min1_r) ? min2_cand : min1_r;
+							index2_w = (min2_cand < min1_r) ? index2_cand : index1_r;
+						end
+						else if(min1_cand < min2_r) begin
+							min2_w = min1_cand;
+							index2_w = index1_cand;
+						end
+					end
+				end
+				2: begin
+					if (cnt_r == 239) begin
+						min1_w = 7'b1111111;
+						min2_w = 7'b1111111;
+					end
+					else if (cnt_r <= 231) begin
+						if (min1_cand < min1_r) begin
+							min1_w = min1_cand;
+							index1_w = index1_cand;
+							min2_w = (min2_cand < min1_r) ? min2_cand : min1_r;
+							index2_w = (min2_cand < min1_r) ? index2_cand : index1_r;
+						end
+						else if(min1_cand < min2_r) begin
+							min2_w = min1_cand;
+							index2_w = index1_cand;
+						end
+					end
+				end
+				3: begin
+					if (cnt_r == 1007) begin
+						min1_w = 7'b1111111;
+						min2_w = 7'b1111111;
+					end
+					else if (cnt_r <= 999) begin
+						if (min1_cand < min1_r) begin
+							min1_w = min1_cand;
+							index1_w = index1_cand;
+							min2_w = (min2_cand < min1_r) ? min2_cand : min1_r;
+							index2_w = (min2_cand < min1_r) ? index2_cand : index1_r;
+						end
+						else if(min1_cand < min2_r) begin
+							min2_w = min1_cand;
+							index2_w = index1_cand;
+						end
+					end
+				end
+			endcase
+		end
+	end
+
+	// alpha calc
+	always @(*) begin
+		index1_temp_w = index1_temp_r;
+		index2_temp_w = index2_temp_r;
+		for (i = 0; i < 8; i = i + 1) begin
+			alpha_w[0][i] = alpha_r[0][i];
+			alpha_w[1][i] = alpha_r[1][i];
+		end
+		if (state_r == S_BER_SOFT1) begin
+			index1_temp_w = index1_r;
+			index2_temp_w = index2_r;
+			for (i = 0; i < 8; i = i + 1) begin
+				alpha_w[0][i] = 1;
+				alpha_w[1][i] = 1;
+			end	
+		end 
+		else if (state_r == S_CHI_SOFT1) begin
+			index1_temp_w = (index1_temp_r > 7) ? index1_temp_r - 8 : 0;
+			index2_temp_w = (index2_temp_r > 7) ? index2_temp_r - 8 : 0;
+			if (index1_temp_r > 7) begin
+				alpha_w[0][0] = shift_poly_1(shift_poly_1(shift_poly_1(shift_poly_1(shift_poly_1(shift_poly_1(shift_poly_1(shift_poly_1(alpha_r[0][0]))))))));
+				alpha_w[0][1] = shift_poly_2(shift_poly_2(shift_poly_2(shift_poly_2(shift_poly_2(shift_poly_2(shift_poly_2(shift_poly_2(alpha_r[0][1]))))))));
+				alpha_w[0][2] = shift_poly_3(shift_poly_3(shift_poly_3(shift_poly_3(shift_poly_3(shift_poly_3(shift_poly_3(shift_poly_3(alpha_r[0][2]))))))));
+				alpha_w[0][3] = shift_poly_4(shift_poly_4(shift_poly_4(shift_poly_4(shift_poly_4(shift_poly_4(shift_poly_4(shift_poly_4(alpha_r[0][3]))))))));
+				alpha_w[0][4] = shift_poly_5(shift_poly_5(shift_poly_5(shift_poly_5(shift_poly_5(shift_poly_5(shift_poly_5(shift_poly_5(alpha_r[0][4]))))))));
+				alpha_w[0][5] = shift_poly_6(shift_poly_6(shift_poly_6(shift_poly_6(shift_poly_6(shift_poly_6(shift_poly_6(shift_poly_6(alpha_r[0][5]))))))));
+				alpha_w[0][6] = shift_poly_7(shift_poly_7(shift_poly_7(shift_poly_7(shift_poly_7(shift_poly_7(shift_poly_7(shift_poly_7(alpha_r[0][6]))))))));
+				alpha_w[0][7] = shift_poly_8(shift_poly_8(shift_poly_8(shift_poly_8(shift_poly_8(shift_poly_8(shift_poly_8(shift_poly_8(alpha_r[0][7]))))))));
+			end
+			else begin
+				case (index1_temp_r[2:0])
+					7: begin
+						alpha_w[0][0] = shift_poly_1(shift_poly_1(shift_poly_1(shift_poly_1(shift_poly_1(shift_poly_1(shift_poly_1(alpha_r[0][0])))))));
+						alpha_w[0][1] = shift_poly_2(shift_poly_2(shift_poly_2(shift_poly_2(shift_poly_2(shift_poly_2(shift_poly_2(alpha_r[0][1])))))));
+						alpha_w[0][2] = shift_poly_3(shift_poly_3(shift_poly_3(shift_poly_3(shift_poly_3(shift_poly_3(shift_poly_3(alpha_r[0][2])))))));
+						alpha_w[0][3] = shift_poly_4(shift_poly_4(shift_poly_4(shift_poly_4(shift_poly_4(shift_poly_4(shift_poly_4(alpha_r[0][3])))))));
+						alpha_w[0][4] = shift_poly_5(shift_poly_5(shift_poly_5(shift_poly_5(shift_poly_5(shift_poly_5(shift_poly_5(alpha_r[0][4])))))));
+						alpha_w[0][5] = shift_poly_6(shift_poly_6(shift_poly_6(shift_poly_6(shift_poly_6(shift_poly_6(shift_poly_6(alpha_r[0][5])))))));
+						alpha_w[0][6] = shift_poly_7(shift_poly_7(shift_poly_7(shift_poly_7(shift_poly_7(shift_poly_7(shift_poly_7(alpha_r[0][6])))))));
+						alpha_w[0][7] = shift_poly_8(shift_poly_8(shift_poly_8(shift_poly_8(shift_poly_8(shift_poly_8(shift_poly_8(alpha_r[0][7])))))));
+					end
+					6: begin
+						alpha_w[0][0] = shift_poly_1(shift_poly_1(shift_poly_1(shift_poly_1(shift_poly_1(shift_poly_1(alpha_r[0][0]))))));
+						alpha_w[0][1] = shift_poly_2(shift_poly_2(shift_poly_2(shift_poly_2(shift_poly_2(shift_poly_2(alpha_r[0][1]))))));
+						alpha_w[0][2] = shift_poly_3(shift_poly_3(shift_poly_3(shift_poly_3(shift_poly_3(shift_poly_3(alpha_r[0][2]))))));
+						alpha_w[0][3] = shift_poly_4(shift_poly_4(shift_poly_4(shift_poly_4(shift_poly_4(shift_poly_4(alpha_r[0][3]))))));
+						alpha_w[0][4] = shift_poly_5(shift_poly_5(shift_poly_5(shift_poly_5(shift_poly_5(shift_poly_5(alpha_r[0][4]))))));
+						alpha_w[0][5] = shift_poly_6(shift_poly_6(shift_poly_6(shift_poly_6(shift_poly_6(shift_poly_6(alpha_r[0][5]))))));
+						alpha_w[0][6] = shift_poly_7(shift_poly_7(shift_poly_7(shift_poly_7(shift_poly_7(shift_poly_7(alpha_r[0][6]))))));
+						alpha_w[0][7] = shift_poly_8(shift_poly_8(shift_poly_8(shift_poly_8(shift_poly_8(shift_poly_8(alpha_r[0][7]))))));
+					end
+					5: begin
+						alpha_w[0][0] = shift_poly_1(shift_poly_1(shift_poly_1(shift_poly_1(shift_poly_1(alpha_r[0][0])))));
+						alpha_w[0][1] = shift_poly_2(shift_poly_2(shift_poly_2(shift_poly_2(shift_poly_2(alpha_r[0][1])))));
+						alpha_w[0][2] = shift_poly_3(shift_poly_3(shift_poly_3(shift_poly_3(shift_poly_3(alpha_r[0][2])))));
+						alpha_w[0][3] = shift_poly_4(shift_poly_4(shift_poly_4(shift_poly_4(shift_poly_4(alpha_r[0][3])))));
+						alpha_w[0][4] = shift_poly_5(shift_poly_5(shift_poly_5(shift_poly_5(shift_poly_5(alpha_r[0][4])))));
+						alpha_w[0][5] = shift_poly_6(shift_poly_6(shift_poly_6(shift_poly_6(shift_poly_6(alpha_r[0][5])))));
+						alpha_w[0][6] = shift_poly_7(shift_poly_7(shift_poly_7(shift_poly_7(shift_poly_7(alpha_r[0][6])))));
+						alpha_w[0][7] = shift_poly_8(shift_poly_8(shift_poly_8(shift_poly_8(shift_poly_8(alpha_r[0][7])))));
+					end
+					4: begin
+						alpha_w[0][0] = shift_poly_1(shift_poly_1(shift_poly_1(shift_poly_1(alpha_r[0][0]))));
+						alpha_w[0][1] = shift_poly_2(shift_poly_2(shift_poly_2(shift_poly_2(alpha_r[0][1]))));
+						alpha_w[0][2] = shift_poly_3(shift_poly_3(shift_poly_3(shift_poly_3(alpha_r[0][2]))));
+						alpha_w[0][3] = shift_poly_4(shift_poly_4(shift_poly_4(shift_poly_4(alpha_r[0][3]))));
+						alpha_w[0][4] = shift_poly_5(shift_poly_5(shift_poly_5(shift_poly_5(alpha_r[0][4]))));
+						alpha_w[0][5] = shift_poly_6(shift_poly_6(shift_poly_6(shift_poly_6(alpha_r[0][5]))));
+						alpha_w[0][6] = shift_poly_7(shift_poly_7(shift_poly_7(shift_poly_7(alpha_r[0][6]))));
+						alpha_w[0][7] = shift_poly_8(shift_poly_8(shift_poly_8(shift_poly_8(alpha_r[0][7]))));
+					end
+					3: begin
+						alpha_w[0][0] = shift_poly_1(shift_poly_1(shift_poly_1(alpha_r[0][0])));
+						alpha_w[0][1] = shift_poly_2(shift_poly_2(shift_poly_2(alpha_r[0][1])));
+						alpha_w[0][2] = shift_poly_3(shift_poly_3(shift_poly_3(alpha_r[0][2])));
+						alpha_w[0][3] = shift_poly_4(shift_poly_4(shift_poly_4(alpha_r[0][3])));
+						alpha_w[0][4] = shift_poly_5(shift_poly_5(shift_poly_5(alpha_r[0][4])));
+						alpha_w[0][5] = shift_poly_6(shift_poly_6(shift_poly_6(alpha_r[0][5])));
+						alpha_w[0][6] = shift_poly_7(shift_poly_7(shift_poly_7(alpha_r[0][6])));
+						alpha_w[0][7] = shift_poly_8(shift_poly_8(shift_poly_8(alpha_r[0][7])));
+					end
+					2: begin
+						alpha_w[0][0] = shift_poly_1(shift_poly_1(alpha_r[0][0]));
+						alpha_w[0][1] = shift_poly_2(shift_poly_2(alpha_r[0][1]));
+						alpha_w[0][2] = shift_poly_3(shift_poly_3(alpha_r[0][2]));
+						alpha_w[0][3] = shift_poly_4(shift_poly_4(alpha_r[0][3]));
+						alpha_w[0][4] = shift_poly_5(shift_poly_5(alpha_r[0][4]));
+						alpha_w[0][5] = shift_poly_6(shift_poly_6(alpha_r[0][5]));
+						alpha_w[0][6] = shift_poly_7(shift_poly_7(alpha_r[0][6]));
+						alpha_w[0][7] = shift_poly_8(shift_poly_8(alpha_r[0][7]));
+					end
+					1: begin
+						alpha_w[0][0] = shift_poly_1(alpha_r[0][0]);
+						alpha_w[0][1] = shift_poly_2(alpha_r[0][1]);
+						alpha_w[0][2] = shift_poly_3(alpha_r[0][2]);
+						alpha_w[0][3] = shift_poly_4(alpha_r[0][3]);
+						alpha_w[0][4] = shift_poly_5(alpha_r[0][4]);
+						alpha_w[0][5] = shift_poly_6(alpha_r[0][5]);
+						alpha_w[0][6] = shift_poly_7(alpha_r[0][6]);
+						alpha_w[0][7] = shift_poly_8(alpha_r[0][7]);
+					end
+					default: begin
+						alpha_w[0][0] = alpha_r[0][0];
+						alpha_w[0][1] = alpha_r[0][1];
+						alpha_w[0][2] = alpha_r[0][2];
+						alpha_w[0][3] = alpha_r[0][3];
+						alpha_w[0][4] = alpha_r[0][4];
+						alpha_w[0][5] = alpha_r[0][5];
+						alpha_w[0][6] = alpha_r[0][6];
+						alpha_w[0][7] = alpha_r[0][7];
+					end
+				endcase
+			end
+			if (index2_temp_r > 7) begin
+				alpha_w[1][0] = shift_poly_1(shift_poly_1(shift_poly_1(shift_poly_1(shift_poly_1(shift_poly_1(shift_poly_1(shift_poly_1(alpha_r[1][0]))))))));
+				alpha_w[1][1] = shift_poly_2(shift_poly_2(shift_poly_2(shift_poly_2(shift_poly_2(shift_poly_2(shift_poly_2(shift_poly_2(alpha_r[1][1]))))))));
+				alpha_w[1][2] = shift_poly_3(shift_poly_3(shift_poly_3(shift_poly_3(shift_poly_3(shift_poly_3(shift_poly_3(shift_poly_3(alpha_r[1][2]))))))));
+				alpha_w[1][3] = shift_poly_4(shift_poly_4(shift_poly_4(shift_poly_4(shift_poly_4(shift_poly_4(shift_poly_4(shift_poly_4(alpha_r[1][3]))))))));
+				alpha_w[1][4] = shift_poly_5(shift_poly_5(shift_poly_5(shift_poly_5(shift_poly_5(shift_poly_5(shift_poly_5(shift_poly_5(alpha_r[1][4]))))))));
+				alpha_w[1][5] = shift_poly_6(shift_poly_6(shift_poly_6(shift_poly_6(shift_poly_6(shift_poly_6(shift_poly_6(shift_poly_6(alpha_r[1][5]))))))));
+				alpha_w[1][6] = shift_poly_7(shift_poly_7(shift_poly_7(shift_poly_7(shift_poly_7(shift_poly_7(shift_poly_7(shift_poly_7(alpha_r[1][6]))))))));
+				alpha_w[1][7] = shift_poly_8(shift_poly_8(shift_poly_8(shift_poly_8(shift_poly_8(shift_poly_8(shift_poly_8(shift_poly_8(alpha_r[1][7]))))))));
+			end
+			else begin
+				case (index2_temp_r[2:0])
+					7: begin
+						alpha_w[1][0] = shift_poly_1(shift_poly_1(shift_poly_1(shift_poly_1(shift_poly_1(shift_poly_1(shift_poly_1(alpha_r[1][0])))))));
+						alpha_w[1][1] = shift_poly_2(shift_poly_2(shift_poly_2(shift_poly_2(shift_poly_2(shift_poly_2(shift_poly_2(alpha_r[1][1])))))));
+						alpha_w[1][2] = shift_poly_3(shift_poly_3(shift_poly_3(shift_poly_3(shift_poly_3(shift_poly_3(shift_poly_3(alpha_r[1][2])))))));
+						alpha_w[1][3] = shift_poly_4(shift_poly_4(shift_poly_4(shift_poly_4(shift_poly_4(shift_poly_4(shift_poly_4(alpha_r[1][3])))))));
+						alpha_w[1][4] = shift_poly_5(shift_poly_5(shift_poly_5(shift_poly_5(shift_poly_5(shift_poly_5(shift_poly_5(alpha_r[1][4])))))));
+						alpha_w[1][5] = shift_poly_6(shift_poly_6(shift_poly_6(shift_poly_6(shift_poly_6(shift_poly_6(shift_poly_6(alpha_r[1][5])))))));
+						alpha_w[1][6] = shift_poly_7(shift_poly_7(shift_poly_7(shift_poly_7(shift_poly_7(shift_poly_7(shift_poly_7(alpha_r[1][6])))))));
+						alpha_w[1][7] = shift_poly_8(shift_poly_8(shift_poly_8(shift_poly_8(shift_poly_8(shift_poly_8(shift_poly_8(alpha_r[1][7])))))));
+					end
+					6: begin
+						alpha_w[1][0] = shift_poly_1(shift_poly_1(shift_poly_1(shift_poly_1(shift_poly_1(shift_poly_1(alpha_r[1][0]))))));
+						alpha_w[1][1] = shift_poly_2(shift_poly_2(shift_poly_2(shift_poly_2(shift_poly_2(shift_poly_2(alpha_r[1][1]))))));
+						alpha_w[1][2] = shift_poly_3(shift_poly_3(shift_poly_3(shift_poly_3(shift_poly_3(shift_poly_3(alpha_r[1][2]))))));
+						alpha_w[1][3] = shift_poly_4(shift_poly_4(shift_poly_4(shift_poly_4(shift_poly_4(shift_poly_4(alpha_r[1][3]))))));
+						alpha_w[1][4] = shift_poly_5(shift_poly_5(shift_poly_5(shift_poly_5(shift_poly_5(shift_poly_5(alpha_r[1][4]))))));
+						alpha_w[1][5] = shift_poly_6(shift_poly_6(shift_poly_6(shift_poly_6(shift_poly_6(shift_poly_6(alpha_r[1][5]))))));
+						alpha_w[1][6] = shift_poly_7(shift_poly_7(shift_poly_7(shift_poly_7(shift_poly_7(shift_poly_7(alpha_r[1][6]))))));
+						alpha_w[1][7] = shift_poly_8(shift_poly_8(shift_poly_8(shift_poly_8(shift_poly_8(shift_poly_8(alpha_r[1][7]))))));
+					end
+					5: begin
+						alpha_w[1][0] = shift_poly_1(shift_poly_1(shift_poly_1(shift_poly_1(shift_poly_1(alpha_r[1][0])))));
+						alpha_w[1][1] = shift_poly_2(shift_poly_2(shift_poly_2(shift_poly_2(shift_poly_2(alpha_r[1][1])))));
+						alpha_w[1][2] = shift_poly_3(shift_poly_3(shift_poly_3(shift_poly_3(shift_poly_3(alpha_r[1][2])))));
+						alpha_w[1][3] = shift_poly_4(shift_poly_4(shift_poly_4(shift_poly_4(shift_poly_4(alpha_r[1][3])))));
+						alpha_w[1][4] = shift_poly_5(shift_poly_5(shift_poly_5(shift_poly_5(shift_poly_5(alpha_r[1][4])))));
+						alpha_w[1][5] = shift_poly_6(shift_poly_6(shift_poly_6(shift_poly_6(shift_poly_6(alpha_r[1][5])))));
+						alpha_w[1][6] = shift_poly_7(shift_poly_7(shift_poly_7(shift_poly_7(shift_poly_7(alpha_r[1][6])))));
+						alpha_w[1][7] = shift_poly_8(shift_poly_8(shift_poly_8(shift_poly_8(shift_poly_8(alpha_r[1][7])))));
+					end
+					4: begin
+						alpha_w[1][0] = shift_poly_1(shift_poly_1(shift_poly_1(shift_poly_1(alpha_r[1][0]))));
+						alpha_w[1][1] = shift_poly_2(shift_poly_2(shift_poly_2(shift_poly_2(alpha_r[1][1]))));
+						alpha_w[1][2] = shift_poly_3(shift_poly_3(shift_poly_3(shift_poly_3(alpha_r[1][2]))));
+						alpha_w[1][3] = shift_poly_4(shift_poly_4(shift_poly_4(shift_poly_4(alpha_r[1][3]))));
+						alpha_w[1][4] = shift_poly_5(shift_poly_5(shift_poly_5(shift_poly_5(alpha_r[1][4]))));
+						alpha_w[1][5] = shift_poly_6(shift_poly_6(shift_poly_6(shift_poly_6(alpha_r[1][5]))));
+						alpha_w[1][6] = shift_poly_7(shift_poly_7(shift_poly_7(shift_poly_7(alpha_r[1][6]))));
+						alpha_w[1][7] = shift_poly_8(shift_poly_8(shift_poly_8(shift_poly_8(alpha_r[1][7]))));
+					end
+					3: begin
+						alpha_w[1][0] = shift_poly_1(shift_poly_1(shift_poly_1(alpha_r[1][0])));
+						alpha_w[1][1] = shift_poly_2(shift_poly_2(shift_poly_2(alpha_r[1][1])));
+						alpha_w[1][2] = shift_poly_3(shift_poly_3(shift_poly_3(alpha_r[1][2])));
+						alpha_w[1][3] = shift_poly_4(shift_poly_4(shift_poly_4(alpha_r[1][3])));
+						alpha_w[1][4] = shift_poly_5(shift_poly_5(shift_poly_5(alpha_r[1][4])));
+						alpha_w[1][5] = shift_poly_6(shift_poly_6(shift_poly_6(alpha_r[1][5])));
+						alpha_w[1][6] = shift_poly_7(shift_poly_7(shift_poly_7(alpha_r[1][6])));
+						alpha_w[1][7] = shift_poly_8(shift_poly_8(shift_poly_8(alpha_r[1][7])));
+					end
+					2: begin
+						alpha_w[1][0] = shift_poly_1(shift_poly_1(alpha_r[1][0]));
+						alpha_w[1][1] = shift_poly_2(shift_poly_2(alpha_r[1][1]));
+						alpha_w[1][2] = shift_poly_3(shift_poly_3(alpha_r[1][2]));
+						alpha_w[1][3] = shift_poly_4(shift_poly_4(alpha_r[1][3]));
+						alpha_w[1][4] = shift_poly_5(shift_poly_5(alpha_r[1][4]));
+						alpha_w[1][5] = shift_poly_6(shift_poly_6(alpha_r[1][5]));
+						alpha_w[1][6] = shift_poly_7(shift_poly_7(alpha_r[1][6]));
+						alpha_w[1][7] = shift_poly_8(shift_poly_8(alpha_r[1][7]));
+					end
+					1: begin
+						alpha_w[1][0] = shift_poly_1(alpha_r[1][0]);
+						alpha_w[1][1] = shift_poly_2(alpha_r[1][1]);
+						alpha_w[1][2] = shift_poly_3(alpha_r[1][2]);
+						alpha_w[1][3] = shift_poly_4(alpha_r[1][3]);
+						alpha_w[1][4] = shift_poly_5(alpha_r[1][4]);
+						alpha_w[1][5] = shift_poly_6(alpha_r[1][5]);
+						alpha_w[1][6] = shift_poly_7(alpha_r[1][6]);
+						alpha_w[1][7] = shift_poly_8(alpha_r[1][7]);
+					end
+					default: begin
+						alpha_w[1][0] = alpha_r[1][0];
+						alpha_w[1][1] = alpha_r[1][1];
+						alpha_w[1][2] = alpha_r[1][2];
+						alpha_w[1][3] = alpha_r[1][3];
+						alpha_w[1][4] = alpha_r[1][4];
+						alpha_w[1][5] = alpha_r[1][5];
+						alpha_w[1][6] = alpha_r[1][6];
+						alpha_w[1][7] = alpha_r[1][7];
+					end
+				endcase
+			end
+		end
 	end
 
 	always @(posedge clk) begin
@@ -1487,8 +2041,20 @@ module bch(
 			for (i = 0; i < 1024; i = i + 1) begin
 				data_r[i] <= 0;
 			end
+			for (i = 0; i < 8; i = i + 1)begin
+				alpha_r[0][i] <= 0;
+				alpha_r[1][i] <= 0;
+			end
 			for (i = 0; i < 4; i = i + 1) begin
+				power_r[i] <= 0;
 				corr_r[i] <= 0;
+				root_cnt_r[i] <= 0;
+				root_valid_cnt_r[i] <= 0;
+				index1_invalid_r[i] <= 0;
+				index2_invalid_r[i] <= 0;
+				for (j = 0; j < 4; j = j + 1) begin
+					root_r[i][j] <= 0;
+				end
 			end
 			cnt_r <= 0;
 			ready_r <= 0;
@@ -1500,25 +2066,21 @@ module bch(
 			min2_r <= 0;
 			index1_r <= 0;
 			index2_r <= 0;
-			index1_invalid_r <= 0;
-			index2_invalid_r <= 0;
+			index1_temp_r <= 0;
+			index2_temp_r <= 0;
+			corr_sel_r <= 0;
+			flipped_stack_ptr_r <= 0;
+			for (i = 0; i < 2; i = i + 1) flipped_stack_r[i] <= 0;
 			for (i = 0; i < 3; i = i + 1) begin
 				d_r[i] <= 0;
 				d_rho_r[i] <= 0;
 				l_r[i] <= 0;
 				l_rho_r[i] <= 0;
-				rho_r[i] <= 0;
-				root_cnt_r[i] <= 0;
-				
+				rho_r[i] <= 0;				
 				for (j = 0; j < 5; j = j + 1) begin
 					delta_r[i][j] <= 0;
 					delta_rho_r[i][j] <= 0;
 				end
-				
-				for (j = 0; j < 4; j = j + 1) begin
-					root_r[i][j] <= 0;
-				end
-				
 				for (j = 0; j < 8; j = j + 1) begin
 					S_r[i][j] <= 0;
 					for (l = 0; l < 5; l = l + 1) begin
@@ -1537,8 +2099,10 @@ module bch(
 			min2_r <= min2_w;
 			index1_r <= index1_w;
 			index2_r <= index2_w;
-			index1_invalid_r <= index1_invalid_w;
-			index2_invalid_r <= index2_invalid_w;
+			index1_temp_r <= index1_temp_w;
+			index2_temp_r <= index2_temp_w;
+			corr_sel_r <= corr_sel_w;
+			flipped_stack_ptr_r <= flipped_stack_ptr_w;
 			if (load_en) begin
 				for (i = 0; i < 1024; i = i + 1) begin
 					data_r[i] <= data_w[i];
@@ -1572,24 +2136,57 @@ module bch(
 					end
 				end
 			end
-			for (i = 0; i < 4; i = i + 1) begin
-				corr_r[i] <= corr_w[i];
+			for (i = 0; i < 2; i = i + 1) begin
+				flipped_stack_r[i] <= flipped_stack_w[i];
 			end
-			for (i = 0; i < 3; i = i + 1) begin
+			for (i = 0; i < 8; i = i + 1)begin
+				alpha_r[0][i] <= alpha_w[0][i];
+				alpha_r[1][i] <= alpha_w[1][i];
+			end
+			for (i = 0; i < 4; i = i + 1) begin
+				power_r[i] <= power_w[i];
+				corr_r[i] <= corr_w[i];
+				root_valid_cnt_r[i] <= root_valid_cnt_w[i];
 				root_cnt_r[i] <= root_cnt_w[i];
-				
+				index1_invalid_r[i] <= index1_invalid_w[i];
+				index2_invalid_r[i] <= index2_invalid_w[i];
 				for (j = 0; j < 4; j = j + 1) begin
 					root_r[i][j] <= root_w[i][j];
 				end
-				
+			end
+			for (i = 0; i < 3; i = i + 1) begin
 				for (j = 0; j < 8; j = j + 1) begin
 					for (l = 0; l < 5; l = l + 1) begin
 						stage1_buff_r[i][j][l] <= stage1_buff_w[i][j][l];
 					end
 				end
 			end
+			
 			odata_r <= odata_w;
 			finish_r <= finish_w;
+
+			// if (state_r == S_BER_SOFT1) begin
+			// 	for (i = 0; i < 8; i = i + 1) begin
+			// 		// $display("alpha[0][%d] = %b", i[2:0], alpha_r[0][i]);
+			// 		// $display("alpha[1][%d] = %b", i[2:0], alpha_r[1][i]);
+			// 		$display("Before :");
+			// 		$display("S[0][%d] = %b", i[2:0], S_r[0][i]);
+			// 		$display("S[1][%d] = %b", i[2:0], S_r[1][i]);
+			// 		$display("S[2][%d] = %b", i[2:0], S_r[2][i]);
+			// 	end
+			// end
+			// if ((state_r == S_OUT_SOFT)) begin
+			// 	for (i = 0; i < 8; i = i + 1) begin
+			// 		// $display("alpha[0][%d] = %b", i[2:0], alpha_r[0][i]);
+			// 		// $display("alpha[1][%d] = %b", i[2:0], alpha_r[1][i]);
+			// 		$display("After :");
+			// 		$display("S[0][%d] = %b", i[2:0], S_r[0][i]);
+			// 		$display("alpha[0][%d] = %b", i[2:0], alpha_r[0][i]);
+			// 		$display("S[1][%d] = %b", i[2:0], S_r[1][i]);
+			// 		$display("alpha[1][%d] = %b", i[2:0], alpha_r[1][i]);
+			// 		$display("S[2][%d] = %b", i[2:0], S_r[2][i]);
+			// 	end
+			// end
 		end
 	end
 
@@ -1632,7 +2229,7 @@ module bch(
 	function automatic [10:0] shift_poly_1;
 		input [9:0] i_poly;
 		begin
-			case (code_r)
+			case (code_r) // synopsys parallel_case
 				1: shift_poly_1 = poly_reduce_6(i_poly << 1);
 				2: shift_poly_1 = poly_reduce_8(i_poly << 1);
 				3: shift_poly_1 = poly_reduce_10(i_poly << 1); 
@@ -1644,7 +2241,7 @@ module bch(
 	function automatic [10:0] shift_poly_2;
 		input [9:0] i_poly;
 		begin
-			case (code_r)
+			case (code_r) // synopsys parallel_case
 				1: shift_poly_2 = poly_reduce_6(poly_reduce_6(i_poly << 1) << 1);
 				2: shift_poly_2 = poly_reduce_8(poly_reduce_8(i_poly << 1) << 1);
 				3: shift_poly_2 = poly_reduce_10(poly_reduce_10(i_poly << 1) << 1); 
@@ -1656,7 +2253,7 @@ module bch(
 	function automatic [10:0] shift_poly_3;
 		input [9:0] i_poly;
 		begin
-			case (code_r)
+			case (code_r) // synopsys parallel_case
 				1: shift_poly_3 = poly_reduce_6(poly_reduce_6(poly_reduce_6(i_poly << 1) << 1) << 1);
 				2: shift_poly_3 = poly_reduce_8(poly_reduce_8(poly_reduce_8(i_poly << 1) << 1) << 1);
 				3: shift_poly_3 = poly_reduce_10(poly_reduce_10(poly_reduce_10(i_poly << 1) << 1) << 1); 
@@ -1668,7 +2265,7 @@ module bch(
 	function automatic [10:0] shift_poly_4;
 		input [9:0] i_poly;
 		begin
-			case (code_r)
+			case (code_r) // synopsys parallel_case
 				1: shift_poly_4 = poly_reduce_6(poly_reduce_6(poly_reduce_6(poly_reduce_6(i_poly << 1) << 1) << 1) << 1);
 				2: shift_poly_4 = poly_reduce_8(poly_reduce_8(poly_reduce_8(poly_reduce_8(i_poly << 1) << 1) << 1) << 1);
 				3: shift_poly_4 = poly_reduce_10(poly_reduce_10(poly_reduce_10(poly_reduce_10(i_poly << 1) << 1) << 1) << 1); 
@@ -1680,7 +2277,7 @@ module bch(
 	function automatic [10:0] shift_poly_5;
 		input [9:0] i_poly;
 		begin
-			case (code_r)
+			case (code_r) // synopsys parallel_case
 				1: shift_poly_5 = poly_reduce_6(poly_reduce_6(poly_reduce_6(poly_reduce_6(poly_reduce_6(i_poly << 1) << 1) << 1) << 1) << 1);
 				2: shift_poly_5 = poly_reduce_8(poly_reduce_8(poly_reduce_8(poly_reduce_8(poly_reduce_8(i_poly << 1) << 1) << 1) << 1) << 1);
 				3: shift_poly_5 = poly_reduce_10(poly_reduce_10(poly_reduce_10(poly_reduce_10(poly_reduce_10(i_poly << 1) << 1) << 1) << 1) << 1); 
@@ -1692,7 +2289,7 @@ module bch(
 	function automatic[10:0] shift_poly_6;
         input [9:0] i_poly;
         begin
-            case (code_r)
+            case (code_r) // synopsys parallel_case
                 1: shift_poly_6 = poly_reduce_6(poly_reduce_6(poly_reduce_6(poly_reduce_6(poly_reduce_6(poly_reduce_6(i_poly << 1) << 1) << 1) << 1) << 1) << 1);
                 2: shift_poly_6 = poly_reduce_8(poly_reduce_8(poly_reduce_8(poly_reduce_8(poly_reduce_8(poly_reduce_8(i_poly << 1) << 1) << 1) << 1) << 1) << 1);
                 3: shift_poly_6 = poly_reduce_10(poly_reduce_10(poly_reduce_10(poly_reduce_10(poly_reduce_10(poly_reduce_10(i_poly << 1) << 1) << 1) << 1) << 1) << 1);
@@ -1704,7 +2301,7 @@ module bch(
     function automatic [10:0] shift_poly_7;
         input [9:0] i_poly;
         begin
-            case (code_r)
+            case (code_r) // synopsys parallel_case
                 1: shift_poly_7 = poly_reduce_6(poly_reduce_6(poly_reduce_6(poly_reduce_6(poly_reduce_6(poly_reduce_6(poly_reduce_6(i_poly << 1) << 1) << 1) << 1) << 1) << 1) << 1);
                 2: shift_poly_7 = poly_reduce_8(poly_reduce_8(poly_reduce_8(poly_reduce_8(poly_reduce_8(poly_reduce_8(poly_reduce_8(i_poly << 1) << 1) << 1) << 1) << 1) << 1) << 1);
                 3: shift_poly_7 = poly_reduce_10(poly_reduce_10(poly_reduce_10(poly_reduce_10(poly_reduce_10(poly_reduce_10(poly_reduce_10(i_poly << 1) << 1) << 1) << 1) << 1) << 1) << 1);
@@ -1716,7 +2313,7 @@ module bch(
     function automatic [10:0] shift_poly_8;
         input [9:0] i_poly;
         begin
-            case (code_r)
+            case (code_r) // synopsys parallel_case
                 1: shift_poly_8 = poly_reduce_6(poly_reduce_6(poly_reduce_6(poly_reduce_6(poly_reduce_6(poly_reduce_6(poly_reduce_6(poly_reduce_6(i_poly << 1) << 1) << 1) << 1) << 1) << 1) << 1) << 1);
                 2: shift_poly_8 = poly_reduce_8(poly_reduce_8(poly_reduce_8(poly_reduce_8(poly_reduce_8(poly_reduce_8(poly_reduce_8(poly_reduce_8(i_poly << 1) << 1) << 1) << 1) << 1) << 1) << 1) << 1);
                 3: shift_poly_8 = poly_reduce_10(poly_reduce_10(poly_reduce_10(poly_reduce_10(poly_reduce_10(poly_reduce_10(poly_reduce_10(poly_reduce_10(i_poly << 1) << 1) << 1) << 1) << 1) << 1) << 1) << 1);
@@ -1738,7 +2335,7 @@ module bch(
 			for (i = 0; i < 11; i = i + 1) begin
 				if (i_element2[i]) element_mul = element_mul ^ shift;
 				temp = shift << 1;
-				case (code_r)
+				case (code_r) // synopsys parallel_case
 					1: shift = poly_reduce_6(temp);
 					2: shift = poly_reduce_8(temp);
 					3: shift = poly_reduce_10(temp);
@@ -1770,66 +2367,210 @@ module bch(
 		
 	endfunction
 
+	function automatic [9:0] compare_corr;
+		input [9:0] i_corr1;
+		input [9:0] i_corr2;
+		input [9:0] i_corr3;
+		input [9:0] i_corr4;
+		reg [9:0] stage1_min1;
+		reg [9:0] stage1_min2;
+		begin
+			compare_corr = 0;
+			if (i_corr1 <= i_corr2) stage1_min1 = i_corr1;
+			else stage1_min1 = i_corr2;
+			if (i_corr3 <= i_corr4) stage1_min2 = i_corr3;
+			else stage1_min2 = i_corr4;
+			if (stage1_min1 <= stage1_min2) compare_corr = stage1_min1;
+			else compare_corr = stage1_min2;
+		end
+		
+	endfunction
+
 endmodule
 
-
-module find_min (
-	input [63:0] abs_data,
-	input [9:0] cnt,
-	input [7:0] min1_in,
-	input [7:0] min2_in,
-	input [9:0] index1_in,
-	input [9:0] index2_in,
-	output reg [7:0] min1_out,
-	output reg [7:0] min2_out,
-	output reg [9:0] index1_out,
-	output reg [9:0] index2_out
+// swiss
+module swiss (
+    input clk,
+    input rst_n,
+    input [6:0] abs_data0,
+    input [6:0] abs_data1,
+    input [6:0] abs_data2,
+    input [6:0] abs_data3,
+    input [6:0] abs_data4,
+    input [6:0] abs_data5,
+    input [6:0] abs_data6,
+    input [6:0] abs_data7,
+    input [9:0] cnt,
+    output [6:0] min_1,
+    output [6:0] min_2,
+    output [9:0] index_1,
+    output [9:0] index_2
 );
-	wire [7:0] abs_val [0:7];
-    assign abs_val[0] = abs_data[63:56];
-    assign abs_val[1] = abs_data[55:48];
-    assign abs_val[2] = abs_data[47:40];
-    assign abs_val[3] = abs_data[39:32];
-    assign abs_val[4] = abs_data[31:24];
-    assign abs_val[5] = abs_data[23:16];
-    assign abs_val[6] = abs_data[15:8];
-    assign abs_val[7] = abs_data[7:0];
+    integer i;
+    
+    reg [6:0] stage1_1_r [0:3], stage1_1_w [0:3], stage1_0_r [0:3], stage1_0_w [0:3];
+    reg [9:0] index_stage1_1_r [0:3], index_stage1_1_w [0:3], index_stage1_0_r [0:3], index_stage1_0_w [0:3];
+    
+    reg [6:0] stage2_min_r, stage2_min_w;
+    reg [9:0] index_stage2_min_r, index_stage2_min_w;
+    reg [6:0] stage2_110_r, stage2_110_w;
+    reg [9:0] index_stage2_110_r, index_stage2_110_w;
+    reg [6:0] stage2_101_r [0:1], stage2_101_w [0:1];
+    reg [9:0] index_stage2_101_r [0:1], index_stage2_101_w [0:1];
+    
+    reg [6:0] stage3_min1_r, stage3_min1_w, stage3_min2_r, stage3_min2_w;
+    reg [9:0] index_stage3_min1_r, index_stage3_min1_w, index_stage3_min2_r, index_stage3_min2_w;
 
-	integer i;
+    wire [6:0] abs_data [0:7];
+    assign abs_data[0] = abs_data0;
+    assign abs_data[1] = abs_data1;
+    assign abs_data[2] = abs_data2;
+    assign abs_data[3] = abs_data3;
+    assign abs_data[4] = abs_data4;
+    assign abs_data[5] = abs_data5;
+    assign abs_data[6] = abs_data6;
+    assign abs_data[7] = abs_data7;
 
-	reg [7:0] stage_min1 [0:8];
-    reg [7:0] stage_min2 [0:8];
-    reg [9:0] stage_idx1 [0:8];
-    reg [9:0] stage_idx2 [0:8];
+    always @(*) begin
+        for (i = 0; i < 4; i = i + 1) begin
+            if (abs_data[2*i] < abs_data[2*i+1]) begin
+                stage1_1_w[i] = abs_data[2*i];
+                stage1_0_w[i] = abs_data[2*i+1];
+                index_stage1_1_w[i] = cnt - 2 * i;
+                index_stage1_0_w[i] = cnt - 2 * i - 1;
+            end else begin
+                stage1_1_w[i] = abs_data[2*i+1];
+                stage1_0_w[i] = abs_data[2*i];
+                index_stage1_1_w[i] = cnt - 2 * i - 1;
+                index_stage1_0_w[i] = cnt - 2 * i;
+            end
+        end
+    end
 
-	always @(*) begin
-		stage_min1[0] = min1_in;
-        stage_min2[0] = min2_in;
-        stage_idx1[0] = index1_in;
-        stage_idx2[0] = index2_in;
-		for (i = 0; i < 8; i = i + 1) begin
-            if (abs_val[i] < stage_min1[i]) begin
-                stage_min1[i+1] = abs_val[i];
-                stage_idx1[i+1] = cnt - i;
-                stage_min2[i+1] = stage_min1[i];
-                stage_idx2[i+1] = stage_idx1[i];
+    always @(*) begin
+        reg [6:0] temp_stage2_11 [0:1], temp_stage2_10 [0:1], temp_stage2_01 [0:1];
+        reg [9:0] temp_index_stage2_11 [0:1], temp_index_stage2_10 [0:1], temp_index_stage2_01 [0:1];
+
+        for (i = 0; i < 2; i = i + 1) begin
+            if (stage1_1_r[2*i] < stage1_1_r[2*i+1]) begin
+                temp_stage2_11[i] = stage1_1_r[2*i];
+                temp_stage2_10[i] = stage1_1_r[2*i+1];
+                temp_index_stage2_11[i] = index_stage1_1_r[2*i];
+                temp_index_stage2_10[i] = index_stage1_1_r[2*i+1];
+            end else begin
+                temp_stage2_11[i] = stage1_1_r[2*i+1];
+                temp_stage2_10[i] = stage1_1_r[2*i];
+                temp_index_stage2_11[i] = index_stage1_1_r[2*i+1];
+                temp_index_stage2_10[i] = index_stage1_1_r[2*i];
             end
-            else if (abs_val[i] < stage_min2[i]) begin
-                stage_min1[i+1] = stage_min1[i];
-                stage_idx1[i+1] = stage_idx1[i];
-                stage_min2[i+1] = abs_val[i];
-                stage_idx2[i+1] = cnt - i;
+        end
+
+        for (i = 0; i < 2; i = i + 1) begin
+            if (stage1_0_r[2*i] < stage1_0_r[2*i+1]) begin
+                temp_stage2_01[i] = stage1_0_r[2*i];
+                temp_index_stage2_01[i] = index_stage1_0_r[2*i];
+            end else begin
+                temp_stage2_01[i] = stage1_0_r[2*i+1];
+                temp_index_stage2_01[i] = index_stage1_0_r[2*i+1];
             end
-            else begin
-                stage_min1[i+1] = stage_min1[i];
-                stage_idx1[i+1] = stage_idx1[i];
-                stage_min2[i+1] = stage_min2[i];
-                stage_idx2[i+1] = stage_idx2[i];
+        end
+
+        if (temp_stage2_11[0] < temp_stage2_11[1]) begin
+            stage2_min_w = temp_stage2_11[0];
+            stage2_110_w = temp_stage2_11[1];
+            index_stage2_min_w = temp_index_stage2_11[0];
+            index_stage2_110_w = temp_index_stage2_11[1];
+        end else begin
+            stage2_min_w = temp_stage2_11[1];
+            stage2_110_w = temp_stage2_11[0];
+            index_stage2_min_w = temp_index_stage2_11[1];
+            index_stage2_110_w = temp_index_stage2_11[0];
+        end
+
+        for (i = 0; i < 2; i = i + 1) begin
+            if (temp_stage2_10[i] < temp_stage2_01[i]) begin
+                stage2_101_w[i] = temp_stage2_10[i];
+                index_stage2_101_w[i] = temp_index_stage2_10[i];
+            end else begin
+                stage2_101_w[i] = temp_stage2_01[i];
+                index_stage2_101_w[i] = temp_index_stage2_01[i];
             end
-		end
-		min1_out = stage_min1[8];
-        min2_out = stage_min2[8];
-        index1_out = stage_idx1[8];
-        index2_out = stage_idx2[8];
-	end
+        end
+    end
+
+    always @(*) begin
+        reg [6:0] temp_stage3_candidate;
+        reg [9:0] temp_index_stage3_candidate;
+
+        if (stage2_101_r[0] < stage2_101_r[1]) begin
+            temp_stage3_candidate = stage2_101_r[0];
+            temp_index_stage3_candidate = index_stage2_101_r[0];
+        end else begin
+            temp_stage3_candidate = stage2_101_r[1];
+            temp_index_stage3_candidate = index_stage2_101_r[1];
+        end
+
+        if (temp_stage3_candidate < stage2_110_r) begin
+            stage3_min2_w = temp_stage3_candidate;
+            index_stage3_min2_w = temp_index_stage3_candidate;
+        end else begin
+            stage3_min2_w = stage2_110_r;
+            index_stage3_min2_w = index_stage2_110_r;
+        end
+
+        stage3_min1_w = stage2_min_r;
+        index_stage3_min1_w = index_stage2_min_r;
+    end
+
+    always @(posedge clk) begin
+        if (!rst_n) begin
+            for (i = 0; i < 4; i = i + 1) begin
+                stage1_1_r[i] <= 7'd0;
+                stage1_0_r[i] <= 7'd0;
+                index_stage1_1_r[i] <= 10'd0;
+                index_stage1_0_r[i] <= 10'd0;
+            end
+
+            stage2_min_r <= 7'd0;
+            index_stage2_min_r <= 10'd0;
+            stage2_110_r <= 7'd0;
+            index_stage2_110_r <= 10'd0;
+            for (i = 0; i < 2; i = i + 1) begin
+                stage2_101_r[i] <= 7'd0;
+                index_stage2_101_r[i] <= 10'd0;
+            end
+
+            stage3_min1_r <= 7'd0;
+            stage3_min2_r <= 7'd0;
+            index_stage3_min1_r <= 10'd0;
+            index_stage3_min2_r <= 10'd0;
+        end
+        else begin
+            for (i = 0; i < 4; i = i + 1) begin
+                stage1_1_r[i] <= stage1_1_w[i];
+                stage1_0_r[i] <= stage1_0_w[i];
+                index_stage1_1_r[i] <= index_stage1_1_w[i];
+                index_stage1_0_r[i] <= index_stage1_0_w[i];
+            end
+            
+            stage2_min_r <= stage2_min_w;
+            index_stage2_min_r <= index_stage2_min_w;
+            stage2_110_r <= stage2_110_w;
+            index_stage2_110_r <= index_stage2_110_w;
+            for (i = 0; i < 2; i = i + 1) begin
+                stage2_101_r[i] <= stage2_101_w[i];
+                index_stage2_101_r[i] <= index_stage2_101_w[i];
+            end
+            
+            stage3_min1_r <= stage3_min1_w;
+            stage3_min2_r <= stage3_min2_w;
+            index_stage3_min1_r <= index_stage3_min1_w;
+            index_stage3_min2_r <= index_stage3_min2_w;
+        end
+    end
+
+    assign min_1 = stage3_min1_r;
+    assign min_2 = stage3_min2_r;
+    assign index_1 = index_stage3_min1_r;
+    assign index_2 = index_stage3_min2_r;
 endmodule
