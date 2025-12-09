@@ -170,6 +170,23 @@ module bch(
 
 	assign ready = ready_r;
 
+	// always @(*) begin
+	// 	case (code_r)
+	// 		1: begin
+				
+	// 		end
+	// 		2: begin
+				
+	// 		end
+	// 		3: begin
+				
+	// 		end
+	// 		default: begin
+				
+	// 		end
+	// 	endcase
+	// end
+
 	always @(*) begin
 		state_w = state_r;
 		cnt_w = cnt_r;
@@ -268,64 +285,64 @@ module bch(
 							S_temp2_w[1] = {9'b0, idata[55]};
 							S_temp2_w[2] = {9'b0, idata[55]};
 							S_temp2_w[3] = {9'b0, idata[55]};
-							S_temp3_w[0] = shift_poly_1(S_temp2_w[0]) ^ {9'b0, idata[47]};
-							S_temp3_w[1] = shift_poly_2(S_temp2_w[1]) ^ {9'b0, idata[47]};
-							S_temp3_w[2] = shift_poly_3(S_temp2_w[2]) ^ {9'b0, idata[47]};
-							S_temp3_w[3] = shift_poly_4(S_temp2_w[3]) ^ {9'b0, idata[47]};
-							S_temp4_w[0] = shift_poly_1(S_temp3_w[0]) ^ {9'b0, idata[39]};
-							S_temp4_w[1] = shift_poly_2(S_temp3_w[1]) ^ {9'b0, idata[39]};
-							S_temp4_w[2] = shift_poly_3(S_temp3_w[2]) ^ {9'b0, idata[39]};
-							S_temp4_w[3] = shift_poly_4(S_temp3_w[3]) ^ {9'b0, idata[39]};
-							S_temp5_w[0] = shift_poly_1(S_temp4_w[0]) ^ {9'b0, idata[31]};
-							S_temp5_w[1] = shift_poly_2(S_temp4_w[1]) ^ {9'b0, idata[31]};
-							S_temp5_w[2] = shift_poly_3(S_temp4_w[2]) ^ {9'b0, idata[31]};
-							S_temp5_w[3] = shift_poly_4(S_temp4_w[3]) ^ {9'b0, idata[31]};
-							S_temp6_w[0] = shift_poly_1(S_temp5_w[0]) ^ {9'b0, idata[23]};
-							S_temp6_w[1] = shift_poly_2(S_temp5_w[1]) ^ {9'b0, idata[23]};
-							S_temp6_w[2] = shift_poly_3(S_temp5_w[2]) ^ {9'b0, idata[23]};
-							S_temp6_w[3] = shift_poly_4(S_temp5_w[3]) ^ {9'b0, idata[23]};
-							S_temp7_w[0] = shift_poly_1(S_temp6_w[0]) ^ {9'b0, idata[15]};
-							S_temp7_w[1] = shift_poly_2(S_temp6_w[1]) ^ {9'b0, idata[15]};
-							S_temp7_w[2] = shift_poly_3(S_temp6_w[2]) ^ {9'b0, idata[15]};
-							S_temp7_w[3] = shift_poly_4(S_temp6_w[3]) ^ {9'b0, idata[15]};
-							S_w[0][0] = shift_poly_1(S_temp7_w[0]) ^ {9'b0, idata[7]};
-							S_w[0][1] = shift_poly_2(S_temp7_w[1]) ^ {9'b0, idata[7]};
-							S_w[0][2] = shift_poly_3(S_temp7_w[2]) ^ {9'b0, idata[7]};
-							S_w[0][3] = shift_poly_4(S_temp7_w[3]) ^ {9'b0, idata[7]};
+							S_temp3_w[0] = shift_poly_1_6(S_temp2_w[0]) ^ {9'b0, idata[47]};
+							S_temp3_w[1] = shift_poly_2_6(S_temp2_w[1]) ^ {9'b0, idata[47]};
+							S_temp3_w[2] = shift_poly_3_6(S_temp2_w[2]) ^ {9'b0, idata[47]};
+							S_temp3_w[3] = shift_poly_4_6(S_temp2_w[3]) ^ {9'b0, idata[47]};
+							S_temp4_w[0] = shift_poly_1_6(S_temp3_w[0]) ^ {9'b0, idata[39]};
+							S_temp4_w[1] = shift_poly_2_6(S_temp3_w[1]) ^ {9'b0, idata[39]};
+							S_temp4_w[2] = shift_poly_3_6(S_temp3_w[2]) ^ {9'b0, idata[39]};
+							S_temp4_w[3] = shift_poly_4_6(S_temp3_w[3]) ^ {9'b0, idata[39]};
+							S_temp5_w[0] = shift_poly_1_6(S_temp4_w[0]) ^ {9'b0, idata[31]};
+							S_temp5_w[1] = shift_poly_2_6(S_temp4_w[1]) ^ {9'b0, idata[31]};
+							S_temp5_w[2] = shift_poly_3_6(S_temp4_w[2]) ^ {9'b0, idata[31]};
+							S_temp5_w[3] = shift_poly_4_6(S_temp4_w[3]) ^ {9'b0, idata[31]};
+							S_temp6_w[0] = shift_poly_1_6(S_temp5_w[0]) ^ {9'b0, idata[23]};
+							S_temp6_w[1] = shift_poly_2_6(S_temp5_w[1]) ^ {9'b0, idata[23]};
+							S_temp6_w[2] = shift_poly_3_6(S_temp5_w[2]) ^ {9'b0, idata[23]};
+							S_temp6_w[3] = shift_poly_4_6(S_temp5_w[3]) ^ {9'b0, idata[23]};
+							S_temp7_w[0] = shift_poly_1_6(S_temp6_w[0]) ^ {9'b0, idata[15]};
+							S_temp7_w[1] = shift_poly_2_6(S_temp6_w[1]) ^ {9'b0, idata[15]};
+							S_temp7_w[2] = shift_poly_3_6(S_temp6_w[2]) ^ {9'b0, idata[15]};
+							S_temp7_w[3] = shift_poly_4_6(S_temp6_w[3]) ^ {9'b0, idata[15]};
+							S_w[0][0] = shift_poly_1_6(S_temp7_w[0]) ^ {9'b0, idata[7]};
+							S_w[0][1] = shift_poly_2_6(S_temp7_w[1]) ^ {9'b0, idata[7]};
+							S_w[0][2] = shift_poly_3_6(S_temp7_w[2]) ^ {9'b0, idata[7]};
+							S_w[0][3] = shift_poly_4_6(S_temp7_w[3]) ^ {9'b0, idata[7]};
 						end
 						else if (cnt_r >= 7) begin
-							S_temp1_w[0] = shift_poly_1(S_r[0][0]) ^ {9'b0, idata[63]};
-							S_temp1_w[1] = shift_poly_2(S_r[0][1]) ^ {9'b0, idata[63]};
-							S_temp1_w[2] = shift_poly_3(S_r[0][2]) ^ {9'b0, idata[63]};
-							S_temp1_w[3] = shift_poly_4(S_r[0][3]) ^ {9'b0, idata[63]};
-							S_temp2_w[0] = shift_poly_1(S_temp1_w[0]) ^ {9'b0, idata[55]};
-							S_temp2_w[1] = shift_poly_2(S_temp1_w[1]) ^ {9'b0, idata[55]};
-							S_temp2_w[2] = shift_poly_3(S_temp1_w[2]) ^ {9'b0, idata[55]};
-							S_temp2_w[3] = shift_poly_4(S_temp1_w[3]) ^ {9'b0, idata[55]};
-							S_temp3_w[0] = shift_poly_1(S_temp2_w[0]) ^ {9'b0, idata[47]};
-							S_temp3_w[1] = shift_poly_2(S_temp2_w[1]) ^ {9'b0, idata[47]};
-							S_temp3_w[2] = shift_poly_3(S_temp2_w[2]) ^ {9'b0, idata[47]};
-							S_temp3_w[3] = shift_poly_4(S_temp2_w[3]) ^ {9'b0, idata[47]};
-							S_temp4_w[0] = shift_poly_1(S_temp3_w[0]) ^ {9'b0, idata[39]};
-							S_temp4_w[1] = shift_poly_2(S_temp3_w[1]) ^ {9'b0, idata[39]};
-							S_temp4_w[2] = shift_poly_3(S_temp3_w[2]) ^ {9'b0, idata[39]};
-							S_temp4_w[3] = shift_poly_4(S_temp3_w[3]) ^ {9'b0, idata[39]};
-							S_temp5_w[0] = shift_poly_1(S_temp4_w[0]) ^ {9'b0, idata[31]};
-							S_temp5_w[1] = shift_poly_2(S_temp4_w[1]) ^ {9'b0, idata[31]};
-							S_temp5_w[2] = shift_poly_3(S_temp4_w[2]) ^ {9'b0, idata[31]};
-							S_temp5_w[3] = shift_poly_4(S_temp4_w[3]) ^ {9'b0, idata[31]};
-							S_temp6_w[0] = shift_poly_1(S_temp5_w[0]) ^ {9'b0, idata[23]};
-							S_temp6_w[1] = shift_poly_2(S_temp5_w[1]) ^ {9'b0, idata[23]};
-							S_temp6_w[2] = shift_poly_3(S_temp5_w[2]) ^ {9'b0, idata[23]};
-							S_temp6_w[3] = shift_poly_4(S_temp5_w[3]) ^ {9'b0, idata[23]};
-							S_temp7_w[0] = shift_poly_1(S_temp6_w[0]) ^ {9'b0, idata[15]};
-							S_temp7_w[1] = shift_poly_2(S_temp6_w[1]) ^ {9'b0, idata[15]};
-							S_temp7_w[2] = shift_poly_3(S_temp6_w[2]) ^ {9'b0, idata[15]};
-							S_temp7_w[3] = shift_poly_4(S_temp6_w[3]) ^ {9'b0, idata[15]};
-							S_w[0][0] = shift_poly_1(S_temp7_w[0]) ^ {9'b0, idata[7]};
-							S_w[0][1] = shift_poly_2(S_temp7_w[1]) ^ {9'b0, idata[7]};
-							S_w[0][2] = shift_poly_3(S_temp7_w[2]) ^ {9'b0, idata[7]};
-							S_w[0][3] = shift_poly_4(S_temp7_w[3]) ^ {9'b0, idata[7]};
+							S_temp1_w[0] = shift_poly_1_6(S_r[0][0]) ^ {9'b0, idata[63]};
+							S_temp1_w[1] = shift_poly_2_6(S_r[0][1]) ^ {9'b0, idata[63]};
+							S_temp1_w[2] = shift_poly_3_6(S_r[0][2]) ^ {9'b0, idata[63]};
+							S_temp1_w[3] = shift_poly_4_6(S_r[0][3]) ^ {9'b0, idata[63]};
+							S_temp2_w[0] = shift_poly_1_6(S_temp1_w[0]) ^ {9'b0, idata[55]};
+							S_temp2_w[1] = shift_poly_2_6(S_temp1_w[1]) ^ {9'b0, idata[55]};
+							S_temp2_w[2] = shift_poly_3_6(S_temp1_w[2]) ^ {9'b0, idata[55]};
+							S_temp2_w[3] = shift_poly_4_6(S_temp1_w[3]) ^ {9'b0, idata[55]};
+							S_temp3_w[0] = shift_poly_1_6(S_temp2_w[0]) ^ {9'b0, idata[47]};
+							S_temp3_w[1] = shift_poly_2_6(S_temp2_w[1]) ^ {9'b0, idata[47]};
+							S_temp3_w[2] = shift_poly_3_6(S_temp2_w[2]) ^ {9'b0, idata[47]};
+							S_temp3_w[3] = shift_poly_4_6(S_temp2_w[3]) ^ {9'b0, idata[47]};
+							S_temp4_w[0] = shift_poly_1_6(S_temp3_w[0]) ^ {9'b0, idata[39]};
+							S_temp4_w[1] = shift_poly_2_6(S_temp3_w[1]) ^ {9'b0, idata[39]};
+							S_temp4_w[2] = shift_poly_3_6(S_temp3_w[2]) ^ {9'b0, idata[39]};
+							S_temp4_w[3] = shift_poly_4_6(S_temp3_w[3]) ^ {9'b0, idata[39]};
+							S_temp5_w[0] = shift_poly_1_6(S_temp4_w[0]) ^ {9'b0, idata[31]};
+							S_temp5_w[1] = shift_poly_2_6(S_temp4_w[1]) ^ {9'b0, idata[31]};
+							S_temp5_w[2] = shift_poly_3_6(S_temp4_w[2]) ^ {9'b0, idata[31]};
+							S_temp5_w[3] = shift_poly_4_6(S_temp4_w[3]) ^ {9'b0, idata[31]};
+							S_temp6_w[0] = shift_poly_1_6(S_temp5_w[0]) ^ {9'b0, idata[23]};
+							S_temp6_w[1] = shift_poly_2_6(S_temp5_w[1]) ^ {9'b0, idata[23]};
+							S_temp6_w[2] = shift_poly_3_6(S_temp5_w[2]) ^ {9'b0, idata[23]};
+							S_temp6_w[3] = shift_poly_4_6(S_temp5_w[3]) ^ {9'b0, idata[23]};
+							S_temp7_w[0] = shift_poly_1_6(S_temp6_w[0]) ^ {9'b0, idata[15]};
+							S_temp7_w[1] = shift_poly_2_6(S_temp6_w[1]) ^ {9'b0, idata[15]};
+							S_temp7_w[2] = shift_poly_3_6(S_temp6_w[2]) ^ {9'b0, idata[15]};
+							S_temp7_w[3] = shift_poly_4_6(S_temp6_w[3]) ^ {9'b0, idata[15]};
+							S_w[0][0] = shift_poly_1_6(S_temp7_w[0]) ^ {9'b0, idata[7]};
+							S_w[0][1] = shift_poly_2_6(S_temp7_w[1]) ^ {9'b0, idata[7]};
+							S_w[0][2] = shift_poly_3_6(S_temp7_w[2]) ^ {9'b0, idata[7]};
+							S_w[0][3] = shift_poly_4_6(S_temp7_w[3]) ^ {9'b0, idata[7]};
 						end
 					end
 					2: begin
@@ -334,64 +351,64 @@ module bch(
 							S_temp2_w[1] = {9'b0, idata[55]};
 							S_temp2_w[2] = {9'b0, idata[55]};
 							S_temp2_w[3] = {9'b0, idata[55]};
-							S_temp3_w[0] = shift_poly_1(S_temp2_w[0]) ^ {9'b0, idata[47]};
-							S_temp3_w[1] = shift_poly_2(S_temp2_w[1]) ^ {9'b0, idata[47]};
-							S_temp3_w[2] = shift_poly_3(S_temp2_w[2]) ^ {9'b0, idata[47]};
-							S_temp3_w[3] = shift_poly_4(S_temp2_w[3]) ^ {9'b0, idata[47]};
-							S_temp4_w[0] = shift_poly_1(S_temp3_w[0]) ^ {9'b0, idata[39]};
-							S_temp4_w[1] = shift_poly_2(S_temp3_w[1]) ^ {9'b0, idata[39]};
-							S_temp4_w[2] = shift_poly_3(S_temp3_w[2]) ^ {9'b0, idata[39]};
-							S_temp4_w[3] = shift_poly_4(S_temp3_w[3]) ^ {9'b0, idata[39]};
-							S_temp5_w[0] = shift_poly_1(S_temp4_w[0]) ^ {9'b0, idata[31]};
-							S_temp5_w[1] = shift_poly_2(S_temp4_w[1]) ^ {9'b0, idata[31]};
-							S_temp5_w[2] = shift_poly_3(S_temp4_w[2]) ^ {9'b0, idata[31]};
-							S_temp5_w[3] = shift_poly_4(S_temp4_w[3]) ^ {9'b0, idata[31]};
-							S_temp6_w[0] = shift_poly_1(S_temp5_w[0]) ^ {9'b0, idata[23]};
-							S_temp6_w[1] = shift_poly_2(S_temp5_w[1]) ^ {9'b0, idata[23]};
-							S_temp6_w[2] = shift_poly_3(S_temp5_w[2]) ^ {9'b0, idata[23]};
-							S_temp6_w[3] = shift_poly_4(S_temp5_w[3]) ^ {9'b0, idata[23]};
-							S_temp7_w[0] = shift_poly_1(S_temp6_w[0]) ^ {9'b0, idata[15]};
-							S_temp7_w[1] = shift_poly_2(S_temp6_w[1]) ^ {9'b0, idata[15]};
-							S_temp7_w[2] = shift_poly_3(S_temp6_w[2]) ^ {9'b0, idata[15]};
-							S_temp7_w[3] = shift_poly_4(S_temp6_w[3]) ^ {9'b0, idata[15]};
-							S_w[0][0] = shift_poly_1(S_temp7_w[0]) ^ {9'b0, idata[7]};
-							S_w[0][1] = shift_poly_2(S_temp7_w[1]) ^ {9'b0, idata[7]};
-							S_w[0][2] = shift_poly_3(S_temp7_w[2]) ^ {9'b0, idata[7]};
-							S_w[0][3] = shift_poly_4(S_temp7_w[3]) ^ {9'b0, idata[7]};
+							S_temp3_w[0] = shift_poly_1_8(S_temp2_w[0]) ^ {9'b0, idata[47]};
+							S_temp3_w[1] = shift_poly_2_8(S_temp2_w[1]) ^ {9'b0, idata[47]};
+							S_temp3_w[2] = shift_poly_3_8(S_temp2_w[2]) ^ {9'b0, idata[47]};
+							S_temp3_w[3] = shift_poly_4_8(S_temp2_w[3]) ^ {9'b0, idata[47]};
+							S_temp4_w[0] = shift_poly_1_8(S_temp3_w[0]) ^ {9'b0, idata[39]};
+							S_temp4_w[1] = shift_poly_2_8(S_temp3_w[1]) ^ {9'b0, idata[39]};
+							S_temp4_w[2] = shift_poly_3_8(S_temp3_w[2]) ^ {9'b0, idata[39]};
+							S_temp4_w[3] = shift_poly_4_8(S_temp3_w[3]) ^ {9'b0, idata[39]};
+							S_temp5_w[0] = shift_poly_1_8(S_temp4_w[0]) ^ {9'b0, idata[31]};
+							S_temp5_w[1] = shift_poly_2_8(S_temp4_w[1]) ^ {9'b0, idata[31]};
+							S_temp5_w[2] = shift_poly_3_8(S_temp4_w[2]) ^ {9'b0, idata[31]};
+							S_temp5_w[3] = shift_poly_4_8(S_temp4_w[3]) ^ {9'b0, idata[31]};
+							S_temp6_w[0] = shift_poly_1_8(S_temp5_w[0]) ^ {9'b0, idata[23]};
+							S_temp6_w[1] = shift_poly_2_8(S_temp5_w[1]) ^ {9'b0, idata[23]};
+							S_temp6_w[2] = shift_poly_3_8(S_temp5_w[2]) ^ {9'b0, idata[23]};
+							S_temp6_w[3] = shift_poly_4_8(S_temp5_w[3]) ^ {9'b0, idata[23]};
+							S_temp7_w[0] = shift_poly_1_8(S_temp6_w[0]) ^ {9'b0, idata[15]};
+							S_temp7_w[1] = shift_poly_2_8(S_temp6_w[1]) ^ {9'b0, idata[15]};
+							S_temp7_w[2] = shift_poly_3_8(S_temp6_w[2]) ^ {9'b0, idata[15]};
+							S_temp7_w[3] = shift_poly_4_8(S_temp6_w[3]) ^ {9'b0, idata[15]};
+							S_w[0][0] = shift_poly_1_8(S_temp7_w[0]) ^ {9'b0, idata[7]};
+							S_w[0][1] = shift_poly_2_8(S_temp7_w[1]) ^ {9'b0, idata[7]};
+							S_w[0][2] = shift_poly_3_8(S_temp7_w[2]) ^ {9'b0, idata[7]};
+							S_w[0][3] = shift_poly_4_8(S_temp7_w[3]) ^ {9'b0, idata[7]};
 						end
 						else if (cnt_r >= 7) begin
-							S_temp1_w[0] = shift_poly_1(S_r[0][0]) ^ {9'b0, idata[63]};
-							S_temp1_w[1] = shift_poly_2(S_r[0][1]) ^ {9'b0, idata[63]};
-							S_temp1_w[2] = shift_poly_3(S_r[0][2]) ^ {9'b0, idata[63]};
-							S_temp1_w[3] = shift_poly_4(S_r[0][3]) ^ {9'b0, idata[63]};
-							S_temp2_w[0] = shift_poly_1(S_temp1_w[0]) ^ {9'b0, idata[55]};
-							S_temp2_w[1] = shift_poly_2(S_temp1_w[1]) ^ {9'b0, idata[55]};
-							S_temp2_w[2] = shift_poly_3(S_temp1_w[2]) ^ {9'b0, idata[55]};
-							S_temp2_w[3] = shift_poly_4(S_temp1_w[3]) ^ {9'b0, idata[55]};
-							S_temp3_w[0] = shift_poly_1(S_temp2_w[0]) ^ {9'b0, idata[47]};
-							S_temp3_w[1] = shift_poly_2(S_temp2_w[1]) ^ {9'b0, idata[47]};
-							S_temp3_w[2] = shift_poly_3(S_temp2_w[2]) ^ {9'b0, idata[47]};
-							S_temp3_w[3] = shift_poly_4(S_temp2_w[3]) ^ {9'b0, idata[47]};
-							S_temp4_w[0] = shift_poly_1(S_temp3_w[0]) ^ {9'b0, idata[39]};
-							S_temp4_w[1] = shift_poly_2(S_temp3_w[1]) ^ {9'b0, idata[39]};
-							S_temp4_w[2] = shift_poly_3(S_temp3_w[2]) ^ {9'b0, idata[39]};
-							S_temp4_w[3] = shift_poly_4(S_temp3_w[3]) ^ {9'b0, idata[39]};
-							S_temp5_w[0] = shift_poly_1(S_temp4_w[0]) ^ {9'b0, idata[31]};
-							S_temp5_w[1] = shift_poly_2(S_temp4_w[1]) ^ {9'b0, idata[31]};
-							S_temp5_w[2] = shift_poly_3(S_temp4_w[2]) ^ {9'b0, idata[31]};
-							S_temp5_w[3] = shift_poly_4(S_temp4_w[3]) ^ {9'b0, idata[31]};
-							S_temp6_w[0] = shift_poly_1(S_temp5_w[0]) ^ {9'b0, idata[23]};
-							S_temp6_w[1] = shift_poly_2(S_temp5_w[1]) ^ {9'b0, idata[23]};
-							S_temp6_w[2] = shift_poly_3(S_temp5_w[2]) ^ {9'b0, idata[23]};
-							S_temp6_w[3] = shift_poly_4(S_temp5_w[3]) ^ {9'b0, idata[23]};
-							S_temp7_w[0] = shift_poly_1(S_temp6_w[0]) ^ {9'b0, idata[15]};
-							S_temp7_w[1] = shift_poly_2(S_temp6_w[1]) ^ {9'b0, idata[15]};
-							S_temp7_w[2] = shift_poly_3(S_temp6_w[2]) ^ {9'b0, idata[15]};
-							S_temp7_w[3] = shift_poly_4(S_temp6_w[3]) ^ {9'b0, idata[15]};
-							S_w[0][0] = shift_poly_1(S_temp7_w[0]) ^ {9'b0, idata[7]};
-							S_w[0][1] = shift_poly_2(S_temp7_w[1]) ^ {9'b0, idata[7]};
-							S_w[0][2] = shift_poly_3(S_temp7_w[2]) ^ {9'b0, idata[7]};
-							S_w[0][3] = shift_poly_4(S_temp7_w[3]) ^ {9'b0, idata[7]};
+							S_temp1_w[0] = shift_poly_1_8(S_r[0][0]) ^ {9'b0, idata[63]};
+							S_temp1_w[1] = shift_poly_2_8(S_r[0][1]) ^ {9'b0, idata[63]};
+							S_temp1_w[2] = shift_poly_3_8(S_r[0][2]) ^ {9'b0, idata[63]};
+							S_temp1_w[3] = shift_poly_4_8(S_r[0][3]) ^ {9'b0, idata[63]};
+							S_temp2_w[0] = shift_poly_1_8(S_temp1_w[0]) ^ {9'b0, idata[55]};
+							S_temp2_w[1] = shift_poly_2_8(S_temp1_w[1]) ^ {9'b0, idata[55]};
+							S_temp2_w[2] = shift_poly_3_8(S_temp1_w[2]) ^ {9'b0, idata[55]};
+							S_temp2_w[3] = shift_poly_4_8(S_temp1_w[3]) ^ {9'b0, idata[55]};
+							S_temp3_w[0] = shift_poly_1_8(S_temp2_w[0]) ^ {9'b0, idata[47]};
+							S_temp3_w[1] = shift_poly_2_8(S_temp2_w[1]) ^ {9'b0, idata[47]};
+							S_temp3_w[2] = shift_poly_3_8(S_temp2_w[2]) ^ {9'b0, idata[47]};
+							S_temp3_w[3] = shift_poly_4_8(S_temp2_w[3]) ^ {9'b0, idata[47]};
+							S_temp4_w[0] = shift_poly_1_8(S_temp3_w[0]) ^ {9'b0, idata[39]};
+							S_temp4_w[1] = shift_poly_2_8(S_temp3_w[1]) ^ {9'b0, idata[39]};
+							S_temp4_w[2] = shift_poly_3_8(S_temp3_w[2]) ^ {9'b0, idata[39]};
+							S_temp4_w[3] = shift_poly_4_8(S_temp3_w[3]) ^ {9'b0, idata[39]};
+							S_temp5_w[0] = shift_poly_1_8(S_temp4_w[0]) ^ {9'b0, idata[31]};
+							S_temp5_w[1] = shift_poly_2_8(S_temp4_w[1]) ^ {9'b0, idata[31]};
+							S_temp5_w[2] = shift_poly_3_8(S_temp4_w[2]) ^ {9'b0, idata[31]};
+							S_temp5_w[3] = shift_poly_4_8(S_temp4_w[3]) ^ {9'b0, idata[31]};
+							S_temp6_w[0] = shift_poly_1_8(S_temp5_w[0]) ^ {9'b0, idata[23]};
+							S_temp6_w[1] = shift_poly_2_8(S_temp5_w[1]) ^ {9'b0, idata[23]};
+							S_temp6_w[2] = shift_poly_3_8(S_temp5_w[2]) ^ {9'b0, idata[23]};
+							S_temp6_w[3] = shift_poly_4_8(S_temp5_w[3]) ^ {9'b0, idata[23]};
+							S_temp7_w[0] = shift_poly_1_8(S_temp6_w[0]) ^ {9'b0, idata[15]};
+							S_temp7_w[1] = shift_poly_2_8(S_temp6_w[1]) ^ {9'b0, idata[15]};
+							S_temp7_w[2] = shift_poly_3_8(S_temp6_w[2]) ^ {9'b0, idata[15]};
+							S_temp7_w[3] = shift_poly_4_8(S_temp6_w[3]) ^ {9'b0, idata[15]};
+							S_w[0][0] = shift_poly_1_8(S_temp7_w[0]) ^ {9'b0, idata[7]};
+							S_w[0][1] = shift_poly_2_8(S_temp7_w[1]) ^ {9'b0, idata[7]};
+							S_w[0][2] = shift_poly_3_8(S_temp7_w[2]) ^ {9'b0, idata[7]};
+							S_w[0][3] = shift_poly_4_8(S_temp7_w[3]) ^ {9'b0, idata[7]};
 						end
 					end
 					3: begin
@@ -404,120 +421,120 @@ module bch(
 							S_temp2_w[5] = {9'b0, idata[55]};
 							S_temp2_w[6] = {9'b0, idata[55]};
 							S_temp2_w[7] = {9'b0, idata[55]};
-							S_temp3_w[0] = shift_poly_1(S_temp2_w[0]) ^ {9'b0, idata[47]};
-							S_temp3_w[1] = shift_poly_2(S_temp2_w[1]) ^ {9'b0, idata[47]};
-							S_temp3_w[2] = shift_poly_3(S_temp2_w[2]) ^ {9'b0, idata[47]};
-							S_temp3_w[3] = shift_poly_4(S_temp2_w[3]) ^ {9'b0, idata[47]};
-							S_temp3_w[4] = shift_poly_5(S_temp2_w[4]) ^ {9'b0, idata[47]};
-							S_temp3_w[5] = shift_poly_6(S_temp2_w[5]) ^ {9'b0, idata[47]};
-							S_temp3_w[6] = shift_poly_7(S_temp2_w[6]) ^ {9'b0, idata[47]};
-							S_temp3_w[7] = shift_poly_8(S_temp2_w[7]) ^ {9'b0, idata[47]};
-							S_temp4_w[0] = shift_poly_1(S_temp3_w[0]) ^ {9'b0, idata[39]};
-							S_temp4_w[1] = shift_poly_2(S_temp3_w[1]) ^ {9'b0, idata[39]};
-							S_temp4_w[2] = shift_poly_3(S_temp3_w[2]) ^ {9'b0, idata[39]};
-							S_temp4_w[3] = shift_poly_4(S_temp3_w[3]) ^ {9'b0, idata[39]};
-							S_temp4_w[4] = shift_poly_5(S_temp3_w[4]) ^ {9'b0, idata[39]};
-							S_temp4_w[5] = shift_poly_6(S_temp3_w[5]) ^ {9'b0, idata[39]};
-							S_temp4_w[6] = shift_poly_7(S_temp3_w[6]) ^ {9'b0, idata[39]};
-							S_temp4_w[7] = shift_poly_8(S_temp3_w[7]) ^ {9'b0, idata[39]};
-							S_temp5_w[0] = shift_poly_1(S_temp4_w[0]) ^ {9'b0, idata[31]};
-							S_temp5_w[1] = shift_poly_2(S_temp4_w[1]) ^ {9'b0, idata[31]};
-							S_temp5_w[2] = shift_poly_3(S_temp4_w[2]) ^ {9'b0, idata[31]};
-							S_temp5_w[3] = shift_poly_4(S_temp4_w[3]) ^ {9'b0, idata[31]};
-							S_temp5_w[4] = shift_poly_5(S_temp4_w[4]) ^ {9'b0, idata[31]};
-							S_temp5_w[5] = shift_poly_6(S_temp4_w[5]) ^ {9'b0, idata[31]};
-							S_temp5_w[6] = shift_poly_7(S_temp4_w[6]) ^ {9'b0, idata[31]};
-							S_temp5_w[7] = shift_poly_8(S_temp4_w[7]) ^ {9'b0, idata[31]};
-							S_temp6_w[0] = shift_poly_1(S_temp5_w[0]) ^ {9'b0, idata[23]};
-							S_temp6_w[1] = shift_poly_2(S_temp5_w[1]) ^ {9'b0, idata[23]};
-							S_temp6_w[2] = shift_poly_3(S_temp5_w[2]) ^ {9'b0, idata[23]};
-							S_temp6_w[3] = shift_poly_4(S_temp5_w[3]) ^ {9'b0, idata[23]};
-							S_temp6_w[4] = shift_poly_5(S_temp5_w[4]) ^ {9'b0, idata[23]};
-							S_temp6_w[5] = shift_poly_6(S_temp5_w[5]) ^ {9'b0, idata[23]};
-							S_temp6_w[6] = shift_poly_7(S_temp5_w[6]) ^ {9'b0, idata[23]};
-							S_temp6_w[7] = shift_poly_8(S_temp5_w[7]) ^ {9'b0, idata[23]};
-							S_temp7_w[0] = shift_poly_1(S_temp6_w[0]) ^ {9'b0, idata[15]};
-							S_temp7_w[1] = shift_poly_2(S_temp6_w[1]) ^ {9'b0, idata[15]};
-							S_temp7_w[2] = shift_poly_3(S_temp6_w[2]) ^ {9'b0, idata[15]};
-							S_temp7_w[3] = shift_poly_4(S_temp6_w[3]) ^ {9'b0, idata[15]};
-							S_temp7_w[4] = shift_poly_5(S_temp6_w[4]) ^ {9'b0, idata[15]};
-							S_temp7_w[5] = shift_poly_6(S_temp6_w[5]) ^ {9'b0, idata[15]};
-							S_temp7_w[6] = shift_poly_7(S_temp6_w[6]) ^ {9'b0, idata[15]};
-							S_temp7_w[7] = shift_poly_8(S_temp6_w[7]) ^ {9'b0, idata[15]};
-							S_w[0][0] = shift_poly_1(S_temp7_w[0]) ^ {9'b0, idata[7]};
-							S_w[0][1] = shift_poly_2(S_temp7_w[1]) ^ {9'b0, idata[7]};
-							S_w[0][2] = shift_poly_3(S_temp7_w[2]) ^ {9'b0, idata[7]};
-							S_w[0][3] = shift_poly_4(S_temp7_w[3]) ^ {9'b0, idata[7]};
-							S_w[0][4] = shift_poly_5(S_temp7_w[4]) ^ {9'b0, idata[7]};
-							S_w[0][5] = shift_poly_6(S_temp7_w[5]) ^ {9'b0, idata[7]};
-							S_w[0][6] = shift_poly_7(S_temp7_w[6]) ^ {9'b0, idata[7]};
-							S_w[0][7] = shift_poly_8(S_temp7_w[7]) ^ {9'b0, idata[7]};
+							S_temp3_w[0] = shift_poly_1_10(S_temp2_w[0]) ^ {9'b0, idata[47]};
+							S_temp3_w[1] = shift_poly_2_10(S_temp2_w[1]) ^ {9'b0, idata[47]};
+							S_temp3_w[2] = shift_poly_3_10(S_temp2_w[2]) ^ {9'b0, idata[47]};
+							S_temp3_w[3] = shift_poly_4_10(S_temp2_w[3]) ^ {9'b0, idata[47]};
+							S_temp3_w[4] = shift_poly_5_10(S_temp2_w[4]) ^ {9'b0, idata[47]};
+							S_temp3_w[5] = shift_poly_6_10(S_temp2_w[5]) ^ {9'b0, idata[47]};
+							S_temp3_w[6] = shift_poly_7_10(S_temp2_w[6]) ^ {9'b0, idata[47]};
+							S_temp3_w[7] = shift_poly_8_10(S_temp2_w[7]) ^ {9'b0, idata[47]};
+							S_temp4_w[0] = shift_poly_1_10(S_temp3_w[0]) ^ {9'b0, idata[39]};
+							S_temp4_w[1] = shift_poly_2_10(S_temp3_w[1]) ^ {9'b0, idata[39]};
+							S_temp4_w[2] = shift_poly_3_10(S_temp3_w[2]) ^ {9'b0, idata[39]};
+							S_temp4_w[3] = shift_poly_4_10(S_temp3_w[3]) ^ {9'b0, idata[39]};
+							S_temp4_w[4] = shift_poly_5_10(S_temp3_w[4]) ^ {9'b0, idata[39]};
+							S_temp4_w[5] = shift_poly_6_10(S_temp3_w[5]) ^ {9'b0, idata[39]};
+							S_temp4_w[6] = shift_poly_7_10(S_temp3_w[6]) ^ {9'b0, idata[39]};
+							S_temp4_w[7] = shift_poly_8_10(S_temp3_w[7]) ^ {9'b0, idata[39]};
+							S_temp5_w[0] = shift_poly_1_10(S_temp4_w[0]) ^ {9'b0, idata[31]};
+							S_temp5_w[1] = shift_poly_2_10(S_temp4_w[1]) ^ {9'b0, idata[31]};
+							S_temp5_w[2] = shift_poly_3_10(S_temp4_w[2]) ^ {9'b0, idata[31]};
+							S_temp5_w[3] = shift_poly_4_10(S_temp4_w[3]) ^ {9'b0, idata[31]};
+							S_temp5_w[4] = shift_poly_5_10(S_temp4_w[4]) ^ {9'b0, idata[31]};
+							S_temp5_w[5] = shift_poly_6_10(S_temp4_w[5]) ^ {9'b0, idata[31]};
+							S_temp5_w[6] = shift_poly_7_10(S_temp4_w[6]) ^ {9'b0, idata[31]};
+							S_temp5_w[7] = shift_poly_8_10(S_temp4_w[7]) ^ {9'b0, idata[31]};
+							S_temp6_w[0] = shift_poly_1_10(S_temp5_w[0]) ^ {9'b0, idata[23]};
+							S_temp6_w[1] = shift_poly_2_10(S_temp5_w[1]) ^ {9'b0, idata[23]};
+							S_temp6_w[2] = shift_poly_3_10(S_temp5_w[2]) ^ {9'b0, idata[23]};
+							S_temp6_w[3] = shift_poly_4_10(S_temp5_w[3]) ^ {9'b0, idata[23]};
+							S_temp6_w[4] = shift_poly_5_10(S_temp5_w[4]) ^ {9'b0, idata[23]};
+							S_temp6_w[5] = shift_poly_6_10(S_temp5_w[5]) ^ {9'b0, idata[23]};
+							S_temp6_w[6] = shift_poly_7_10(S_temp5_w[6]) ^ {9'b0, idata[23]};
+							S_temp6_w[7] = shift_poly_8_10(S_temp5_w[7]) ^ {9'b0, idata[23]};
+							S_temp7_w[0] = shift_poly_1_10(S_temp6_w[0]) ^ {9'b0, idata[15]};
+							S_temp7_w[1] = shift_poly_2_10(S_temp6_w[1]) ^ {9'b0, idata[15]};
+							S_temp7_w[2] = shift_poly_3_10(S_temp6_w[2]) ^ {9'b0, idata[15]};
+							S_temp7_w[3] = shift_poly_4_10(S_temp6_w[3]) ^ {9'b0, idata[15]};
+							S_temp7_w[4] = shift_poly_5_10(S_temp6_w[4]) ^ {9'b0, idata[15]};
+							S_temp7_w[5] = shift_poly_6_10(S_temp6_w[5]) ^ {9'b0, idata[15]};
+							S_temp7_w[6] = shift_poly_7_10(S_temp6_w[6]) ^ {9'b0, idata[15]};
+							S_temp7_w[7] = shift_poly_8_10(S_temp6_w[7]) ^ {9'b0, idata[15]};
+							S_w[0][0] = shift_poly_1_10(S_temp7_w[0]) ^ {9'b0, idata[7]};
+							S_w[0][1] = shift_poly_2_10(S_temp7_w[1]) ^ {9'b0, idata[7]};
+							S_w[0][2] = shift_poly_3_10(S_temp7_w[2]) ^ {9'b0, idata[7]};
+							S_w[0][3] = shift_poly_4_10(S_temp7_w[3]) ^ {9'b0, idata[7]};
+							S_w[0][4] = shift_poly_5_10(S_temp7_w[4]) ^ {9'b0, idata[7]};
+							S_w[0][5] = shift_poly_6_10(S_temp7_w[5]) ^ {9'b0, idata[7]};
+							S_w[0][6] = shift_poly_7_10(S_temp7_w[6]) ^ {9'b0, idata[7]};
+							S_w[0][7] = shift_poly_8_10(S_temp7_w[7]) ^ {9'b0, idata[7]};
 						end
 						else if (cnt_r >= 7) begin
-							S_temp1_w[0] = shift_poly_1(S_r[0][0]) ^ {9'b0, idata[63]};
-							S_temp1_w[1] = shift_poly_2(S_r[0][1]) ^ {9'b0, idata[63]};
-							S_temp1_w[2] = shift_poly_3(S_r[0][2]) ^ {9'b0, idata[63]};
-							S_temp1_w[3] = shift_poly_4(S_r[0][3]) ^ {9'b0, idata[63]};
-							S_temp1_w[4] = shift_poly_5(S_r[0][4]) ^ {9'b0, idata[63]};
-							S_temp1_w[5] = shift_poly_6(S_r[0][5]) ^ {9'b0, idata[63]};
-							S_temp1_w[6] = shift_poly_7(S_r[0][6]) ^ {9'b0, idata[63]};
-							S_temp1_w[7] = shift_poly_8(S_r[0][7]) ^ {9'b0, idata[63]};
-							S_temp2_w[0] = shift_poly_1(S_temp1_w[0]) ^ {9'b0, idata[55]};
-							S_temp2_w[1] = shift_poly_2(S_temp1_w[1]) ^ {9'b0, idata[55]};
-							S_temp2_w[2] = shift_poly_3(S_temp1_w[2]) ^ {9'b0, idata[55]};
-							S_temp2_w[3] = shift_poly_4(S_temp1_w[3]) ^ {9'b0, idata[55]};
-							S_temp2_w[4] = shift_poly_5(S_temp1_w[4]) ^ {9'b0, idata[55]};
-							S_temp2_w[5] = shift_poly_6(S_temp1_w[5]) ^ {9'b0, idata[55]};
-							S_temp2_w[6] = shift_poly_7(S_temp1_w[6]) ^ {9'b0, idata[55]};
-							S_temp2_w[7] = shift_poly_8(S_temp1_w[7]) ^ {9'b0, idata[55]};
-							S_temp3_w[0] = shift_poly_1(S_temp2_w[0]) ^ {9'b0, idata[47]};
-							S_temp3_w[1] = shift_poly_2(S_temp2_w[1]) ^ {9'b0, idata[47]};
-							S_temp3_w[2] = shift_poly_3(S_temp2_w[2]) ^ {9'b0, idata[47]};
-							S_temp3_w[3] = shift_poly_4(S_temp2_w[3]) ^ {9'b0, idata[47]};
-							S_temp3_w[4] = shift_poly_5(S_temp2_w[4]) ^ {9'b0, idata[47]};
-							S_temp3_w[5] = shift_poly_6(S_temp2_w[5]) ^ {9'b0, idata[47]};
-							S_temp3_w[6] = shift_poly_7(S_temp2_w[6]) ^ {9'b0, idata[47]};
-							S_temp3_w[7] = shift_poly_8(S_temp2_w[7]) ^ {9'b0, idata[47]};
-							S_temp4_w[0] = shift_poly_1(S_temp3_w[0]) ^ {9'b0, idata[39]};
-							S_temp4_w[1] = shift_poly_2(S_temp3_w[1]) ^ {9'b0, idata[39]};
-							S_temp4_w[2] = shift_poly_3(S_temp3_w[2]) ^ {9'b0, idata[39]};
-							S_temp4_w[3] = shift_poly_4(S_temp3_w[3]) ^ {9'b0, idata[39]};
-							S_temp4_w[4] = shift_poly_5(S_temp3_w[4]) ^ {9'b0, idata[39]};
-							S_temp4_w[5] = shift_poly_6(S_temp3_w[5]) ^ {9'b0, idata[39]};
-							S_temp4_w[6] = shift_poly_7(S_temp3_w[6]) ^ {9'b0, idata[39]};
-							S_temp4_w[7] = shift_poly_8(S_temp3_w[7]) ^ {9'b0, idata[39]};
-							S_temp5_w[0] = shift_poly_1(S_temp4_w[0]) ^ {9'b0, idata[31]};
-							S_temp5_w[1] = shift_poly_2(S_temp4_w[1]) ^ {9'b0, idata[31]};
-							S_temp5_w[2] = shift_poly_3(S_temp4_w[2]) ^ {9'b0, idata[31]};
-							S_temp5_w[3] = shift_poly_4(S_temp4_w[3]) ^ {9'b0, idata[31]};
-							S_temp5_w[4] = shift_poly_5(S_temp4_w[4]) ^ {9'b0, idata[31]};
-							S_temp5_w[5] = shift_poly_6(S_temp4_w[5]) ^ {9'b0, idata[31]};
-							S_temp5_w[6] = shift_poly_7(S_temp4_w[6]) ^ {9'b0, idata[31]};
-							S_temp5_w[7] = shift_poly_8(S_temp4_w[7]) ^ {9'b0, idata[31]};
-							S_temp6_w[0] = shift_poly_1(S_temp5_w[0]) ^ {9'b0, idata[23]};
-							S_temp6_w[1] = shift_poly_2(S_temp5_w[1]) ^ {9'b0, idata[23]};
-							S_temp6_w[2] = shift_poly_3(S_temp5_w[2]) ^ {9'b0, idata[23]};
-							S_temp6_w[3] = shift_poly_4(S_temp5_w[3]) ^ {9'b0, idata[23]};
-							S_temp6_w[4] = shift_poly_5(S_temp5_w[4]) ^ {9'b0, idata[23]};
-							S_temp6_w[5] = shift_poly_6(S_temp5_w[5]) ^ {9'b0, idata[23]};
-							S_temp6_w[6] = shift_poly_7(S_temp5_w[6]) ^ {9'b0, idata[23]};
-							S_temp6_w[7] = shift_poly_8(S_temp5_w[7]) ^ {9'b0, idata[23]};
-							S_temp7_w[0] = shift_poly_1(S_temp6_w[0]) ^ {9'b0, idata[15]};
-							S_temp7_w[1] = shift_poly_2(S_temp6_w[1]) ^ {9'b0, idata[15]};
-							S_temp7_w[2] = shift_poly_3(S_temp6_w[2]) ^ {9'b0, idata[15]};
-							S_temp7_w[3] = shift_poly_4(S_temp6_w[3]) ^ {9'b0, idata[15]};
-							S_temp7_w[4] = shift_poly_5(S_temp6_w[4]) ^ {9'b0, idata[15]};
-							S_temp7_w[5] = shift_poly_6(S_temp6_w[5]) ^ {9'b0, idata[15]};
-							S_temp7_w[6] = shift_poly_7(S_temp6_w[6]) ^ {9'b0, idata[15]};
-							S_temp7_w[7] = shift_poly_8(S_temp6_w[7]) ^ {9'b0, idata[15]};
-							S_w[0][0] = shift_poly_1(S_temp7_w[0]) ^ {9'b0, idata[7]};
-							S_w[0][1] = shift_poly_2(S_temp7_w[1]) ^ {9'b0, idata[7]};
-							S_w[0][2] = shift_poly_3(S_temp7_w[2]) ^ {9'b0, idata[7]};
-							S_w[0][3] = shift_poly_4(S_temp7_w[3]) ^ {9'b0, idata[7]};
-							S_w[0][4] = shift_poly_5(S_temp7_w[4]) ^ {9'b0, idata[7]};
-							S_w[0][5] = shift_poly_6(S_temp7_w[5]) ^ {9'b0, idata[7]};
-							S_w[0][6] = shift_poly_7(S_temp7_w[6]) ^ {9'b0, idata[7]};
-							S_w[0][7] = shift_poly_8(S_temp7_w[7]) ^ {9'b0, idata[7]};
+							S_temp1_w[0] = shift_poly_1_10(S_r[0][0]) ^ {9'b0, idata[63]};
+							S_temp1_w[1] = shift_poly_2_10(S_r[0][1]) ^ {9'b0, idata[63]};
+							S_temp1_w[2] = shift_poly_3_10(S_r[0][2]) ^ {9'b0, idata[63]};
+							S_temp1_w[3] = shift_poly_4_10(S_r[0][3]) ^ {9'b0, idata[63]};
+							S_temp1_w[4] = shift_poly_5_10(S_r[0][4]) ^ {9'b0, idata[63]};
+							S_temp1_w[5] = shift_poly_6_10(S_r[0][5]) ^ {9'b0, idata[63]};
+							S_temp1_w[6] = shift_poly_7_10(S_r[0][6]) ^ {9'b0, idata[63]};
+							S_temp1_w[7] = shift_poly_8_10(S_r[0][7]) ^ {9'b0, idata[63]};
+							S_temp2_w[0] = shift_poly_1_10(S_temp1_w[0]) ^ {9'b0, idata[55]};
+							S_temp2_w[1] = shift_poly_2_10(S_temp1_w[1]) ^ {9'b0, idata[55]};
+							S_temp2_w[2] = shift_poly_3_10(S_temp1_w[2]) ^ {9'b0, idata[55]};
+							S_temp2_w[3] = shift_poly_4_10(S_temp1_w[3]) ^ {9'b0, idata[55]};
+							S_temp2_w[4] = shift_poly_5_10(S_temp1_w[4]) ^ {9'b0, idata[55]};
+							S_temp2_w[5] = shift_poly_6_10(S_temp1_w[5]) ^ {9'b0, idata[55]};
+							S_temp2_w[6] = shift_poly_7_10(S_temp1_w[6]) ^ {9'b0, idata[55]};
+							S_temp2_w[7] = shift_poly_8_10(S_temp1_w[7]) ^ {9'b0, idata[55]};
+							S_temp3_w[0] = shift_poly_1_10(S_temp2_w[0]) ^ {9'b0, idata[47]};
+							S_temp3_w[1] = shift_poly_2_10(S_temp2_w[1]) ^ {9'b0, idata[47]};
+							S_temp3_w[2] = shift_poly_3_10(S_temp2_w[2]) ^ {9'b0, idata[47]};
+							S_temp3_w[3] = shift_poly_4_10(S_temp2_w[3]) ^ {9'b0, idata[47]};
+							S_temp3_w[4] = shift_poly_5_10(S_temp2_w[4]) ^ {9'b0, idata[47]};
+							S_temp3_w[5] = shift_poly_6_10(S_temp2_w[5]) ^ {9'b0, idata[47]};
+							S_temp3_w[6] = shift_poly_7_10(S_temp2_w[6]) ^ {9'b0, idata[47]};
+							S_temp3_w[7] = shift_poly_8_10(S_temp2_w[7]) ^ {9'b0, idata[47]};
+							S_temp4_w[0] = shift_poly_1_10(S_temp3_w[0]) ^ {9'b0, idata[39]};
+							S_temp4_w[1] = shift_poly_2_10(S_temp3_w[1]) ^ {9'b0, idata[39]};
+							S_temp4_w[2] = shift_poly_3_10(S_temp3_w[2]) ^ {9'b0, idata[39]};
+							S_temp4_w[3] = shift_poly_4_10(S_temp3_w[3]) ^ {9'b0, idata[39]};
+							S_temp4_w[4] = shift_poly_5_10(S_temp3_w[4]) ^ {9'b0, idata[39]};
+							S_temp4_w[5] = shift_poly_6_10(S_temp3_w[5]) ^ {9'b0, idata[39]};
+							S_temp4_w[6] = shift_poly_7_10(S_temp3_w[6]) ^ {9'b0, idata[39]};
+							S_temp4_w[7] = shift_poly_8_10(S_temp3_w[7]) ^ {9'b0, idata[39]};
+							S_temp5_w[0] = shift_poly_1_10(S_temp4_w[0]) ^ {9'b0, idata[31]};
+							S_temp5_w[1] = shift_poly_2_10(S_temp4_w[1]) ^ {9'b0, idata[31]};
+							S_temp5_w[2] = shift_poly_3_10(S_temp4_w[2]) ^ {9'b0, idata[31]};
+							S_temp5_w[3] = shift_poly_4_10(S_temp4_w[3]) ^ {9'b0, idata[31]};
+							S_temp5_w[4] = shift_poly_5_10(S_temp4_w[4]) ^ {9'b0, idata[31]};
+							S_temp5_w[5] = shift_poly_6_10(S_temp4_w[5]) ^ {9'b0, idata[31]};
+							S_temp5_w[6] = shift_poly_7_10(S_temp4_w[6]) ^ {9'b0, idata[31]};
+							S_temp5_w[7] = shift_poly_8_10(S_temp4_w[7]) ^ {9'b0, idata[31]};
+							S_temp6_w[0] = shift_poly_1_10(S_temp5_w[0]) ^ {9'b0, idata[23]};
+							S_temp6_w[1] = shift_poly_2_10(S_temp5_w[1]) ^ {9'b0, idata[23]};
+							S_temp6_w[2] = shift_poly_3_10(S_temp5_w[2]) ^ {9'b0, idata[23]};
+							S_temp6_w[3] = shift_poly_4_10(S_temp5_w[3]) ^ {9'b0, idata[23]};
+							S_temp6_w[4] = shift_poly_5_10(S_temp5_w[4]) ^ {9'b0, idata[23]};
+							S_temp6_w[5] = shift_poly_6_10(S_temp5_w[5]) ^ {9'b0, idata[23]};
+							S_temp6_w[6] = shift_poly_7_10(S_temp5_w[6]) ^ {9'b0, idata[23]};
+							S_temp6_w[7] = shift_poly_8_10(S_temp5_w[7]) ^ {9'b0, idata[23]};
+							S_temp7_w[0] = shift_poly_1_10(S_temp6_w[0]) ^ {9'b0, idata[15]};
+							S_temp7_w[1] = shift_poly_2_10(S_temp6_w[1]) ^ {9'b0, idata[15]};
+							S_temp7_w[2] = shift_poly_3_10(S_temp6_w[2]) ^ {9'b0, idata[15]};
+							S_temp7_w[3] = shift_poly_4_10(S_temp6_w[3]) ^ {9'b0, idata[15]};
+							S_temp7_w[4] = shift_poly_5_10(S_temp6_w[4]) ^ {9'b0, idata[15]};
+							S_temp7_w[5] = shift_poly_6_10(S_temp6_w[5]) ^ {9'b0, idata[15]};
+							S_temp7_w[6] = shift_poly_7_10(S_temp6_w[6]) ^ {9'b0, idata[15]};
+							S_temp7_w[7] = shift_poly_8_10(S_temp6_w[7]) ^ {9'b0, idata[15]};
+							S_w[0][0] = shift_poly_1_10(S_temp7_w[0]) ^ {9'b0, idata[7]};
+							S_w[0][1] = shift_poly_2_10(S_temp7_w[1]) ^ {9'b0, idata[7]};
+							S_w[0][2] = shift_poly_3_10(S_temp7_w[2]) ^ {9'b0, idata[7]};
+							S_w[0][3] = shift_poly_4_10(S_temp7_w[3]) ^ {9'b0, idata[7]};
+							S_w[0][4] = shift_poly_5_10(S_temp7_w[4]) ^ {9'b0, idata[7]};
+							S_w[0][5] = shift_poly_6_10(S_temp7_w[5]) ^ {9'b0, idata[7]};
+							S_w[0][6] = shift_poly_7_10(S_temp7_w[6]) ^ {9'b0, idata[7]};
+							S_w[0][7] = shift_poly_8_10(S_temp7_w[7]) ^ {9'b0, idata[7]};
 						end
 					end
 					default: state_w = S_IDLE;
@@ -808,8 +825,8 @@ module bch(
 								end
 							end
 							delta_w[0][0] = delta_r[0][0];
-							delta_w[0][1] = shift_poly_8(delta_r[0][1]);
-							delta_w[0][2] = shift_poly_8(shift_poly_8(delta_r[0][2]));
+							delta_w[0][1] = shift_poly_8_6(delta_r[0][1]);
+							delta_w[0][2] = shift_poly_8_6(shift_poly_8_6(delta_r[0][2]));
 						end
 					end 
 					
@@ -851,8 +868,8 @@ module bch(
 								end
 							end
 							delta_w[0][0] = delta_r[0][0];
-							delta_w[0][1] = shift_poly_8(delta_r[0][1]);
-							delta_w[0][2] = shift_poly_8(shift_poly_8(delta_r[0][2]));
+							delta_w[0][1] = shift_poly_8_8(delta_r[0][1]);
+							delta_w[0][2] = shift_poly_8_8(shift_poly_8_8(delta_r[0][2]));
 						end
 					end
 					3: begin
@@ -893,10 +910,10 @@ module bch(
 								end
 							end
 							delta_w[0][0] = delta_r[0][0];
-							delta_w[0][1] = shift_poly_8(delta_r[0][1]);
-							delta_w[0][2] = shift_poly_8(shift_poly_8(delta_r[0][2]));
-							delta_w[0][3] = shift_poly_8(shift_poly_8(shift_poly_8(delta_r[0][3])));
-							delta_w[0][4] = shift_poly_8(shift_poly_8(shift_poly_8(shift_poly_8(delta_r[0][4]))));
+							delta_w[0][1] = shift_poly_8_10(delta_r[0][1]);
+							delta_w[0][2] = shift_poly_8_10(shift_poly_8_10(delta_r[0][2]));
+							delta_w[0][3] = shift_poly_8_10(shift_poly_8_10(shift_poly_8_10(delta_r[0][3])));
+							delta_w[0][4] = shift_poly_8_10(shift_poly_8_10(shift_poly_8_10(shift_poly_8_10(delta_r[0][4]))));
 						end
 					end
 					default: begin
@@ -949,8 +966,8 @@ module bch(
 							end
 						end
 						delta_w[0][0] = delta_r[0][0];
-						delta_w[0][1] = shift_poly_8(delta_r[0][1]);
-						delta_w[0][2] = shift_poly_8(shift_poly_8(delta_r[0][2]));
+						delta_w[0][1] = shift_poly_8_6(delta_r[0][1]);
+						delta_w[0][2] = shift_poly_8_6(shift_poly_8_6(delta_r[0][2]));
 					end 
 					
 					2: begin
@@ -993,8 +1010,8 @@ module bch(
 							end
 						end
 						delta_w[0][0] = delta_r[0][0];
-						delta_w[0][1] = shift_poly_8(delta_r[0][1]);
-						delta_w[0][2] = shift_poly_8(shift_poly_8(delta_r[0][2]));
+						delta_w[0][1] = shift_poly_8_8(delta_r[0][1]);
+						delta_w[0][2] = shift_poly_8_8(shift_poly_8_8(delta_r[0][2]));
 					end
 					3: begin
 						if (cnt_r == 128) begin
@@ -1036,10 +1053,10 @@ module bch(
 							end
 						end
 						delta_w[0][0] = delta_r[0][0];
-						delta_w[0][1] = shift_poly_8(delta_r[0][1]);
-						delta_w[0][2] = shift_poly_8(shift_poly_8(delta_r[0][2]));
-						delta_w[0][3] = shift_poly_8(shift_poly_8(shift_poly_8(delta_r[0][3])));
-						delta_w[0][4] = shift_poly_8(shift_poly_8(shift_poly_8(shift_poly_8(delta_r[0][4]))));
+						delta_w[0][1] = shift_poly_8_10(delta_r[0][1]);
+						delta_w[0][2] = shift_poly_8_10(shift_poly_8_10(delta_r[0][2]));
+						delta_w[0][3] = shift_poly_8_10(shift_poly_8_10(shift_poly_8_10(delta_r[0][3])));
+						delta_w[0][4] = shift_poly_8_10(shift_poly_8_10(shift_poly_8_10(shift_poly_8_10(delta_r[0][4]))));
 
 					end
 					default: begin
@@ -1192,8 +1209,8 @@ module bch(
 								end
 							end
 							delta_w[l][0] = delta_r[l][0];
-							delta_w[l][1] = shift_poly_8(delta_r[l][1]);
-							delta_w[l][2] = shift_poly_8(shift_poly_8(delta_r[l][2]));
+							delta_w[l][1] = shift_poly_8_6(delta_r[l][1]);
+							delta_w[l][2] = shift_poly_8_6(shift_poly_8_6(delta_r[l][2]));
 						end 
 						
 						2: begin
@@ -1312,8 +1329,8 @@ module bch(
 								end
 							end
 							delta_w[l][0] = delta_r[l][0];
-							delta_w[l][1] = shift_poly_8(delta_r[l][1]);
-							delta_w[l][2] = shift_poly_8(shift_poly_8(delta_r[l][2]));
+							delta_w[l][1] = shift_poly_8_8(delta_r[l][1]);
+							delta_w[l][2] = shift_poly_8_8(shift_poly_8_8(delta_r[l][2]));
 						end 
 						3: begin
 							if (cnt_r == 128) begin
@@ -1431,10 +1448,10 @@ module bch(
 								end
 							end
 							delta_w[l][0] = delta_r[l][0];
-							delta_w[l][1] = shift_poly_8(delta_r[l][1]);
-							delta_w[l][2] = shift_poly_8(shift_poly_8(delta_r[l][2]));
-							delta_w[l][3] = shift_poly_8(shift_poly_8(shift_poly_8(delta_r[l][3])));
-							delta_w[l][4] = shift_poly_8(shift_poly_8(shift_poly_8(shift_poly_8(delta_r[l][4]))));
+							delta_w[l][1] = shift_poly_8_10(delta_r[l][1]);
+							delta_w[l][2] = shift_poly_8_10(shift_poly_8_10(delta_r[l][2]));
+							delta_w[l][3] = shift_poly_8_10(shift_poly_8_10(shift_poly_8_10(delta_r[l][3])));
+							delta_w[l][4] = shift_poly_8_10(shift_poly_8_10(shift_poly_8_10(shift_poly_8_10(delta_r[l][4]))));
 						end 
 						default: begin
 						end
@@ -1818,194 +1835,435 @@ module bch(
 		else if (state_r == S_CHI_SOFT1) begin
 			index1_temp_w = (index1_temp_r > 7) ? index1_temp_r - 8 : 0;
 			index2_temp_w = (index2_temp_r > 7) ? index2_temp_r - 8 : 0;
-			if (index1_temp_r > 7) begin
-				alpha_w[0][0] = shift_poly_1(shift_poly_1(shift_poly_1(shift_poly_1(shift_poly_1(shift_poly_1(shift_poly_1(shift_poly_1(alpha_r[0][0]))))))));
-				alpha_w[0][1] = shift_poly_2(shift_poly_2(shift_poly_2(shift_poly_2(shift_poly_2(shift_poly_2(shift_poly_2(shift_poly_2(alpha_r[0][1]))))))));
-				alpha_w[0][2] = shift_poly_3(shift_poly_3(shift_poly_3(shift_poly_3(shift_poly_3(shift_poly_3(shift_poly_3(shift_poly_3(alpha_r[0][2]))))))));
-				alpha_w[0][3] = shift_poly_4(shift_poly_4(shift_poly_4(shift_poly_4(shift_poly_4(shift_poly_4(shift_poly_4(shift_poly_4(alpha_r[0][3]))))))));
-				alpha_w[0][4] = shift_poly_5(shift_poly_5(shift_poly_5(shift_poly_5(shift_poly_5(shift_poly_5(shift_poly_5(shift_poly_5(alpha_r[0][4]))))))));
-				alpha_w[0][5] = shift_poly_6(shift_poly_6(shift_poly_6(shift_poly_6(shift_poly_6(shift_poly_6(shift_poly_6(shift_poly_6(alpha_r[0][5]))))))));
-				alpha_w[0][6] = shift_poly_7(shift_poly_7(shift_poly_7(shift_poly_7(shift_poly_7(shift_poly_7(shift_poly_7(shift_poly_7(alpha_r[0][6]))))))));
-				alpha_w[0][7] = shift_poly_8(shift_poly_8(shift_poly_8(shift_poly_8(shift_poly_8(shift_poly_8(shift_poly_8(shift_poly_8(alpha_r[0][7]))))))));
-			end
-			else begin
-				case (index1_temp_r[2:0])
-					7: begin
-						alpha_w[0][0] = shift_poly_1(shift_poly_1(shift_poly_1(shift_poly_1(shift_poly_1(shift_poly_1(shift_poly_1(alpha_r[0][0])))))));
-						alpha_w[0][1] = shift_poly_2(shift_poly_2(shift_poly_2(shift_poly_2(shift_poly_2(shift_poly_2(shift_poly_2(alpha_r[0][1])))))));
-						alpha_w[0][2] = shift_poly_3(shift_poly_3(shift_poly_3(shift_poly_3(shift_poly_3(shift_poly_3(shift_poly_3(alpha_r[0][2])))))));
-						alpha_w[0][3] = shift_poly_4(shift_poly_4(shift_poly_4(shift_poly_4(shift_poly_4(shift_poly_4(shift_poly_4(alpha_r[0][3])))))));
-						alpha_w[0][4] = shift_poly_5(shift_poly_5(shift_poly_5(shift_poly_5(shift_poly_5(shift_poly_5(shift_poly_5(alpha_r[0][4])))))));
-						alpha_w[0][5] = shift_poly_6(shift_poly_6(shift_poly_6(shift_poly_6(shift_poly_6(shift_poly_6(shift_poly_6(alpha_r[0][5])))))));
-						alpha_w[0][6] = shift_poly_7(shift_poly_7(shift_poly_7(shift_poly_7(shift_poly_7(shift_poly_7(shift_poly_7(alpha_r[0][6])))))));
-						alpha_w[0][7] = shift_poly_8(shift_poly_8(shift_poly_8(shift_poly_8(shift_poly_8(shift_poly_8(shift_poly_8(alpha_r[0][7])))))));
+			case (code_r)
+				1:begin
+					if (index1_temp_r > 7) begin
+						alpha_w[0][0] = shift_poly_8_6(alpha_r[0][0]);
+						alpha_w[0][1] = shift_poly_8_6(shift_poly_8_6(alpha_r[0][1]));
+						alpha_w[0][2] = shift_poly_8_6(shift_poly_8_6(shift_poly_8_6(alpha_r[0][2])));
+						alpha_w[0][3] = shift_poly_8_6(shift_poly_8_6(shift_poly_8_6(shift_poly_8_6(alpha_r[0][3]))));
 					end
-					6: begin
-						alpha_w[0][0] = shift_poly_1(shift_poly_1(shift_poly_1(shift_poly_1(shift_poly_1(shift_poly_1(alpha_r[0][0]))))));
-						alpha_w[0][1] = shift_poly_2(shift_poly_2(shift_poly_2(shift_poly_2(shift_poly_2(shift_poly_2(alpha_r[0][1]))))));
-						alpha_w[0][2] = shift_poly_3(shift_poly_3(shift_poly_3(shift_poly_3(shift_poly_3(shift_poly_3(alpha_r[0][2]))))));
-						alpha_w[0][3] = shift_poly_4(shift_poly_4(shift_poly_4(shift_poly_4(shift_poly_4(shift_poly_4(alpha_r[0][3]))))));
-						alpha_w[0][4] = shift_poly_5(shift_poly_5(shift_poly_5(shift_poly_5(shift_poly_5(shift_poly_5(alpha_r[0][4]))))));
-						alpha_w[0][5] = shift_poly_6(shift_poly_6(shift_poly_6(shift_poly_6(shift_poly_6(shift_poly_6(alpha_r[0][5]))))));
-						alpha_w[0][6] = shift_poly_7(shift_poly_7(shift_poly_7(shift_poly_7(shift_poly_7(shift_poly_7(alpha_r[0][6]))))));
-						alpha_w[0][7] = shift_poly_8(shift_poly_8(shift_poly_8(shift_poly_8(shift_poly_8(shift_poly_8(alpha_r[0][7]))))));
+					else begin
+						case (index1_temp_r[2:0])
+							7: begin
+								alpha_w[0][0] = shift_poly_7_6(alpha_r[0][0]);
+								alpha_w[0][1] = shift_poly_7_6(shift_poly_7_6(alpha_r[0][1]));
+								alpha_w[0][2] = shift_poly_7_6(shift_poly_7_6(shift_poly_7_6(alpha_r[0][2])));
+								alpha_w[0][3] = shift_poly_7_6(shift_poly_7_6(shift_poly_7_6(shift_poly_7_6(alpha_r[0][3]))));
+							end
+							6: begin
+								alpha_w[0][0] = shift_poly_6_6(alpha_r[0][0]);
+								alpha_w[0][1] = shift_poly_6_6(shift_poly_6_6(alpha_r[0][1]));
+								alpha_w[0][2] = shift_poly_6_6(shift_poly_6_6(shift_poly_6_6(alpha_r[0][2])));
+								alpha_w[0][3] = shift_poly_8_6(shift_poly_8_6(shift_poly_8_6(alpha_r[0][3])));
+							end
+							5: begin
+								alpha_w[0][0] = shift_poly_5_6(alpha_r[0][0]);
+								alpha_w[0][1] = shift_poly_5_6(shift_poly_5_6(alpha_r[0][1]));
+								alpha_w[0][2] = shift_poly_8_6(shift_poly_7_6(alpha_r[0][2]));
+								alpha_w[0][3] = shift_poly_8_6(shift_poly_8_6(shift_poly_4_6(alpha_r[0][3])));
+							end
+							4: begin
+								alpha_w[0][0] = shift_poly_4_6(alpha_r[0][0]);
+								alpha_w[0][1] = shift_poly_8_6(alpha_r[0][1]);
+								alpha_w[0][2] = shift_poly_8_6(shift_poly_4_6(alpha_r[0][2]));
+								alpha_w[0][3] = shift_poly_8_6(shift_poly_8_6(alpha_r[0][3]));
+							end
+							3: begin
+								alpha_w[0][0] = shift_poly_3_6(alpha_r[0][0]);
+								alpha_w[0][1] = shift_poly_6_6(alpha_r[0][1]);
+								alpha_w[0][2] = shift_poly_8_6(shift_poly_1_6(alpha_r[0][2]));
+								alpha_w[0][3] = shift_poly_8_6(shift_poly_4_6(alpha_r[0][3]));
+							end
+							2: begin
+								alpha_w[0][0] = shift_poly_2_6(alpha_r[0][0]);
+								alpha_w[0][1] = shift_poly_4_6(alpha_r[0][1]);
+								alpha_w[0][2] = shift_poly_6_6(alpha_r[0][2]);
+								alpha_w[0][3] = shift_poly_8_6(alpha_r[0][3]);
+							end
+							1: begin
+								alpha_w[0][0] = shift_poly_1_6(alpha_r[0][0]);
+								alpha_w[0][1] = shift_poly_2_6(alpha_r[0][1]);
+								alpha_w[0][2] = shift_poly_3_6(alpha_r[0][2]);
+								alpha_w[0][3] = shift_poly_4_6(alpha_r[0][3]);
+							end
+							default: begin
+								alpha_w[0][0] = alpha_r[0][0];
+								alpha_w[0][1] = alpha_r[0][1];
+								alpha_w[0][2] = alpha_r[0][2];
+								alpha_w[0][3] = alpha_r[0][3];
+							end
+						endcase
 					end
-					5: begin
-						alpha_w[0][0] = shift_poly_1(shift_poly_1(shift_poly_1(shift_poly_1(shift_poly_1(alpha_r[0][0])))));
-						alpha_w[0][1] = shift_poly_2(shift_poly_2(shift_poly_2(shift_poly_2(shift_poly_2(alpha_r[0][1])))));
-						alpha_w[0][2] = shift_poly_3(shift_poly_3(shift_poly_3(shift_poly_3(shift_poly_3(alpha_r[0][2])))));
-						alpha_w[0][3] = shift_poly_4(shift_poly_4(shift_poly_4(shift_poly_4(shift_poly_4(alpha_r[0][3])))));
-						alpha_w[0][4] = shift_poly_5(shift_poly_5(shift_poly_5(shift_poly_5(shift_poly_5(alpha_r[0][4])))));
-						alpha_w[0][5] = shift_poly_6(shift_poly_6(shift_poly_6(shift_poly_6(shift_poly_6(alpha_r[0][5])))));
-						alpha_w[0][6] = shift_poly_7(shift_poly_7(shift_poly_7(shift_poly_7(shift_poly_7(alpha_r[0][6])))));
-						alpha_w[0][7] = shift_poly_8(shift_poly_8(shift_poly_8(shift_poly_8(shift_poly_8(alpha_r[0][7])))));
+					if (index2_temp_r > 7) begin
+						alpha_w[1][0] = shift_poly_8_6(alpha_r[1][0]);
+						alpha_w[1][1] = shift_poly_8_6(shift_poly_8_6(alpha_r[1][1]));
+						alpha_w[1][2] = shift_poly_8_6(shift_poly_8_6(shift_poly_8_6(alpha_r[1][2])));
+						alpha_w[1][3] = shift_poly_8_6(shift_poly_8_6(shift_poly_8_6(shift_poly_8_6(alpha_r[1][3]))));
 					end
-					4: begin
-						alpha_w[0][0] = shift_poly_1(shift_poly_1(shift_poly_1(shift_poly_1(alpha_r[0][0]))));
-						alpha_w[0][1] = shift_poly_2(shift_poly_2(shift_poly_2(shift_poly_2(alpha_r[0][1]))));
-						alpha_w[0][2] = shift_poly_3(shift_poly_3(shift_poly_3(shift_poly_3(alpha_r[0][2]))));
-						alpha_w[0][3] = shift_poly_4(shift_poly_4(shift_poly_4(shift_poly_4(alpha_r[0][3]))));
-						alpha_w[0][4] = shift_poly_5(shift_poly_5(shift_poly_5(shift_poly_5(alpha_r[0][4]))));
-						alpha_w[0][5] = shift_poly_6(shift_poly_6(shift_poly_6(shift_poly_6(alpha_r[0][5]))));
-						alpha_w[0][6] = shift_poly_7(shift_poly_7(shift_poly_7(shift_poly_7(alpha_r[0][6]))));
-						alpha_w[0][7] = shift_poly_8(shift_poly_8(shift_poly_8(shift_poly_8(alpha_r[0][7]))));
+					else begin
+						case (index2_temp_r[2:0])
+							7: begin
+								alpha_w[1][0] = shift_poly_7_6(alpha_r[1][0]);
+								alpha_w[1][1] = shift_poly_7_6(shift_poly_7_6(alpha_r[1][1]));
+								alpha_w[1][2] = shift_poly_7_6(shift_poly_7_6(shift_poly_7_6(alpha_r[1][2])));
+								alpha_w[1][3] = shift_poly_7_6(shift_poly_7_6(shift_poly_7_6(shift_poly_7_6(alpha_r[1][3]))));
+							end
+							6: begin
+								alpha_w[1][0] = shift_poly_6_6(alpha_r[1][0]);
+								alpha_w[1][1] = shift_poly_6_6(shift_poly_6_6(alpha_r[1][1]));
+								alpha_w[1][2] = shift_poly_6_6(shift_poly_6_6(shift_poly_6_6(alpha_r[1][2])));
+								alpha_w[1][3] = shift_poly_8_6(shift_poly_8_6(shift_poly_8_6(alpha_r[1][3])));
+							end
+							5: begin
+								alpha_w[1][0] = shift_poly_5_6(alpha_r[1][0]);
+								alpha_w[1][1] = shift_poly_5_6(shift_poly_5_6(alpha_r[1][1]));
+								alpha_w[1][2] = shift_poly_8_6(shift_poly_7_6(alpha_r[1][2]));
+								alpha_w[1][3] = shift_poly_8_6(shift_poly_8_6(shift_poly_4_6(alpha_r[1][3])));
+							end
+							4: begin
+								alpha_w[1][0] = shift_poly_4_6(alpha_r[1][0]);
+								alpha_w[1][1] = shift_poly_8_6(alpha_r[1][1]);
+								alpha_w[1][2] = shift_poly_8_6(shift_poly_4_6(alpha_r[1][2]));
+								alpha_w[1][3] = shift_poly_8_6(shift_poly_8_6(alpha_r[1][3]));
+							end
+							3: begin
+								alpha_w[1][0] = shift_poly_3_6(alpha_r[1][0]);
+								alpha_w[1][1] = shift_poly_6_6(alpha_r[1][1]);
+								alpha_w[1][2] = shift_poly_8_6(shift_poly_1_6(alpha_r[1][2]));
+								alpha_w[1][3] = shift_poly_8_6(shift_poly_4_6(alpha_r[1][3]));
+							end
+							2: begin
+								alpha_w[1][0] = shift_poly_2_6(alpha_r[1][0]);
+								alpha_w[1][1] = shift_poly_4_6(alpha_r[1][1]);
+								alpha_w[1][2] = shift_poly_6_6(alpha_r[1][2]);
+								alpha_w[1][3] = shift_poly_8_6(alpha_r[1][3]);
+							end
+							1: begin
+								alpha_w[1][0] = shift_poly_1_6(alpha_r[1][0]);
+								alpha_w[1][1] = shift_poly_2_6(alpha_r[1][1]);
+								alpha_w[1][2] = shift_poly_3_6(alpha_r[1][2]);
+								alpha_w[1][3] = shift_poly_4_6(alpha_r[1][3]);
+							end
+							default: begin
+								alpha_w[1][0] = alpha_r[1][0];
+								alpha_w[1][1] = alpha_r[1][1];
+								alpha_w[1][2] = alpha_r[1][2];
+								alpha_w[1][3] = alpha_r[1][3];
+							end
+						endcase
 					end
-					3: begin
-						alpha_w[0][0] = shift_poly_1(shift_poly_1(shift_poly_1(alpha_r[0][0])));
-						alpha_w[0][1] = shift_poly_2(shift_poly_2(shift_poly_2(alpha_r[0][1])));
-						alpha_w[0][2] = shift_poly_3(shift_poly_3(shift_poly_3(alpha_r[0][2])));
-						alpha_w[0][3] = shift_poly_4(shift_poly_4(shift_poly_4(alpha_r[0][3])));
-						alpha_w[0][4] = shift_poly_5(shift_poly_5(shift_poly_5(alpha_r[0][4])));
-						alpha_w[0][5] = shift_poly_6(shift_poly_6(shift_poly_6(alpha_r[0][5])));
-						alpha_w[0][6] = shift_poly_7(shift_poly_7(shift_poly_7(alpha_r[0][6])));
-						alpha_w[0][7] = shift_poly_8(shift_poly_8(shift_poly_8(alpha_r[0][7])));
+				end
+				2: begin
+					if (index1_temp_r > 7) begin
+						alpha_w[0][0] = shift_poly_8_8(alpha_r[0][0]);
+						alpha_w[0][1] = shift_poly_8_8(shift_poly_8_8(alpha_r[0][1]));
+						alpha_w[0][2] = shift_poly_8_8(shift_poly_8_8(shift_poly_8_8(alpha_r[0][2])));
+						alpha_w[0][3] = shift_poly_8_8(shift_poly_8_8(shift_poly_8_8(shift_poly_8_8(alpha_r[0][3]))));
 					end
-					2: begin
-						alpha_w[0][0] = shift_poly_1(shift_poly_1(alpha_r[0][0]));
-						alpha_w[0][1] = shift_poly_2(shift_poly_2(alpha_r[0][1]));
-						alpha_w[0][2] = shift_poly_3(shift_poly_3(alpha_r[0][2]));
-						alpha_w[0][3] = shift_poly_4(shift_poly_4(alpha_r[0][3]));
-						alpha_w[0][4] = shift_poly_5(shift_poly_5(alpha_r[0][4]));
-						alpha_w[0][5] = shift_poly_6(shift_poly_6(alpha_r[0][5]));
-						alpha_w[0][6] = shift_poly_7(shift_poly_7(alpha_r[0][6]));
-						alpha_w[0][7] = shift_poly_8(shift_poly_8(alpha_r[0][7]));
+					else begin
+						case (index1_temp_r[2:0])
+							7: begin
+								alpha_w[0][0] = shift_poly_7_8(alpha_r[0][0]);
+								alpha_w[0][1] = shift_poly_7_8(shift_poly_7_8(alpha_r[0][1]));
+								alpha_w[0][2] = shift_poly_7_8(shift_poly_7_8(shift_poly_7_8(alpha_r[0][2])));
+								alpha_w[0][3] = shift_poly_7_8(shift_poly_7_8(shift_poly_7_8(shift_poly_7_8(alpha_r[0][3]))));
+							end
+							6: begin
+								alpha_w[0][0] = shift_poly_6_8(alpha_r[0][0]);
+								alpha_w[0][1] = shift_poly_6_8(shift_poly_6_8(alpha_r[0][1]));
+								alpha_w[0][2] = shift_poly_6_8(shift_poly_6_8(shift_poly_6_8(alpha_r[0][2])));
+								alpha_w[0][3] = shift_poly_8_8(shift_poly_8_8(shift_poly_8_8(alpha_r[0][3])));
+							end
+							5: begin
+								alpha_w[0][0] = shift_poly_5_8(alpha_r[0][0]);
+								alpha_w[0][1] = shift_poly_5_8(shift_poly_5_8(alpha_r[0][1]));
+								alpha_w[0][2] = shift_poly_8_8(shift_poly_7_8(alpha_r[0][2]));
+								alpha_w[0][3] = shift_poly_8_8(shift_poly_8_8(shift_poly_4_8(alpha_r[0][3])));
+							end
+							4: begin
+								alpha_w[0][0] = shift_poly_4_8(alpha_r[0][0]);
+								alpha_w[0][1] = shift_poly_8_8(alpha_r[0][1]);
+								alpha_w[0][2] = shift_poly_8_8(shift_poly_4_8(alpha_r[0][2]));
+								alpha_w[0][3] = shift_poly_8_8(shift_poly_8_8(alpha_r[0][3]));
+							end
+							3: begin
+								alpha_w[0][0] = shift_poly_3_8(alpha_r[0][0]);
+								alpha_w[0][1] = shift_poly_6_8(alpha_r[0][1]);
+								alpha_w[0][2] = shift_poly_8_8(shift_poly_1_8(alpha_r[0][2]));
+								alpha_w[0][3] = shift_poly_8_8(shift_poly_4_8(alpha_r[0][3]));
+							end
+							2: begin
+								alpha_w[0][0] = shift_poly_2_8(alpha_r[0][0]);
+								alpha_w[0][1] = shift_poly_4_8(alpha_r[0][1]);
+								alpha_w[0][2] = shift_poly_6_8(alpha_r[0][2]);
+								alpha_w[0][3] = shift_poly_8_8(alpha_r[0][3]);
+							end
+							1: begin
+								alpha_w[0][0] = shift_poly_1_8(alpha_r[0][0]);
+								alpha_w[0][1] = shift_poly_2_8(alpha_r[0][1]);
+								alpha_w[0][2] = shift_poly_3_8(alpha_r[0][2]);
+								alpha_w[0][3] = shift_poly_4_8(alpha_r[0][3]);
+							end
+							default: begin
+								alpha_w[0][0] = alpha_r[0][0];
+								alpha_w[0][1] = alpha_r[0][1];
+								alpha_w[0][2] = alpha_r[0][2];
+								alpha_w[0][3] = alpha_r[0][3];
+							end
+						endcase
 					end
-					1: begin
-						alpha_w[0][0] = shift_poly_1(alpha_r[0][0]);
-						alpha_w[0][1] = shift_poly_2(alpha_r[0][1]);
-						alpha_w[0][2] = shift_poly_3(alpha_r[0][2]);
-						alpha_w[0][3] = shift_poly_4(alpha_r[0][3]);
-						alpha_w[0][4] = shift_poly_5(alpha_r[0][4]);
-						alpha_w[0][5] = shift_poly_6(alpha_r[0][5]);
-						alpha_w[0][6] = shift_poly_7(alpha_r[0][6]);
-						alpha_w[0][7] = shift_poly_8(alpha_r[0][7]);
+					if (index2_temp_r > 7) begin
+						alpha_w[1][0] = shift_poly_8_8(alpha_r[1][0]);
+						alpha_w[1][1] = shift_poly_8_8(shift_poly_8_8(alpha_r[1][1]));
+						alpha_w[1][2] = shift_poly_8_8(shift_poly_8_8(shift_poly_8_8(alpha_r[1][2])));
+						alpha_w[1][3] = shift_poly_8_8(shift_poly_8_8(shift_poly_8_8(shift_poly_8_8(alpha_r[1][3]))));
 					end
-					default: begin
-						alpha_w[0][0] = alpha_r[0][0];
-						alpha_w[0][1] = alpha_r[0][1];
-						alpha_w[0][2] = alpha_r[0][2];
-						alpha_w[0][3] = alpha_r[0][3];
-						alpha_w[0][4] = alpha_r[0][4];
-						alpha_w[0][5] = alpha_r[0][5];
-						alpha_w[0][6] = alpha_r[0][6];
-						alpha_w[0][7] = alpha_r[0][7];
+					else begin
+						case (index2_temp_r[2:0])
+							7: begin
+								alpha_w[1][0] = shift_poly_7_8(alpha_r[1][0]);
+								alpha_w[1][1] = shift_poly_7_8(shift_poly_7_8(alpha_r[1][1]));
+								alpha_w[1][2] = shift_poly_7_8(shift_poly_7_8(shift_poly_7_8(alpha_r[1][2])));
+								alpha_w[1][3] = shift_poly_7_8(shift_poly_7_8(shift_poly_7_8(shift_poly_7_8(alpha_r[1][3]))));
+							end
+							6: begin
+								alpha_w[1][0] = shift_poly_6_8(alpha_r[1][0]);
+								alpha_w[1][1] = shift_poly_6_8(shift_poly_6_8(alpha_r[1][1]));
+								alpha_w[1][2] = shift_poly_6_8(shift_poly_6_8(shift_poly_6_8(alpha_r[1][2])));
+								alpha_w[1][3] = shift_poly_8_8(shift_poly_8_8(shift_poly_8_8(alpha_r[1][3])));
+							end
+							5: begin
+								alpha_w[1][0] = shift_poly_5_8(alpha_r[1][0]);
+								alpha_w[1][1] = shift_poly_5_8(shift_poly_5_8(alpha_r[1][1]));
+								alpha_w[1][2] = shift_poly_8_8(shift_poly_7_8(alpha_r[1][2]));
+								alpha_w[1][3] = shift_poly_8_8(shift_poly_8_8(shift_poly_4_8(alpha_r[1][3])));
+							end
+							4: begin
+								alpha_w[1][0] = shift_poly_4_8(alpha_r[1][0]);
+								alpha_w[1][1] = shift_poly_8_8(alpha_r[1][1]);
+								alpha_w[1][2] = shift_poly_8_8(shift_poly_4_8(alpha_r[1][2]));
+								alpha_w[1][3] = shift_poly_8_8(shift_poly_8_8(alpha_r[1][3]));
+							end
+							3: begin
+								alpha_w[1][0] = shift_poly_3_8(alpha_r[1][0]);
+								alpha_w[1][1] = shift_poly_6_8(alpha_r[1][1]);
+								alpha_w[1][2] = shift_poly_8_8(shift_poly_1_8(alpha_r[1][2]));
+								alpha_w[1][3] = shift_poly_8_8(shift_poly_4_8(alpha_r[1][3]));
+							end
+							2: begin
+								alpha_w[1][0] = shift_poly_2_8(alpha_r[1][0]);
+								alpha_w[1][1] = shift_poly_4_8(alpha_r[1][1]);
+								alpha_w[1][2] = shift_poly_6_8(alpha_r[1][2]);
+								alpha_w[1][3] = shift_poly_8_8(alpha_r[1][3]);
+							end
+							1: begin
+								alpha_w[1][0] = shift_poly_1_8(alpha_r[1][0]);
+								alpha_w[1][1] = shift_poly_2_8(alpha_r[1][1]);
+								alpha_w[1][2] = shift_poly_3_8(alpha_r[1][2]);
+								alpha_w[1][3] = shift_poly_4_8(alpha_r[1][3]);
+							end
+							default: begin
+								alpha_w[1][0] = alpha_r[1][0];
+								alpha_w[1][1] = alpha_r[1][1];
+								alpha_w[1][2] = alpha_r[1][2];
+								alpha_w[1][3] = alpha_r[1][3];
+							end
+						endcase
 					end
-				endcase
-			end
-			if (index2_temp_r > 7) begin
-				alpha_w[1][0] = shift_poly_1(shift_poly_1(shift_poly_1(shift_poly_1(shift_poly_1(shift_poly_1(shift_poly_1(shift_poly_1(alpha_r[1][0]))))))));
-				alpha_w[1][1] = shift_poly_2(shift_poly_2(shift_poly_2(shift_poly_2(shift_poly_2(shift_poly_2(shift_poly_2(shift_poly_2(alpha_r[1][1]))))))));
-				alpha_w[1][2] = shift_poly_3(shift_poly_3(shift_poly_3(shift_poly_3(shift_poly_3(shift_poly_3(shift_poly_3(shift_poly_3(alpha_r[1][2]))))))));
-				alpha_w[1][3] = shift_poly_4(shift_poly_4(shift_poly_4(shift_poly_4(shift_poly_4(shift_poly_4(shift_poly_4(shift_poly_4(alpha_r[1][3]))))))));
-				alpha_w[1][4] = shift_poly_5(shift_poly_5(shift_poly_5(shift_poly_5(shift_poly_5(shift_poly_5(shift_poly_5(shift_poly_5(alpha_r[1][4]))))))));
-				alpha_w[1][5] = shift_poly_6(shift_poly_6(shift_poly_6(shift_poly_6(shift_poly_6(shift_poly_6(shift_poly_6(shift_poly_6(alpha_r[1][5]))))))));
-				alpha_w[1][6] = shift_poly_7(shift_poly_7(shift_poly_7(shift_poly_7(shift_poly_7(shift_poly_7(shift_poly_7(shift_poly_7(alpha_r[1][6]))))))));
-				alpha_w[1][7] = shift_poly_8(shift_poly_8(shift_poly_8(shift_poly_8(shift_poly_8(shift_poly_8(shift_poly_8(shift_poly_8(alpha_r[1][7]))))))));
-			end
-			else begin
-				case (index2_temp_r[2:0])
-					7: begin
-						alpha_w[1][0] = shift_poly_1(shift_poly_1(shift_poly_1(shift_poly_1(shift_poly_1(shift_poly_1(shift_poly_1(alpha_r[1][0])))))));
-						alpha_w[1][1] = shift_poly_2(shift_poly_2(shift_poly_2(shift_poly_2(shift_poly_2(shift_poly_2(shift_poly_2(alpha_r[1][1])))))));
-						alpha_w[1][2] = shift_poly_3(shift_poly_3(shift_poly_3(shift_poly_3(shift_poly_3(shift_poly_3(shift_poly_3(alpha_r[1][2])))))));
-						alpha_w[1][3] = shift_poly_4(shift_poly_4(shift_poly_4(shift_poly_4(shift_poly_4(shift_poly_4(shift_poly_4(alpha_r[1][3])))))));
-						alpha_w[1][4] = shift_poly_5(shift_poly_5(shift_poly_5(shift_poly_5(shift_poly_5(shift_poly_5(shift_poly_5(alpha_r[1][4])))))));
-						alpha_w[1][5] = shift_poly_6(shift_poly_6(shift_poly_6(shift_poly_6(shift_poly_6(shift_poly_6(shift_poly_6(alpha_r[1][5])))))));
-						alpha_w[1][6] = shift_poly_7(shift_poly_7(shift_poly_7(shift_poly_7(shift_poly_7(shift_poly_7(shift_poly_7(alpha_r[1][6])))))));
-						alpha_w[1][7] = shift_poly_8(shift_poly_8(shift_poly_8(shift_poly_8(shift_poly_8(shift_poly_8(shift_poly_8(alpha_r[1][7])))))));
+				end
+				3: begin
+					if (index1_temp_r > 7) begin
+						alpha_w[0][0] = shift_poly_8_10(alpha_r[0][0]);
+						alpha_w[0][1] = shift_poly_8_10(shift_poly_8_10(alpha_r[0][1]));
+						alpha_w[0][2] = shift_poly_8_10(shift_poly_8_10(shift_poly_8_10(alpha_r[0][2])));
+						alpha_w[0][3] = shift_poly_8_10(shift_poly_8_10(shift_poly_8_10(shift_poly_8_10(alpha_r[0][3]))));
+						alpha_w[0][4] = shift_poly_8_10(shift_poly_8_10(shift_poly_8_10(shift_poly_8_10(shift_poly_8_10(alpha_r[0][4])))));
+						alpha_w[0][5] = shift_poly_8_10(shift_poly_8_10(shift_poly_8_10(shift_poly_8_10(shift_poly_8_10(shift_poly_8_10(alpha_r[0][5]))))));
+						alpha_w[0][6] = shift_poly_8_10(shift_poly_8_10(shift_poly_8_10(shift_poly_8_10(shift_poly_8_10(shift_poly_8_10(shift_poly_8_10(alpha_r[0][6])))))));
+						alpha_w[0][7] = shift_poly_8_10(shift_poly_8_10(shift_poly_8_10(shift_poly_8_10(shift_poly_8_10(shift_poly_8_10(shift_poly_8_10(shift_poly_8_10(alpha_r[0][7]))))))));
 					end
-					6: begin
-						alpha_w[1][0] = shift_poly_1(shift_poly_1(shift_poly_1(shift_poly_1(shift_poly_1(shift_poly_1(alpha_r[1][0]))))));
-						alpha_w[1][1] = shift_poly_2(shift_poly_2(shift_poly_2(shift_poly_2(shift_poly_2(shift_poly_2(alpha_r[1][1]))))));
-						alpha_w[1][2] = shift_poly_3(shift_poly_3(shift_poly_3(shift_poly_3(shift_poly_3(shift_poly_3(alpha_r[1][2]))))));
-						alpha_w[1][3] = shift_poly_4(shift_poly_4(shift_poly_4(shift_poly_4(shift_poly_4(shift_poly_4(alpha_r[1][3]))))));
-						alpha_w[1][4] = shift_poly_5(shift_poly_5(shift_poly_5(shift_poly_5(shift_poly_5(shift_poly_5(alpha_r[1][4]))))));
-						alpha_w[1][5] = shift_poly_6(shift_poly_6(shift_poly_6(shift_poly_6(shift_poly_6(shift_poly_6(alpha_r[1][5]))))));
-						alpha_w[1][6] = shift_poly_7(shift_poly_7(shift_poly_7(shift_poly_7(shift_poly_7(shift_poly_7(alpha_r[1][6]))))));
-						alpha_w[1][7] = shift_poly_8(shift_poly_8(shift_poly_8(shift_poly_8(shift_poly_8(shift_poly_8(alpha_r[1][7]))))));
+					else begin
+						case (index1_temp_r[2:0])
+							7: begin
+								alpha_w[0][0] = shift_poly_7_10(alpha_r[0][0]);
+								alpha_w[0][1] = shift_poly_7_10(shift_poly_7_10(alpha_r[0][1]));
+								alpha_w[0][2] = shift_poly_7_10(shift_poly_7_10(shift_poly_7_10(alpha_r[0][2])));
+								alpha_w[0][3] = shift_poly_7_10(shift_poly_7_10(shift_poly_7_10(shift_poly_7_10(alpha_r[0][3]))));
+								alpha_w[0][4] = shift_poly_7_10(shift_poly_7_10(shift_poly_7_10(shift_poly_7_10(shift_poly_7_10(alpha_r[0][4])))));
+								alpha_w[0][5] = shift_poly_7_10(shift_poly_7_10(shift_poly_7_10(shift_poly_7_10(shift_poly_7_10(shift_poly_7_10(alpha_r[0][5]))))));
+								alpha_w[0][6] = shift_poly_7_10(shift_poly_7_10(shift_poly_7_10(shift_poly_7_10(shift_poly_7_10(shift_poly_7_10(shift_poly_7_10(alpha_r[0][6])))))));
+								alpha_w[0][7] = shift_poly_8_10(shift_poly_8_10(shift_poly_8_10(shift_poly_8_10(shift_poly_8_10(shift_poly_8_10(shift_poly_8_10(alpha_r[0][7])))))));
+							end
+							6: begin
+								alpha_w[0][0] = shift_poly_6_10(alpha_r[0][0]);
+								alpha_w[0][1] = shift_poly_6_10(shift_poly_6_10(alpha_r[0][1]));
+								alpha_w[0][2] = shift_poly_6_10(shift_poly_6_10(shift_poly_6_10(alpha_r[0][2])));
+								alpha_w[0][3] = shift_poly_8_10(shift_poly_8_10(shift_poly_8_10(alpha_r[0][3])));
+								alpha_w[0][4] = shift_poly_8_10(shift_poly_8_10(shift_poly_8_10(shift_poly_6_10(alpha_r[0][4]))));
+								alpha_w[0][5] = shift_poly_8_10(shift_poly_8_10(shift_poly_8_10(shift_poly_8_10(shift_poly_4_10(alpha_r[0][5])))));
+								alpha_w[0][6] = shift_poly_8_10(shift_poly_8_10(shift_poly_8_10(shift_poly_8_10(shift_poly_8_10(shift_poly_2_10(alpha_r[0][6]))))));
+								alpha_w[0][7] = shift_poly_8_10(shift_poly_8_10(shift_poly_8_10(shift_poly_8_10(shift_poly_8_10(shift_poly_8_10(alpha_r[0][7]))))));
+							end
+							5: begin
+								alpha_w[0][0] = shift_poly_5_10(alpha_r[0][0]);
+								alpha_w[0][1] = shift_poly_5_10(shift_poly_5_10(alpha_r[0][1]));
+								alpha_w[0][2] = shift_poly_8_10(shift_poly_7_10(alpha_r[0][2]));
+								alpha_w[0][3] = shift_poly_8_10(shift_poly_8_10(shift_poly_4_10(alpha_r[0][3])));
+								alpha_w[0][4] = shift_poly_8_10(shift_poly_8_10(shift_poly_8_10(shift_poly_1_10(alpha_r[0][4]))));
+								alpha_w[0][5] = shift_poly_8_10(shift_poly_8_10(shift_poly_8_10(shift_poly_6_10(alpha_r[0][5]))));
+								alpha_w[0][6] = shift_poly_8_10(shift_poly_8_10(shift_poly_8_10(shift_poly_8_10(shift_poly_3_10(alpha_r[0][6])))));
+								alpha_w[0][7] = shift_poly_8_10(shift_poly_8_10(shift_poly_8_10(shift_poly_8_10(shift_poly_8_10(alpha_r[0][7])))));
+							end
+							4: begin
+								alpha_w[0][0] = shift_poly_4_10(alpha_r[0][0]);
+								alpha_w[0][1] = shift_poly_8_10(alpha_r[0][1]);
+								alpha_w[0][2] = shift_poly_8_10(shift_poly_4_10(alpha_r[0][2]));
+								alpha_w[0][3] = shift_poly_8_10(shift_poly_8_10(alpha_r[0][3]));
+								alpha_w[0][4] = shift_poly_8_10(shift_poly_8_10(shift_poly_4_10(alpha_r[0][4])));
+								alpha_w[0][5] = shift_poly_8_10(shift_poly_8_10(shift_poly_8_10(alpha_r[0][5])));
+								alpha_w[0][6] = shift_poly_8_10(shift_poly_8_10(shift_poly_8_10(shift_poly_4_10(alpha_r[0][6]))));
+								alpha_w[0][7] = shift_poly_8_10(shift_poly_8_10(shift_poly_8_10(shift_poly_8_10(alpha_r[0][7]))));
+							end
+							3: begin
+								alpha_w[0][0] = shift_poly_3_10(alpha_r[0][0]);
+								alpha_w[0][1] = shift_poly_6_10(alpha_r[0][1]);
+								alpha_w[0][2] = shift_poly_8_10(shift_poly_1_10(alpha_r[0][2]));
+								alpha_w[0][3] = shift_poly_8_10(shift_poly_4_10(alpha_r[0][3]));
+								alpha_w[0][4] = shift_poly_8_10(shift_poly_7_10(alpha_r[0][4]));
+								alpha_w[0][5] = shift_poly_8_10(shift_poly_8_10(shift_poly_2_10(alpha_r[0][5])));
+								alpha_w[0][6] = shift_poly_8_10(shift_poly_8_10(shift_poly_5_10(alpha_r[0][6])));
+								alpha_w[0][7] = shift_poly_8_10(shift_poly_8_10(shift_poly_8_10(alpha_r[0][7])));
+							end
+							2: begin
+								alpha_w[0][0] = shift_poly_2_10(alpha_r[0][0]);
+								alpha_w[0][1] = shift_poly_4_10(alpha_r[0][1]);
+								alpha_w[0][2] = shift_poly_6_10(alpha_r[0][2]);
+								alpha_w[0][3] = shift_poly_8_10(alpha_r[0][3]);
+								alpha_w[0][4] = shift_poly_8_10(shift_poly_2_10(alpha_r[0][4]));
+								alpha_w[0][5] = shift_poly_8_10(shift_poly_4_10(alpha_r[0][5]));
+								alpha_w[0][6] = shift_poly_8_10(shift_poly_6_10(alpha_r[0][6]));
+								alpha_w[0][7] = shift_poly_8_10(shift_poly_8_10(alpha_r[0][7]));
+							end
+							1: begin
+								alpha_w[0][0] = shift_poly_1_10(alpha_r[0][0]);
+								alpha_w[0][1] = shift_poly_2_10(alpha_r[0][1]);
+								alpha_w[0][2] = shift_poly_3_10(alpha_r[0][2]);
+								alpha_w[0][3] = shift_poly_4_10(alpha_r[0][3]);
+								alpha_w[0][4] = shift_poly_5_10(alpha_r[0][4]);
+								alpha_w[0][5] = shift_poly_6_10(alpha_r[0][5]);
+								alpha_w[0][6] = shift_poly_7_10(alpha_r[0][6]);
+								alpha_w[0][7] = shift_poly_8_10(alpha_r[0][7]);
+							end
+							default: begin
+								alpha_w[0][0] = alpha_r[0][0];
+								alpha_w[0][1] = alpha_r[0][1];
+								alpha_w[0][2] = alpha_r[0][2];
+								alpha_w[0][3] = alpha_r[0][3];
+								alpha_w[0][4] = alpha_r[0][4];
+								alpha_w[0][5] = alpha_r[0][5];
+								alpha_w[0][6] = alpha_r[0][6];
+								alpha_w[0][7] = alpha_r[0][7];
+							end
+						endcase
 					end
-					5: begin
-						alpha_w[1][0] = shift_poly_1(shift_poly_1(shift_poly_1(shift_poly_1(shift_poly_1(alpha_r[1][0])))));
-						alpha_w[1][1] = shift_poly_2(shift_poly_2(shift_poly_2(shift_poly_2(shift_poly_2(alpha_r[1][1])))));
-						alpha_w[1][2] = shift_poly_3(shift_poly_3(shift_poly_3(shift_poly_3(shift_poly_3(alpha_r[1][2])))));
-						alpha_w[1][3] = shift_poly_4(shift_poly_4(shift_poly_4(shift_poly_4(shift_poly_4(alpha_r[1][3])))));
-						alpha_w[1][4] = shift_poly_5(shift_poly_5(shift_poly_5(shift_poly_5(shift_poly_5(alpha_r[1][4])))));
-						alpha_w[1][5] = shift_poly_6(shift_poly_6(shift_poly_6(shift_poly_6(shift_poly_6(alpha_r[1][5])))));
-						alpha_w[1][6] = shift_poly_7(shift_poly_7(shift_poly_7(shift_poly_7(shift_poly_7(alpha_r[1][6])))));
-						alpha_w[1][7] = shift_poly_8(shift_poly_8(shift_poly_8(shift_poly_8(shift_poly_8(alpha_r[1][7])))));
+					if (index2_temp_r > 7) begin
+						alpha_w[1][0] = shift_poly_8_10(alpha_r[1][0]);
+						alpha_w[1][1] = shift_poly_8_10(shift_poly_8_10(alpha_r[1][1]));
+						alpha_w[1][2] = shift_poly_8_10(shift_poly_8_10(shift_poly_8_10(alpha_r[1][2])));
+						alpha_w[1][3] = shift_poly_8_10(shift_poly_8_10(shift_poly_8_10(shift_poly_8_10(alpha_r[1][3]))));
+						alpha_w[1][4] = shift_poly_8_10(shift_poly_8_10(shift_poly_8_10(shift_poly_8_10(shift_poly_8_10(alpha_r[1][4])))));
+						alpha_w[1][5] = shift_poly_8_10(shift_poly_8_10(shift_poly_8_10(shift_poly_8_10(shift_poly_8_10(shift_poly_8_10(alpha_r[1][5]))))));
+						alpha_w[1][6] = shift_poly_8_10(shift_poly_8_10(shift_poly_8_10(shift_poly_8_10(shift_poly_8_10(shift_poly_8_10(shift_poly_8_10(alpha_r[1][6])))))));
+						alpha_w[1][7] = shift_poly_8_10(shift_poly_8_10(shift_poly_8_10(shift_poly_8_10(shift_poly_8_10(shift_poly_8_10(shift_poly_8_10(shift_poly_8_10(alpha_r[1][7]))))))));
 					end
-					4: begin
-						alpha_w[1][0] = shift_poly_1(shift_poly_1(shift_poly_1(shift_poly_1(alpha_r[1][0]))));
-						alpha_w[1][1] = shift_poly_2(shift_poly_2(shift_poly_2(shift_poly_2(alpha_r[1][1]))));
-						alpha_w[1][2] = shift_poly_3(shift_poly_3(shift_poly_3(shift_poly_3(alpha_r[1][2]))));
-						alpha_w[1][3] = shift_poly_4(shift_poly_4(shift_poly_4(shift_poly_4(alpha_r[1][3]))));
-						alpha_w[1][4] = shift_poly_5(shift_poly_5(shift_poly_5(shift_poly_5(alpha_r[1][4]))));
-						alpha_w[1][5] = shift_poly_6(shift_poly_6(shift_poly_6(shift_poly_6(alpha_r[1][5]))));
-						alpha_w[1][6] = shift_poly_7(shift_poly_7(shift_poly_7(shift_poly_7(alpha_r[1][6]))));
-						alpha_w[1][7] = shift_poly_8(shift_poly_8(shift_poly_8(shift_poly_8(alpha_r[1][7]))));
+					else begin
+						case (index2_temp_r[2:0])
+							7: begin
+								alpha_w[1][0] = shift_poly_7_10(alpha_r[1][0]);
+								alpha_w[1][1] = shift_poly_7_10(shift_poly_7_10(alpha_r[1][1]));
+								alpha_w[1][2] = shift_poly_7_10(shift_poly_7_10(shift_poly_7_10(alpha_r[1][2])));
+								alpha_w[1][3] = shift_poly_7_10(shift_poly_7_10(shift_poly_7_10(shift_poly_7_10(alpha_r[1][3]))));
+								alpha_w[1][4] = shift_poly_7_10(shift_poly_7_10(shift_poly_7_10(shift_poly_7_10(shift_poly_7_10(alpha_r[1][4])))));
+								alpha_w[1][5] = shift_poly_7_10(shift_poly_7_10(shift_poly_7_10(shift_poly_7_10(shift_poly_7_10(shift_poly_7_10(alpha_r[1][5]))))));
+								alpha_w[1][6] = shift_poly_7_10(shift_poly_7_10(shift_poly_7_10(shift_poly_7_10(shift_poly_7_10(shift_poly_7_10(shift_poly_7_10(alpha_r[1][6])))))));
+								alpha_w[1][7] = shift_poly_8_10(shift_poly_8_10(shift_poly_8_10(shift_poly_8_10(shift_poly_8_10(shift_poly_8_10(shift_poly_8_10(alpha_r[1][7])))))));
+							end
+							6: begin
+								alpha_w[1][0] = shift_poly_6_10(alpha_r[1][0]);
+								alpha_w[1][1] = shift_poly_6_10(shift_poly_6_10(alpha_r[1][1]));
+								alpha_w[1][2] = shift_poly_6_10(shift_poly_6_10(shift_poly_6_10(alpha_r[1][2])));
+								alpha_w[1][3] = shift_poly_8_10(shift_poly_8_10(shift_poly_8_10(alpha_r[1][3])));
+								alpha_w[1][4] = shift_poly_8_10(shift_poly_8_10(shift_poly_8_10(shift_poly_6_10(alpha_r[1][4]))));
+								alpha_w[1][5] = shift_poly_8_10(shift_poly_8_10(shift_poly_8_10(shift_poly_8_10(shift_poly_4_10(alpha_r[1][5])))));
+								alpha_w[1][6] = shift_poly_8_10(shift_poly_8_10(shift_poly_8_10(shift_poly_8_10(shift_poly_8_10(shift_poly_2_10(alpha_r[1][6]))))));
+								alpha_w[1][7] = shift_poly_8_10(shift_poly_8_10(shift_poly_8_10(shift_poly_8_10(shift_poly_8_10(shift_poly_8_10(alpha_r[1][7]))))));
+							end
+							5: begin
+								alpha_w[1][0] = shift_poly_5_10(alpha_r[1][0]);
+								alpha_w[1][1] = shift_poly_5_10(shift_poly_5_10(alpha_r[1][1]));
+								alpha_w[1][2] = shift_poly_8_10(shift_poly_7_10(alpha_r[1][2]));
+								alpha_w[1][3] = shift_poly_8_10(shift_poly_8_10(shift_poly_4_10(alpha_r[1][3])));
+								alpha_w[1][4] = shift_poly_8_10(shift_poly_8_10(shift_poly_8_10(shift_poly_1_10(alpha_r[1][4]))));
+								alpha_w[1][5] = shift_poly_8_10(shift_poly_8_10(shift_poly_8_10(shift_poly_6_10(alpha_r[1][5]))));
+								alpha_w[1][6] = shift_poly_8_10(shift_poly_8_10(shift_poly_8_10(shift_poly_8_10(shift_poly_3_10(alpha_r[1][6])))));
+								alpha_w[1][7] = shift_poly_8_10(shift_poly_8_10(shift_poly_8_10(shift_poly_8_10(shift_poly_8_10(alpha_r[1][7])))));
+							end
+							4: begin
+								alpha_w[1][0] = shift_poly_4_10(alpha_r[1][0]);
+								alpha_w[1][1] = shift_poly_8_10(alpha_r[1][1]);
+								alpha_w[1][2] = shift_poly_8_10(shift_poly_4_10(alpha_r[1][2]));
+								alpha_w[1][3] = shift_poly_8_10(shift_poly_8_10(alpha_r[1][3]));
+								alpha_w[1][4] = shift_poly_8_10(shift_poly_8_10(shift_poly_4_10(alpha_r[1][4])));
+								alpha_w[1][5] = shift_poly_8_10(shift_poly_8_10(shift_poly_8_10(alpha_r[1][5])));
+								alpha_w[1][6] = shift_poly_8_10(shift_poly_8_10(shift_poly_8_10(shift_poly_4_10(alpha_r[1][6]))));
+								alpha_w[1][7] = shift_poly_8_10(shift_poly_8_10(shift_poly_8_10(shift_poly_8_10(alpha_r[1][7]))));
+							end
+							3: begin
+								alpha_w[1][0] = shift_poly_3_10(alpha_r[1][0]);
+								alpha_w[1][1] = shift_poly_6_10(alpha_r[1][1]);
+								alpha_w[1][2] = shift_poly_8_10(shift_poly_1_10(alpha_r[1][2]));
+								alpha_w[1][3] = shift_poly_8_10(shift_poly_4_10(alpha_r[1][3]));
+								alpha_w[1][4] = shift_poly_8_10(shift_poly_7_10(alpha_r[1][4]));
+								alpha_w[1][5] = shift_poly_8_10(shift_poly_8_10(shift_poly_2_10(alpha_r[1][5])));
+								alpha_w[1][6] = shift_poly_8_10(shift_poly_8_10(shift_poly_5_10(alpha_r[1][6])));
+								alpha_w[1][7] = shift_poly_8_10(shift_poly_8_10(shift_poly_8_10(alpha_r[1][7])));
+							end
+							2: begin
+								alpha_w[1][0] = shift_poly_2_10(alpha_r[1][0]);
+								alpha_w[1][1] = shift_poly_4_10(alpha_r[1][1]);
+								alpha_w[1][2] = shift_poly_6_10(alpha_r[1][2]);
+								alpha_w[1][3] = shift_poly_8_10(alpha_r[1][3]);
+								alpha_w[1][4] = shift_poly_8_10(shift_poly_2_10(alpha_r[1][4]));
+								alpha_w[1][5] = shift_poly_8_10(shift_poly_4_10(alpha_r[1][5]));
+								alpha_w[1][6] = shift_poly_8_10(shift_poly_6_10(alpha_r[1][6]));
+								alpha_w[1][7] = shift_poly_8_10(shift_poly_8_10(alpha_r[1][7]));
+							end
+							1: begin
+								alpha_w[1][0] = shift_poly_1_10(alpha_r[1][0]);
+								alpha_w[1][1] = shift_poly_2_10(alpha_r[1][1]);
+								alpha_w[1][2] = shift_poly_3_10(alpha_r[1][2]);
+								alpha_w[1][3] = shift_poly_4_10(alpha_r[1][3]);
+								alpha_w[1][4] = shift_poly_5_10(alpha_r[1][4]);
+								alpha_w[1][5] = shift_poly_6_10(alpha_r[1][5]);
+								alpha_w[1][6] = shift_poly_7_10(alpha_r[1][6]);
+								alpha_w[1][7] = shift_poly_8_10(alpha_r[1][7]);
+							end
+							default: begin
+								alpha_w[1][0] = alpha_r[1][0];
+								alpha_w[1][1] = alpha_r[1][1];
+								alpha_w[1][2] = alpha_r[1][2];
+								alpha_w[1][3] = alpha_r[1][3];
+								alpha_w[1][4] = alpha_r[1][4];
+								alpha_w[1][5] = alpha_r[1][5];
+								alpha_w[1][6] = alpha_r[1][6];
+								alpha_w[1][7] = alpha_r[1][7];
+							end
+						endcase
 					end
-					3: begin
-						alpha_w[1][0] = shift_poly_1(shift_poly_1(shift_poly_1(alpha_r[1][0])));
-						alpha_w[1][1] = shift_poly_2(shift_poly_2(shift_poly_2(alpha_r[1][1])));
-						alpha_w[1][2] = shift_poly_3(shift_poly_3(shift_poly_3(alpha_r[1][2])));
-						alpha_w[1][3] = shift_poly_4(shift_poly_4(shift_poly_4(alpha_r[1][3])));
-						alpha_w[1][4] = shift_poly_5(shift_poly_5(shift_poly_5(alpha_r[1][4])));
-						alpha_w[1][5] = shift_poly_6(shift_poly_6(shift_poly_6(alpha_r[1][5])));
-						alpha_w[1][6] = shift_poly_7(shift_poly_7(shift_poly_7(alpha_r[1][6])));
-						alpha_w[1][7] = shift_poly_8(shift_poly_8(shift_poly_8(alpha_r[1][7])));
-					end
-					2: begin
-						alpha_w[1][0] = shift_poly_1(shift_poly_1(alpha_r[1][0]));
-						alpha_w[1][1] = shift_poly_2(shift_poly_2(alpha_r[1][1]));
-						alpha_w[1][2] = shift_poly_3(shift_poly_3(alpha_r[1][2]));
-						alpha_w[1][3] = shift_poly_4(shift_poly_4(alpha_r[1][3]));
-						alpha_w[1][4] = shift_poly_5(shift_poly_5(alpha_r[1][4]));
-						alpha_w[1][5] = shift_poly_6(shift_poly_6(alpha_r[1][5]));
-						alpha_w[1][6] = shift_poly_7(shift_poly_7(alpha_r[1][6]));
-						alpha_w[1][7] = shift_poly_8(shift_poly_8(alpha_r[1][7]));
-					end
-					1: begin
-						alpha_w[1][0] = shift_poly_1(alpha_r[1][0]);
-						alpha_w[1][1] = shift_poly_2(alpha_r[1][1]);
-						alpha_w[1][2] = shift_poly_3(alpha_r[1][2]);
-						alpha_w[1][3] = shift_poly_4(alpha_r[1][3]);
-						alpha_w[1][4] = shift_poly_5(alpha_r[1][4]);
-						alpha_w[1][5] = shift_poly_6(alpha_r[1][5]);
-						alpha_w[1][6] = shift_poly_7(alpha_r[1][6]);
-						alpha_w[1][7] = shift_poly_8(alpha_r[1][7]);
-					end
-					default: begin
-						alpha_w[1][0] = alpha_r[1][0];
-						alpha_w[1][1] = alpha_r[1][1];
-						alpha_w[1][2] = alpha_r[1][2];
-						alpha_w[1][3] = alpha_r[1][3];
-						alpha_w[1][4] = alpha_r[1][4];
-						alpha_w[1][5] = alpha_r[1][5];
-						alpha_w[1][6] = alpha_r[1][6];
-						alpha_w[1][7] = alpha_r[1][7];
-					end
-				endcase
-			end
+				end
+			default: begin end
+			endcase
 		end
 	end
 
@@ -2183,6 +2441,366 @@ module bch(
 		end
 		
 	endfunction
+
+	function automatic [10:0] shift_poly_1_6;
+		input [9:0] i_poly;
+		begin
+			shift_poly_1_6[0] = i_poly[5];
+			shift_poly_1_6[1] = i_poly[0] ^ i_poly[5];	
+			shift_poly_1_6[2] = i_poly[1];	
+			shift_poly_1_6[3] = i_poly[2];	
+			shift_poly_1_6[4] = i_poly[3];	
+			shift_poly_1_6[5] = i_poly[4];
+			shift_poly_1_6[10:6] = 5'd0;
+		end
+	endfunction
+
+	function automatic [10:0] shift_poly_2_6;
+		input [9:0] i_poly;
+		begin
+			shift_poly_2_6[0] = i_poly[4];
+			shift_poly_2_6[1] = i_poly[4] ^ i_poly[5];	
+			shift_poly_2_6[2] = i_poly[0] ^ i_poly[5];	
+			shift_poly_2_6[3] = i_poly[1];	
+			shift_poly_2_6[4] = i_poly[2];	
+			shift_poly_2_6[5] = i_poly[3];
+			shift_poly_2_6[10:6] = 5'd0;
+		end
+	endfunction
+
+	function automatic [10:0] shift_poly_3_6;
+		input [9:0] i_poly;
+		begin
+			shift_poly_3_6[0] = i_poly[3];
+			shift_poly_3_6[1] = i_poly[4] ^ i_poly[3];	
+			shift_poly_3_6[2] = i_poly[4] ^ i_poly[5];	
+			shift_poly_3_6[3] = i_poly[0] ^ i_poly[5];	
+			shift_poly_3_6[4] = i_poly[1];	
+			shift_poly_3_6[5] = i_poly[2];
+			shift_poly_3_6[10:6] = 5'd0;
+		end
+	endfunction
+
+	function automatic [10:0] shift_poly_4_6;
+		input [9:0] i_poly;
+		begin
+			shift_poly_4_6[0] = i_poly[2];
+			shift_poly_4_6[1] = i_poly[2] ^ i_poly[3];	
+			shift_poly_4_6[2] = i_poly[4] ^ i_poly[3];	
+			shift_poly_4_6[3] = i_poly[4] ^ i_poly[5];	
+			shift_poly_4_6[4] = i_poly[0] ^ i_poly[5];	
+			shift_poly_4_6[5] = i_poly[1];
+			shift_poly_4_6[10:6] = 5'd0;
+		end
+	endfunction
+
+	function automatic [10:0] shift_poly_5_6;
+		input [9:0] i_poly;
+		begin
+			shift_poly_5_6[0] = i_poly[1];
+			shift_poly_5_6[1] = i_poly[2] ^ i_poly[1];
+			shift_poly_5_6[2] = i_poly[2] ^ i_poly[3];	
+			shift_poly_5_6[3] = i_poly[4] ^ i_poly[3];	
+			shift_poly_5_6[4] = i_poly[4] ^ i_poly[5];	
+			shift_poly_5_6[5] = i_poly[0] ^ i_poly[5];	
+			shift_poly_5_6[10:6] = 5'd0;
+		end
+	endfunction
+
+	function automatic [10:0] shift_poly_6_6;
+		input [9:0] i_poly;
+		begin
+			shift_poly_6_6[0] = i_poly[0] ^ i_poly[5];
+			shift_poly_6_6[1] = i_poly[0] ^ i_poly[1] ^ i_poly[5];
+			shift_poly_6_6[2] = i_poly[2] ^ i_poly[1];
+			shift_poly_6_6[3] = i_poly[2] ^ i_poly[3];	
+			shift_poly_6_6[4] = i_poly[4] ^ i_poly[3];	
+			shift_poly_6_6[5] = i_poly[4] ^ i_poly[5];	
+			shift_poly_6_6[10:6] = 5'd0;
+		end
+	endfunction
+
+	function automatic [10:0] shift_poly_7_6;
+		input [9:0] i_poly;
+		begin
+			shift_poly_7_6[0] = i_poly[4] ^ i_poly[5];
+			shift_poly_7_6[1] = i_poly[0] ^ i_poly[4];
+			shift_poly_7_6[2] = i_poly[0] ^ i_poly[1] ^ i_poly[5];
+			shift_poly_7_6[3] = i_poly[2] ^ i_poly[1];	
+			shift_poly_7_6[4] = i_poly[2] ^ i_poly[3];	
+			shift_poly_7_6[5] = i_poly[4] ^ i_poly[3];	
+			shift_poly_7_6[10:6] = 5'd0;
+		end
+	endfunction
+
+	function automatic [10:0] shift_poly_8_6;
+		input [9:0] i_poly;
+		begin
+			shift_poly_8_6[0] = i_poly[4] ^ i_poly[3];
+			shift_poly_8_6[1] = i_poly[5] ^ i_poly[3];
+			shift_poly_8_6[2] = i_poly[0] ^ i_poly[4];
+			shift_poly_8_6[3] = i_poly[1] ^ i_poly[0] ^ i_poly[5];	
+			shift_poly_8_6[4] = i_poly[2] ^ i_poly[1];	
+			shift_poly_8_6[5] = i_poly[3] ^ i_poly[2];	
+			shift_poly_8_6[10:6] = 5'd0;
+		end
+	endfunction
+
+	function automatic [10:0] shift_poly_1_8;
+        input [9:0] i_poly;
+        begin
+            shift_poly_1_8[0] = i_poly[7];
+            shift_poly_1_8[1] = i_poly[0];
+            shift_poly_1_8[2] = i_poly[1] ^ i_poly[7];
+            shift_poly_1_8[3] = i_poly[2] ^ i_poly[7];
+            shift_poly_1_8[4] = i_poly[3] ^ i_poly[7];
+            shift_poly_1_8[5] = i_poly[4];
+            shift_poly_1_8[6] = i_poly[5];
+            shift_poly_1_8[7] = i_poly[6];
+            shift_poly_1_8[10:8] = 3'd0;
+        end
+    endfunction
+
+    function automatic [10:0] shift_poly_2_8;
+        input [9:0] i_poly;
+        begin
+            shift_poly_2_8[0] = i_poly[6];
+            shift_poly_2_8[1] = i_poly[7];
+            shift_poly_2_8[2] = i_poly[0] ^ i_poly[6];
+            shift_poly_2_8[3] = i_poly[1] ^ i_poly[7] ^ i_poly[6];
+            shift_poly_2_8[4] = i_poly[2] ^ i_poly[7] ^ i_poly[6];
+            shift_poly_2_8[5] = i_poly[3] ^ i_poly[7];
+            shift_poly_2_8[6] = i_poly[4];
+            shift_poly_2_8[7] = i_poly[5];
+            shift_poly_2_8[10:8] = 3'd0;
+        end
+    endfunction
+
+    function automatic [10:0] shift_poly_3_8;
+        input [9:0] i_poly;
+        begin
+            shift_poly_3_8[0] = i_poly[5];
+            shift_poly_3_8[1] = i_poly[6];
+            shift_poly_3_8[2] = i_poly[7] ^ i_poly[5];
+            shift_poly_3_8[3] = i_poly[0] ^ i_poly[6] ^ i_poly[5];
+            shift_poly_3_8[4] = i_poly[1] ^ i_poly[7] ^ i_poly[6] ^ i_poly[5];
+            shift_poly_3_8[5] = i_poly[2] ^ i_poly[7] ^ i_poly[6];
+            shift_poly_3_8[6] = i_poly[3] ^ i_poly[7];
+            shift_poly_3_8[7] = i_poly[4];
+            shift_poly_3_8[10:8] = 3'd0;
+        end
+    endfunction
+
+    function automatic [10:0] shift_poly_4_8;
+        input [9:0] i_poly;
+        begin
+            shift_poly_4_8[0] = i_poly[4];
+            shift_poly_4_8[1] = i_poly[5];
+            shift_poly_4_8[2] = i_poly[6] ^ i_poly[4];
+            shift_poly_4_8[3] = i_poly[7] ^ i_poly[5] ^ i_poly[4];
+            shift_poly_4_8[4] = i_poly[0] ^ i_poly[6] ^ i_poly[5] ^ i_poly[4];
+            shift_poly_4_8[5] = i_poly[1] ^ i_poly[7] ^ i_poly[6] ^ i_poly[5];
+            shift_poly_4_8[6] = i_poly[2] ^ i_poly[7] ^ i_poly[6];
+            shift_poly_4_8[7] = i_poly[3] ^ i_poly[7];
+            shift_poly_4_8[10:8] = 3'd0;
+        end
+    endfunction
+
+    function automatic [10:0] shift_poly_5_8;
+        input [9:0] i_poly;
+        begin
+            shift_poly_5_8[0] = i_poly[3] ^ i_poly[7];
+            shift_poly_5_8[1] = i_poly[4];
+            shift_poly_5_8[2] = i_poly[5] ^ i_poly[3] ^ i_poly[7];
+            shift_poly_5_8[3] = i_poly[6] ^ i_poly[4] ^ i_poly[3] ^ i_poly[7];
+            shift_poly_5_8[4] = i_poly[5] ^ i_poly[4] ^ i_poly[3];
+            shift_poly_5_8[5] = i_poly[0] ^ i_poly[6] ^ i_poly[5] ^ i_poly[4];
+            shift_poly_5_8[6] = i_poly[1] ^ i_poly[7] ^ i_poly[6] ^ i_poly[5];
+            shift_poly_5_8[7] = i_poly[2] ^ i_poly[7] ^ i_poly[6];
+            shift_poly_5_8[10:8] = 3'd0;
+        end
+    endfunction
+
+    function automatic [10:0] shift_poly_6_8;
+        input [9:0] i_poly;
+        begin
+            shift_poly_6_8[0] = i_poly[2] ^ i_poly[7] ^ i_poly[6];
+            shift_poly_6_8[1] = i_poly[3] ^ i_poly[7];
+            shift_poly_6_8[2] = i_poly[4] ^ i_poly[2] ^ i_poly[7] ^ i_poly[6];
+            shift_poly_6_8[3] = i_poly[5] ^ i_poly[3] ^ i_poly[2] ^ i_poly[6];
+            shift_poly_6_8[4] = i_poly[4] ^ i_poly[3] ^ i_poly[2];
+            shift_poly_6_8[5] = i_poly[5] ^ i_poly[4] ^ i_poly[3];
+            shift_poly_6_8[6] = i_poly[0] ^ i_poly[6] ^ i_poly[5] ^ i_poly[4];
+            shift_poly_6_8[7] = i_poly[1] ^ i_poly[7] ^ i_poly[6] ^ i_poly[5];
+            shift_poly_6_8[10:8] = 3'd0;
+        end
+    endfunction
+
+    function automatic [10:0] shift_poly_7_8;
+        input [9:0] i_poly;
+        begin
+            shift_poly_7_8[0] = i_poly[1] ^ i_poly[7] ^ i_poly[6] ^ i_poly[5];
+            shift_poly_7_8[1] = i_poly[2] ^ i_poly[7] ^ i_poly[6];
+            shift_poly_7_8[2] = i_poly[3] ^ i_poly[1] ^ i_poly[6] ^ i_poly[5];
+            shift_poly_7_8[3] = i_poly[4] ^ i_poly[2] ^ i_poly[1] ^ i_poly[5];
+            shift_poly_7_8[4] = i_poly[3] ^ i_poly[2] ^ i_poly[1] ^ i_poly[7];
+            shift_poly_7_8[5] = i_poly[4] ^ i_poly[3] ^ i_poly[2];
+            shift_poly_7_8[6] = i_poly[5] ^ i_poly[4] ^ i_poly[3];
+            shift_poly_7_8[7] = i_poly[0] ^ i_poly[6] ^ i_poly[5] ^ i_poly[4];
+            shift_poly_7_8[10:8] = 3'd0;
+        end
+    endfunction
+
+    function automatic [10:0] shift_poly_8_8;
+        input [9:0] i_poly;
+        begin
+            shift_poly_8_8[0] = i_poly[0] ^ i_poly[6] ^ i_poly[5] ^ i_poly[4];
+            shift_poly_8_8[1] = i_poly[1] ^ i_poly[7] ^ i_poly[6] ^ i_poly[5];
+            shift_poly_8_8[2] = i_poly[2] ^ i_poly[7] ^ i_poly[0] ^ i_poly[5] ^ i_poly[4];
+            shift_poly_8_8[3] = i_poly[3] ^ i_poly[1] ^ i_poly[0] ^ i_poly[4];
+            shift_poly_8_8[4] = i_poly[2] ^ i_poly[1] ^ i_poly[0] ^ i_poly[6];
+            shift_poly_8_8[5] = i_poly[3] ^ i_poly[2] ^ i_poly[1] ^ i_poly[7];
+            shift_poly_8_8[6] = i_poly[4] ^ i_poly[3] ^ i_poly[2];
+            shift_poly_8_8[7] = i_poly[5] ^ i_poly[4] ^ i_poly[3];
+            shift_poly_8_8[10:8] = 3'd0;
+        end
+    endfunction
+
+	function automatic [10:0] shift_poly_1_10;
+        input [9:0] i_poly;
+        begin
+            shift_poly_1_10[0] = i_poly[9];
+            shift_poly_1_10[1] = i_poly[0];
+            shift_poly_1_10[2] = i_poly[1];
+            shift_poly_1_10[3] = i_poly[2] ^ i_poly[9];
+            shift_poly_1_10[4] = i_poly[3];
+            shift_poly_1_10[5] = i_poly[4];
+            shift_poly_1_10[6] = i_poly[5];
+            shift_poly_1_10[7] = i_poly[6];
+            shift_poly_1_10[8] = i_poly[7];
+            shift_poly_1_10[9] = i_poly[8];
+            shift_poly_1_10[10] = 1'b0;
+        end
+    endfunction
+
+    function automatic [10:0] shift_poly_2_10;
+        input [9:0] i_poly;
+        begin
+            shift_poly_2_10[0] = i_poly[8];
+            shift_poly_2_10[1] = i_poly[9];
+            shift_poly_2_10[2] = i_poly[0];
+            shift_poly_2_10[3] = i_poly[1] ^ i_poly[8];
+            shift_poly_2_10[4] = i_poly[2] ^ i_poly[9];
+            shift_poly_2_10[5] = i_poly[3];
+            shift_poly_2_10[6] = i_poly[4];
+            shift_poly_2_10[7] = i_poly[5];
+            shift_poly_2_10[8] = i_poly[6];
+            shift_poly_2_10[9] = i_poly[7];
+            shift_poly_2_10[10] = 1'b0;
+        end
+    endfunction
+
+    function automatic [10:0] shift_poly_3_10;
+        input [9:0] i_poly;
+        begin
+            shift_poly_3_10[0] = i_poly[7];
+            shift_poly_3_10[1] = i_poly[8];
+            shift_poly_3_10[2] = i_poly[9];
+            shift_poly_3_10[3] = i_poly[0] ^ i_poly[7];
+            shift_poly_3_10[4] = i_poly[1] ^ i_poly[8];
+            shift_poly_3_10[5] = i_poly[2] ^ i_poly[9];
+            shift_poly_3_10[6] = i_poly[3];
+            shift_poly_3_10[7] = i_poly[4];
+            shift_poly_3_10[8] = i_poly[5];
+            shift_poly_3_10[9] = i_poly[6];
+            shift_poly_3_10[10] = 1'b0;
+        end
+    endfunction
+
+    function automatic [10:0] shift_poly_4_10;
+        input [9:0] i_poly;
+        begin
+            shift_poly_4_10[0] = i_poly[6];
+            shift_poly_4_10[1] = i_poly[7];
+            shift_poly_4_10[2] = i_poly[8];
+            shift_poly_4_10[3] = i_poly[9] ^ i_poly[6];
+            shift_poly_4_10[4] = i_poly[0] ^ i_poly[7];
+            shift_poly_4_10[5] = i_poly[1] ^ i_poly[8];
+            shift_poly_4_10[6] = i_poly[2] ^ i_poly[9];
+            shift_poly_4_10[7] = i_poly[3];
+            shift_poly_4_10[8] = i_poly[4];
+            shift_poly_4_10[9] = i_poly[5];
+            shift_poly_4_10[10] = 1'b0;
+        end
+    endfunction
+
+    function automatic [10:0] shift_poly_5_10;
+        input [9:0] i_poly;
+        begin
+            shift_poly_5_10[0] = i_poly[5];
+            shift_poly_5_10[1] = i_poly[6];
+            shift_poly_5_10[2] = i_poly[7];
+            shift_poly_5_10[3] = i_poly[8] ^ i_poly[5];
+            shift_poly_5_10[4] = i_poly[9] ^ i_poly[6];
+            shift_poly_5_10[5] = i_poly[0] ^ i_poly[7];
+            shift_poly_5_10[6] = i_poly[1] ^ i_poly[8];
+            shift_poly_5_10[7] = i_poly[2] ^ i_poly[9];
+            shift_poly_5_10[8] = i_poly[3];
+            shift_poly_5_10[9] = i_poly[4];
+            shift_poly_5_10[10] = 1'b0;
+        end
+    endfunction
+
+    function automatic [10:0] shift_poly_6_10;
+        input [9:0] i_poly;
+        begin
+            shift_poly_6_10[0] = i_poly[4];
+            shift_poly_6_10[1] = i_poly[5];
+            shift_poly_6_10[2] = i_poly[6];
+            shift_poly_6_10[3] = i_poly[7] ^ i_poly[4];
+            shift_poly_6_10[4] = i_poly[8] ^ i_poly[5];
+            shift_poly_6_10[5] = i_poly[9] ^ i_poly[6];
+            shift_poly_6_10[6] = i_poly[0] ^ i_poly[7];
+            shift_poly_6_10[7] = i_poly[1] ^ i_poly[8];
+            shift_poly_6_10[8] = i_poly[2] ^ i_poly[9];
+            shift_poly_6_10[9] = i_poly[3];
+            shift_poly_6_10[10] = 1'b0;
+        end
+    endfunction
+
+    function automatic [10:0] shift_poly_7_10;
+        input [9:0] i_poly;
+        begin
+            shift_poly_7_10[0] = i_poly[3];
+            shift_poly_7_10[1] = i_poly[4];
+            shift_poly_7_10[2] = i_poly[5];
+            shift_poly_7_10[3] = i_poly[6] ^ i_poly[3];
+            shift_poly_7_10[4] = i_poly[7] ^ i_poly[4];
+            shift_poly_7_10[5] = i_poly[8] ^ i_poly[5];
+            shift_poly_7_10[6] = i_poly[9] ^ i_poly[6];
+            shift_poly_7_10[7] = i_poly[0] ^ i_poly[7];
+            shift_poly_7_10[8] = i_poly[1] ^ i_poly[8];
+            shift_poly_7_10[9] = i_poly[2] ^ i_poly[9];
+            shift_poly_7_10[10] = 1'b0;
+        end
+    endfunction
+
+    function automatic [10:0] shift_poly_8_10;
+        input [9:0] i_poly;
+        begin
+            shift_poly_8_10[0] = i_poly[2] ^ i_poly[9];
+            shift_poly_8_10[1] = i_poly[3];
+            shift_poly_8_10[2] = i_poly[4];
+            shift_poly_8_10[3] = i_poly[5] ^ i_poly[9] ^ i_poly[2];
+            shift_poly_8_10[4] = i_poly[6] ^ i_poly[3];
+            shift_poly_8_10[5] = i_poly[7] ^ i_poly[4];
+            shift_poly_8_10[6] = i_poly[8] ^ i_poly[5];
+            shift_poly_8_10[7] = i_poly[9] ^ i_poly[6];
+            shift_poly_8_10[8] = i_poly[0] ^ i_poly[7];
+            shift_poly_8_10[9] = i_poly[1] ^ i_poly[8];
+            shift_poly_8_10[10] = 1'b0;
+        end
+    endfunction
 
 	function automatic [10:0] shift_poly_1;
 		input [9:0] i_poly;
