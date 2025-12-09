@@ -92,53 +92,13 @@ module bch(
 	reg [9:0]  root_r [0:3][0:3], root_w [0:3][0:3];
 	reg [2:0]  root_valid_cnt_r [0:3], root_valid_cnt_w [0:3];
 	reg [2:0]  temp_root_valid_cnt_w [0:2][0:7];
-	wire [10:0] delta_poly_w [0:2][0:7][0:4];    // first index: parallel number, second index: degree
+	reg [10:0] delta_poly_w [0:2][0:7][0:4];    // first index: parallel number, second index: degree
 	wire [9:0] root_index_w [0:7];
 
 	genvar k, m;
 	generate
 		for (k = 0; k < 8; k = k + 1) begin
 			assign root_index_w[k] = ((cnt_r << 3) + 7) - k;
-		end
-		for (k = 0; k < 8; k = k + 1) begin
-			for (m = 0; m < 3; m = m + 1) begin
-				assign delta_poly_w[m][k][0] = delta_r[m][0];
-			end
-		end
-		for (k = 1; k < 5; k = k + 1) begin
-			for (m = 0; m < 3; m = m + 1) begin
-				assign delta_poly_w[m][0][k] = delta_r[m][k];
-			end
-		end
-		for (k = 0; k < 3; k = k + 1) begin
-			assign delta_poly_w[k][1][1] = shift_poly_1(delta_r[k][1]);
-			assign delta_poly_w[k][1][2] = shift_poly_2(delta_r[k][2]);
-			assign delta_poly_w[k][1][3] = shift_poly_3(delta_r[k][3]);
-			assign delta_poly_w[k][1][4] = shift_poly_4(delta_r[k][4]);
-			assign delta_poly_w[k][2][1] = shift_poly_2(delta_r[k][1]);
-			assign delta_poly_w[k][2][2] = shift_poly_4(delta_r[k][2]);
-			assign delta_poly_w[k][2][3] = shift_poly_6(delta_r[k][3]);
-			assign delta_poly_w[k][2][4] = shift_poly_8(delta_r[k][4]);
-			assign delta_poly_w[k][3][1] = shift_poly_3(delta_r[k][1]);
-			assign delta_poly_w[k][3][2] = shift_poly_6(delta_r[k][2]);
-			assign delta_poly_w[k][3][3] = shift_poly_4(shift_poly_5(delta_r[k][3]));
-			assign delta_poly_w[k][3][4] = shift_poly_6(shift_poly_6(delta_r[k][4]));
-			assign delta_poly_w[k][4][1] = shift_poly_4(delta_r[k][1]);
-			assign delta_poly_w[k][4][2] = shift_poly_8(delta_r[k][2]);
-			assign delta_poly_w[k][4][3] = shift_poly_6(shift_poly_6(delta_r[k][3]));
-			assign delta_poly_w[k][4][4] = shift_poly_8(shift_poly_8(delta_r[k][4]));
-			assign delta_poly_w[k][5][1] = shift_poly_5(delta_r[k][1]);
-			assign delta_poly_w[k][5][2] = shift_poly_5(shift_poly_5(delta_r[k][2]));
-			assign delta_poly_w[k][5][3] = shift_poly_7(shift_poly_8(delta_r[k][3]));
-			assign delta_poly_w[k][5][4] = shift_poly_6(shift_poly_7(shift_poly_7(delta_r[k][4])));
-			assign delta_poly_w[k][6][1] = shift_poly_6(delta_r[k][1]);
-			assign delta_poly_w[k][6][2] = shift_poly_6(shift_poly_6(delta_r[k][2]));
-			assign delta_poly_w[k][6][3] = shift_poly_6(shift_poly_6(shift_poly_6(delta_r[k][3])));
-			assign delta_poly_w[k][6][4] = shift_poly_8(shift_poly_8(shift_poly_8(delta_r[k][4])));
-			assign delta_poly_w[k][7][1] = shift_poly_7(delta_r[k][1]);
-			assign delta_poly_w[k][7][2] = shift_poly_7(shift_poly_7(delta_r[k][2]));
-			assign delta_poly_w[k][7][3] = shift_poly_7(shift_poly_7(shift_poly_7(delta_r[k][3])));
-			assign delta_poly_w[k][7][4] = shift_poly_7(shift_poly_7(shift_poly_7(shift_poly_7(delta_r[k][4]))));
 		end
 	endgenerate
 
@@ -170,22 +130,119 @@ module bch(
 
 	assign ready = ready_r;
 
-	// always @(*) begin
-	// 	case (code_r)
-	// 		1: begin
+	always @(*) begin
+		for (i = 0; i < 8; i = i + 1) begin
+			for (j = 0; j < 3; j = j + 1) begin
+				delta_poly_w[j][i][0] = delta_r[j][0];
+			end
+		end
+		for (i = 1; i < 5; i = i + 1) begin
+			for (j = 0; j < 3; j = j + 1) begin
+				delta_poly_w[j][0][i] = delta_r[j][i];
+			end
+		end
+		case (code_r)
+			1: begin
+				for (i = 0; i < 3; i = i + 1) begin
+					delta_poly_w[i][1][1] = shift_poly_1_6(delta_r[i][1]);
+					delta_poly_w[i][1][2] = shift_poly_2_6(delta_r[i][2]);
+					delta_poly_w[i][1][3] = shift_poly_3_6(delta_r[i][3]);
+					delta_poly_w[i][1][4] = shift_poly_4_6(delta_r[i][4]);
+					delta_poly_w[i][2][1] = shift_poly_2_6(delta_r[i][1]);
+					delta_poly_w[i][2][2] = shift_poly_4_6(delta_r[i][2]);
+					delta_poly_w[i][2][3] = shift_poly_6_6(delta_r[i][3]);
+					delta_poly_w[i][2][4] = shift_poly_8_6(delta_r[i][4]);
+					delta_poly_w[i][3][1] = shift_poly_3_6(delta_r[i][1]);
+					delta_poly_w[i][3][2] = shift_poly_6_6(delta_r[i][2]);
+					delta_poly_w[i][3][3] = shift_poly_4_6(shift_poly_5_6(delta_r[i][3]));
+					delta_poly_w[i][3][4] = shift_poly_6_6(shift_poly_6_6(delta_r[i][4]));
+					delta_poly_w[i][4][1] = shift_poly_4_6(delta_r[i][1]);
+					delta_poly_w[i][4][2] = shift_poly_8_6(delta_r[i][2]);
+					delta_poly_w[i][4][3] = shift_poly_6_6(shift_poly_6_6(delta_r[i][3]));
+					delta_poly_w[i][4][4] = shift_poly_8_6(shift_poly_8_6(delta_r[i][4]));
+					delta_poly_w[i][5][1] = shift_poly_5_6(delta_r[i][1]);
+					delta_poly_w[i][5][2] = shift_poly_5_6(shift_poly_5_6(delta_r[i][2]));
+					delta_poly_w[i][5][3] = shift_poly_7_6(shift_poly_8_6(delta_r[i][3]));
+					delta_poly_w[i][5][4] = shift_poly_6_6(shift_poly_7_6(shift_poly_7_6(delta_r[i][4])));
+					delta_poly_w[i][6][1] = shift_poly_6_6(delta_r[i][1]);
+					delta_poly_w[i][6][2] = shift_poly_6_6(shift_poly_6_6(delta_r[i][2]));
+					delta_poly_w[i][6][3] = shift_poly_6_6(shift_poly_6_6(shift_poly_6_6(delta_r[i][3])));
+					delta_poly_w[i][6][4] = shift_poly_8_6(shift_poly_8_6(shift_poly_8_6(delta_r[i][4])));
+					delta_poly_w[i][7][1] = shift_poly_7_6(delta_r[i][1]);
+					delta_poly_w[i][7][2] = shift_poly_7_6(shift_poly_7_6(delta_r[i][2]));
+					delta_poly_w[i][7][3] = shift_poly_7_6(shift_poly_7_6(shift_poly_7_6(delta_r[i][3])));
+					delta_poly_w[i][7][4] = shift_poly_7_6(shift_poly_7_6(shift_poly_7_6(shift_poly_7_6(delta_r[i][4]))));
+				end
+			end
+			2: begin
+				for (i = 0; i < 3; i = i + 1) begin
+					delta_poly_w[i][1][1] = shift_poly_1_8(delta_r[i][1]);
+					delta_poly_w[i][1][2] = shift_poly_2_8(delta_r[i][2]);
+					delta_poly_w[i][1][3] = shift_poly_3_8(delta_r[i][3]);
+					delta_poly_w[i][1][4] = shift_poly_4_8(delta_r[i][4]);
+					delta_poly_w[i][2][1] = shift_poly_2_8(delta_r[i][1]);
+					delta_poly_w[i][2][2] = shift_poly_4_8(delta_r[i][2]);
+					delta_poly_w[i][2][3] = shift_poly_6_8(delta_r[i][3]);
+					delta_poly_w[i][2][4] = shift_poly_8_8(delta_r[i][4]);
+					delta_poly_w[i][3][1] = shift_poly_3_8(delta_r[i][1]);
+					delta_poly_w[i][3][2] = shift_poly_6_8(delta_r[i][2]);
+					delta_poly_w[i][3][3] = shift_poly_4_8(shift_poly_5_8(delta_r[i][3]));
+					delta_poly_w[i][3][4] = shift_poly_6_8(shift_poly_6_8(delta_r[i][4]));
+					delta_poly_w[i][4][1] = shift_poly_4_8(delta_r[i][1]);
+					delta_poly_w[i][4][2] = shift_poly_8_8(delta_r[i][2]);
+					delta_poly_w[i][4][3] = shift_poly_6_8(shift_poly_6_8(delta_r[i][3]));
+					delta_poly_w[i][4][4] = shift_poly_8_8(shift_poly_8_8(delta_r[i][4]));
+					delta_poly_w[i][5][1] = shift_poly_5_8(delta_r[i][1]);
+					delta_poly_w[i][5][2] = shift_poly_5_8(shift_poly_5_8(delta_r[i][2]));
+					delta_poly_w[i][5][3] = shift_poly_7_8(shift_poly_8_8(delta_r[i][3]));
+					delta_poly_w[i][5][4] = shift_poly_6_8(shift_poly_7_8(shift_poly_7_8(delta_r[i][4])));
+					delta_poly_w[i][6][1] = shift_poly_6_8(delta_r[i][1]);
+					delta_poly_w[i][6][2] = shift_poly_6_8(shift_poly_6_8(delta_r[i][2]));
+					delta_poly_w[i][6][3] = shift_poly_6_8(shift_poly_6_8(shift_poly_6_8(delta_r[i][3])));
+					delta_poly_w[i][6][4] = shift_poly_8_8(shift_poly_8_8(shift_poly_8_8(delta_r[i][4])));
+					delta_poly_w[i][7][1] = shift_poly_7_8(delta_r[i][1]);
+					delta_poly_w[i][7][2] = shift_poly_7_8(shift_poly_7_8(delta_r[i][2]));
+					delta_poly_w[i][7][3] = shift_poly_7_8(shift_poly_7_8(shift_poly_7_8(delta_r[i][3])));
+					delta_poly_w[i][7][4] = shift_poly_7_8(shift_poly_7_8(shift_poly_7_8(shift_poly_7_8(delta_r[i][4]))));
+				end
+			end
+			3: begin
+				for (i = 0; i < 3; i = i + 1) begin
+					delta_poly_w[i][1][1] = shift_poly_1_10(delta_r[i][1]);
+					delta_poly_w[i][1][2] = shift_poly_2_10(delta_r[i][2]);
+					delta_poly_w[i][1][3] = shift_poly_3_10(delta_r[i][3]);
+					delta_poly_w[i][1][4] = shift_poly_4_10(delta_r[i][4]);
+					delta_poly_w[i][2][1] = shift_poly_2_10(delta_r[i][1]);
+					delta_poly_w[i][2][2] = shift_poly_4_10(delta_r[i][2]);
+					delta_poly_w[i][2][3] = shift_poly_6_10(delta_r[i][3]);
+					delta_poly_w[i][2][4] = shift_poly_8_10(delta_r[i][4]);
+					delta_poly_w[i][3][1] = shift_poly_3_10(delta_r[i][1]);
+					delta_poly_w[i][3][2] = shift_poly_6_10(delta_r[i][2]);
+					delta_poly_w[i][3][3] = shift_poly_4_10(shift_poly_5_10(delta_r[i][3]));
+					delta_poly_w[i][3][4] = shift_poly_6_10(shift_poly_6_10(delta_r[i][4]));
+					delta_poly_w[i][4][1] = shift_poly_4_10(delta_r[i][1]);
+					delta_poly_w[i][4][2] = shift_poly_8_10(delta_r[i][2]);
+					delta_poly_w[i][4][3] = shift_poly_6_10(shift_poly_6_10(delta_r[i][3]));
+					delta_poly_w[i][4][4] = shift_poly_8_10(shift_poly_8_10(delta_r[i][4]));
+					delta_poly_w[i][5][1] = shift_poly_5_10(delta_r[i][1]);
+					delta_poly_w[i][5][2] = shift_poly_5_10(shift_poly_5_10(delta_r[i][2]));
+					delta_poly_w[i][5][3] = shift_poly_7_10(shift_poly_8_10(delta_r[i][3]));
+					delta_poly_w[i][5][4] = shift_poly_6_10(shift_poly_7_10(shift_poly_7_10(delta_r[i][4])));
+					delta_poly_w[i][6][1] = shift_poly_6_10(delta_r[i][1]);
+					delta_poly_w[i][6][2] = shift_poly_6_10(shift_poly_6_10(delta_r[i][2]));
+					delta_poly_w[i][6][3] = shift_poly_6_10(shift_poly_6_10(shift_poly_6_10(delta_r[i][3])));
+					delta_poly_w[i][6][4] = shift_poly_8_10(shift_poly_8_10(shift_poly_8_10(delta_r[i][4])));
+					delta_poly_w[i][7][1] = shift_poly_7_10(delta_r[i][1]);
+					delta_poly_w[i][7][2] = shift_poly_7_10(shift_poly_7_10(delta_r[i][2]));
+					delta_poly_w[i][7][3] = shift_poly_7_10(shift_poly_7_10(shift_poly_7_10(delta_r[i][3])));
+					delta_poly_w[i][7][4] = shift_poly_7_10(shift_poly_7_10(shift_poly_7_10(shift_poly_7_10(delta_r[i][4]))));
+				end
+			end
+			default: begin
 				
-	// 		end
-	// 		2: begin
-				
-	// 		end
-	// 		3: begin
-				
-	// 		end
-	// 		default: begin
-				
-	// 		end
-	// 	endcase
-	// end
+			end
+		endcase
+	end
 
 	always @(*) begin
 		state_w = state_r;
