@@ -160,7 +160,7 @@ module bch(
 	integer i, j, l;
 
 	// clock gating
-	wire load_en     = 1;
+	wire data_en     = 1;
 	wire syn_low_en  = 1;
 	wire syn_high_en = 1;
 	wire ber_en      = 1;
@@ -2108,16 +2108,9 @@ module bch(
 			index2_temp_r <= index2_temp_w;
 			corr_sel_r <= corr_sel_w;
 			flipped_stack_ptr_r <= flipped_stack_ptr_w;
-			if (load_en) begin
+			if (data_en) begin
 				for (i = 0; i < 1024; i = i + 1) begin
 					data_r[i] <= data_w[i];
-				end
-			end
-			if (syn_low_en) begin
-				for (i = 0; i < 4; i = i + 1) begin
-					for (j = 0; j < 3; j = j + 1) begin
-						S_r[j][i] <= S_w[j][i];
-					end
 				end
 			end
 			if (syn_high_en) begin
@@ -2170,29 +2163,6 @@ module bch(
 			
 			odata_r <= odata_w;
 			finish_r <= finish_w;
-
-			// if (state_r == S_BER_SOFT1) begin
-			// 	for (i = 0; i < 8; i = i + 1) begin
-			// 		// $display("alpha[0][%d] = %b", i[2:0], alpha_r[0][i]);
-			// 		// $display("alpha[1][%d] = %b", i[2:0], alpha_r[1][i]);
-			// 		$display("Before :");
-			// 		$display("S[0][%d] = %b", i[2:0], S_r[0][i]);
-			// 		$display("S[1][%d] = %b", i[2:0], S_r[1][i]);
-			// 		$display("S[2][%d] = %b", i[2:0], S_r[2][i]);
-			// 	end
-			// end
-			// if ((state_r == S_OUT_SOFT)) begin
-			// 	for (i = 0; i < 8; i = i + 1) begin
-			// 		// $display("alpha[0][%d] = %b", i[2:0], alpha_r[0][i]);
-			// 		// $display("alpha[1][%d] = %b", i[2:0], alpha_r[1][i]);
-			// 		$display("After :");
-			// 		$display("S[0][%d] = %b", i[2:0], S_r[0][i]);
-			// 		$display("alpha[0][%d] = %b", i[2:0], alpha_r[0][i]);
-			// 		$display("S[1][%d] = %b", i[2:0], S_r[1][i]);
-			// 		$display("alpha[1][%d] = %b", i[2:0], alpha_r[1][i]);
-			// 		$display("S[2][%d] = %b", i[2:0], S_r[2][i]);
-			// 	end
-			// end
 		end
 	end
 
