@@ -6,7 +6,7 @@ module test;
 // parameters
 parameter CYCLE = 10;
 parameter PATTERN = 1;
-integer NTEST = 1;
+parameter NTEST = 1;
 
 // --------------------------
 // signals
@@ -23,6 +23,8 @@ wire [9:0] odata;
 // test data
 reg [63:0] testdata [0:8191];
 reg [9:0] testa [0:511];
+reg [1:0] testcode [0:511];
+reg       testmode [0:511];
 integer i1, i2, i3;
 integer errcnt;
 
@@ -30,19 +32,56 @@ integer errcnt;
 // read files and dump files
 initial begin
 	if (PATTERN == 100) begin
-		NTEST = 2;
+		// NTEST = 2;
 		$readmemb("testdata/p100.txt", testdata);
 		$readmemb("testdata/p100a.txt", testa);
 	end
 	if (PATTERN == 200) begin
-		NTEST = 2;
+		// NTEST = 2;
 		$readmemb("testdata/p200.txt", testdata);
 		$readmemb("testdata/p200a.txt", testa);
 	end
 	if (PATTERN == 300) begin
-		NTEST = 2;
+		// NTEST = 2;
 		$readmemb("testdata/p300.txt", testdata);
 		$readmemb("testdata/p300a.txt", testa);
+	end
+	if (PATTERN == 99) begin
+		// NTEST = 50;
+		$readmemb("testdata/p99.txt", testdata);
+		$readmemb("testdata/p99a.txt", testa);
+	end
+	if (PATTERN == 199) begin
+		// NTEST = 50;
+		$readmemb("testdata/p199.txt", testdata);
+		$readmemb("testdata/p199a.txt", testa);
+	end
+	if (PATTERN == 299) begin
+		// NTEST = 50;
+		$readmemb("testdata/p299.txt", testdata);
+		$readmemb("testdata/p299a.txt", testa);
+	end
+	if (PATTERN == 400) begin
+		// NTEST = 2;
+		$readmemb("testdata/p400.txt", testdata);
+		$readmemb("testdata/p400a.txt", testa);
+	end
+	if (PATTERN == 500) begin
+		// NTEST = 2;
+		$readmemb("testdata/p500.txt", testdata);
+		$readmemb("testdata/p500a.txt", testa);
+	end
+	if (PATTERN == 600) begin
+		// NTEST = 2;
+		$readmemb("testdata/p600.txt", testdata);
+		$readmemb("testdata/p600a.txt", testa);
+	end
+	if (PATTERN == 700) begin
+		// NTEST = 50;
+		$readmemb("testdata/p_mix.txt", testdata);
+		$readmemb("testdata/pa_mix.txt", testa);
+		$readmemb("testdata/pcode_mix.txt", testcode);
+		$readmemb("testdata/pmode_mix.txt", testmode);
 	end
 end
 
@@ -113,14 +152,19 @@ initial begin
 		end else if (PATTERN <= 600) begin
 			code = 3;
 			mode = 1;
+		end else begin
+			code = testcode[i2];
+			mode = testmode[i2];
 		end
 		set = 1;
 		#(CYCLE);
 		set = 0;
 
+		
 		wait(finish === 1);
 		@(negedge clk);
 		#(CYCLE*10);
+		$display("Finish test %0d, code=%0d, mode=%0d at time %0d \n", i2, code, mode, $time);
 	end
 end
 always @(negedge clk) begin
@@ -148,7 +192,7 @@ initial begin
 	$finish;
 end
 initial begin
-	#(CYCLE*1000000);
+	#(CYCLE*100000000000);
 	$write("Timeout\n");
 	$finish;
 end
