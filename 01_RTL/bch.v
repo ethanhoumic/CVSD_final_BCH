@@ -121,13 +121,13 @@ module bch(
 
 	// clock gating
 	wire data_low_en = (state_r == S_LOAD);
-	wire data_mid_en = (state_r == S_LOAD && code_r != 1);
-	wire data_high_en = (state_r == S_LOAD && code_r == 3);
+	wire data_mid_en = data_low_en && (code_r != 1);
+	wire data_high_en = (data_low_en && code_r == 3);
 	wire alpha_en = (state_r == S_CHI_SOFT1 || state_r == S_BER_SOFT1);
 	wire stage_en = (state_r == S_CHI_SOFT2 || state_r == S_CHI_HARD || state_r == S_CHI_SOFT1);
-	wire syn_low_en  = 1;
-	wire syn_high_en = 1;
-	wire ber_en      = 1;
+	wire syn_low_en  = (state_r == S_LOAD || state_r == S_CHI_HARD || state_r == S_CHI_SOFT1);
+	wire syn_high_en = syn_low_en && (code_r == 3);
+	wire corr_en = (state_r == S_CORR_1 || state_r == S_CORR_2 || state_r == S_CHI_SOFT1);
 
 	assign ready = ready_r;
 
@@ -611,19 +611,19 @@ module bch(
 						1: begin
 							delta_w[0][0] = delta_r[0][0];
 							delta_w[0][1] = shift_poly_8_6(delta_r[0][1]);
-							delta_w[0][2] = shift_poly_8_6(shift_poly_8_6(delta_r[0][2]));
+							delta_w[0][2] = shift_poly_16_6(delta_r[0][2]);
 						end 
 						2: begin
 							delta_w[0][0] = delta_r[0][0];
 							delta_w[0][1] = shift_poly_8_8(delta_r[0][1]);
-							delta_w[0][2] = shift_poly_8_8(shift_poly_8_8(delta_r[0][2]));
+							delta_w[0][2] = shift_poly_16_8(delta_r[0][2]);
 						end
 						3: begin
 							delta_w[0][0] = delta_r[0][0];
 							delta_w[0][1] = shift_poly_8_10(delta_r[0][1]);
-							delta_w[0][2] = shift_poly_8_10(shift_poly_8_10(delta_r[0][2]));
-							delta_w[0][3] = shift_poly_8_10(shift_poly_8_10(shift_poly_8_10(delta_r[0][3])));
-							delta_w[0][4] = shift_poly_8_10(shift_poly_8_10(shift_poly_8_10(shift_poly_8_10(delta_r[0][4]))));
+							delta_w[0][2] = shift_poly_16_10(delta_r[0][2]);
+							delta_w[0][3] = shift_poly_24_10(delta_r[0][3]);
+							delta_w[0][4] = shift_poly_32_10(delta_r[0][4]);
 						end
 						default: begin end
 					endcase
@@ -740,19 +740,9 @@ module bch(
 					finish_w = 0;
 					odata_w = 0;
 					state_w = S_IDLE;
-					for (i = 0; i < 8; i = i + 1) begin
-						S_w[0][i] = 0;
-						for (j = 0; j < 5; j = j + 1) begin
-							stage1_buff_w[0][i][j] = 0;
-						end
-					end
 					for (i = 0; i < 4; i = i + 1) begin
 						power_w[0] = 0;
 						root_w[0][i] = 0;
-					end
-					for (i = 0; i < 5; i = i + 1) begin
-						delta_w[0][i] = 0;
-						delta_rho_w[0][i] = 0;
 					end
 					d_w[0] = 0;
 					d_rho_w[0] = 0;
@@ -1042,25 +1032,6 @@ module bch(
 					flipped_stack_ptr_w = 0;
 					flipped_stack_w[0] = 0;
 					flipped_stack_w[1] = 0;
-					for (i = 0; i < 1024; i = i + 1) begin
-						data_w[i] = 0;
-					end
-					for (i = 0; i < 8; i = i + 1) begin
-						for (j = 0; j < 3; j = j + 1) begin
-							S_w[j][i] = 0;
-						end
-						for (j = 0; j < 5; j = j + 1) begin
-							for (l = 0; l < 3; l = l + 1) begin
-								stage1_buff_w[l][i][j] = 0;
-							end
-						end
-					end
-					for (i = 0; i < 5; i = i + 1) begin
-						for (j = 0; j < 3; j = j + 1) begin
-							delta_w[j][i] = 0;
-							delta_rho_w[j][i] = 0;
-						end
-					end
 					for (i = 0; i < 4; i = i + 1) begin
 						power_w[i] = 0;
 						root_cnt_w[i] = 0;
@@ -1688,23 +1659,27 @@ module bch(
 			end
 			if (syn_high_en) begin
 				for (i = 0; i < 8; i = i + 1) begin
+					for (j = 3; j < 5; j = j + 1) begin
+						S_r[j][i] <= S_w[j][i];
+					end
+				end
+			end
+			if (syn_low_en) begin
+				for (i = 0; i < 8; i = i + 1) begin
 					for (j = 0; j < 3; j = j + 1) begin
 						S_r[j][i] <= S_w[j][i];
 					end
 				end
 			end
-			if (ber_en) begin
-				for (i = 0; i < 3; i = i + 1) begin
-					d_r[i] <= d_w[i];
-					d_rho_r[i] <= d_rho_w[i];
-					l_r[i] <= l_w[i];
-					l_rho_r[i] <= l_rho_w[i];
-					rho_r[i] <= rho_w[i];
-					
-					for (j = 0; j < 5; j = j + 1) begin
-						delta_r[i][j] <= delta_w[i][j];
-						delta_rho_r[i][j] <= delta_rho_w[i][j];
-					end
+			for (i = 0; i < 3; i = i + 1) begin
+				d_r[i] <= d_w[i];
+				d_rho_r[i] <= d_rho_w[i];
+				l_r[i] <= l_w[i];
+				l_rho_r[i] <= l_rho_w[i];
+				rho_r[i] <= rho_w[i];
+				for (j = 0; j < 5; j = j + 1) begin
+					delta_r[i][j] <= delta_w[i][j];
+					delta_rho_r[i][j] <= delta_rho_w[i][j];
 				end
 			end
 			for (i = 0; i < 2; i = i + 1) begin
