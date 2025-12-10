@@ -104,10 +104,12 @@ module bch(
 
 	// correlation
 	reg [9:0] corr_r[0:3], corr_w[0:3];
-	reg [9:0] corr_sel_r, corr_sel_w;
+	reg [1:0] corr_sel_r, corr_sel_w;
 	reg [9:0] temp_corr_w [0:3][0:7];
 
 	// output 
+	reg [2:0] root_compact_w [0:4];
+	reg [1:0] flag_w [0:4];
 	reg [9:0] odata_r, odata_w;
 	reg [9:0] flipped_stack_r [0:1], flipped_stack_w [0:1];
 	reg [1:0] flipped_stack_ptr_r, flipped_stack_ptr_w;
@@ -263,6 +265,8 @@ module bch(
 		for (i = 0; i < 8; i = i + 1) S_temp6_w[i] = 0;
 		for (i = 0; i < 8; i = i + 1) S_temp7_w[i] = 0;
 		for (i = 0; i < 5; i = i + 1) begin
+			flag_w[i] = 0;
+			root_compact_w[i] = 0;
 			for (j = 0; j < 3; j = j + 1) begin
 				temp1_w[j][i] = 11'b0;
 				temp2_w[j][i] = 11'b0;
@@ -994,28 +998,28 @@ module bch(
 							end
 							else if (temp_root_w[0][0] == 0) begin
 								temp_root_cnt_w[0][0] = root_cnt_r[0] + 1;
-								root_w[0][root_valid_cnt_r[0]] = root_index_w[0];
-								temp_root_valid_cnt_w[0][0] = root_valid_cnt_r[0] + 1;
+								root_w[0][root_cnt_r[0]] = root_index_w[0];
+								// temp_root_valid_cnt_w[0][0] = root_valid_cnt_r[0] + 1;
 							end
 							else begin 
 								temp_root_cnt_w[0][0] = root_cnt_r[0];
-								temp_root_valid_cnt_w[0][0] = root_valid_cnt_r[0];
+								// temp_root_valid_cnt_w[0][0] = root_valid_cnt_r[0];
 							end
 							for (i = 1; i < 8; i = i + 1) begin
 								temp_root_w[0][i] = stage1_buff_r[0][i][0] ^ stage1_buff_r[0][i][1] ^ stage1_buff_r[0][i][2];
 								if (temp_root_w[0][i] == 0) begin
 									temp_root_cnt_w[0][i] = temp_root_cnt_w[0][i - 1] + 1;
-									temp_root_valid_cnt_w[0][i] = temp_root_valid_cnt_w[0][i - 1] + 1;
-									root_w[0][temp_root_valid_cnt_w[0][i - 1]] = root_index_w[i];
+									// temp_root_valid_cnt_w[0][i] = temp_root_valid_cnt_w[0][i - 1] + 1;
+									root_w[0][temp_root_cnt_w[0][i - 1]] = root_index_w[i];
 								end
 								else begin
 									temp_root_cnt_w[0][i] = temp_root_cnt_w[0][i - 1];
-									temp_root_valid_cnt_w[0][i] = temp_root_valid_cnt_w[0][i - 1];
+									// temp_root_valid_cnt_w[0][i] = temp_root_valid_cnt_w[0][i - 1];
 								end
 							end
 						end
 						root_cnt_w[0] = temp_root_cnt_w[0][7];
-						root_valid_cnt_w[0] = temp_root_valid_cnt_w[0][7];
+						// root_valid_cnt_w[0] = temp_root_valid_cnt_w[0][7];
 						cnt_w = cnt_r - 1;
 						for (i = 0; i < 8; i = i + 1) begin
 							for (j = 0; j < 3; j = j + 1) begin
@@ -1038,28 +1042,28 @@ module bch(
 							end
 							else if (temp_root_w[0][0] == 0) begin
 								temp_root_cnt_w[0][0] = root_cnt_r[0] + 1;
-								temp_root_valid_cnt_w[0][0] = root_valid_cnt_r[0] + 1;
-								root_w[0][root_valid_cnt_r[0]] = root_index_w[0];
+								// temp_root_valid_cnt_w[0][0] = root_valid_cnt_r[0] + 1;
+								root_w[0][root_cnt_r[0]] = root_index_w[0];
 							end
 							else begin 
 								temp_root_cnt_w[0][0] = root_cnt_r[0];
-								temp_root_valid_cnt_w[0][0] = root_valid_cnt_r[0];
+								// temp_root_valid_cnt_w[0][0] = root_valid_cnt_r[0];
 							end
 							for (i = 1; i < 8; i = i + 1) begin
 								temp_root_w[0][i] = stage1_buff_r[0][i][0] ^ stage1_buff_r[0][i][1] ^ stage1_buff_r[0][i][2];
 								if (temp_root_w[0][i] == 0) begin
 									temp_root_cnt_w[0][i] = temp_root_cnt_w[0][i - 1] + 1;
-									root_w[0][temp_root_valid_cnt_w[0][i - 1]] = root_index_w[i];
-									temp_root_valid_cnt_w[0][i] = temp_root_valid_cnt_w[0][i - 1] + 1;
+									root_w[0][temp_root_cnt_w[0][i - 1]] = root_index_w[i];
+									// temp_root_valid_cnt_w[0][i] = temp_root_valid_cnt_w[0][i - 1] + 1;
 								end
 								else begin
 									temp_root_cnt_w[0][i] = temp_root_cnt_w[0][i - 1];
-									temp_root_valid_cnt_w[0][i] = temp_root_valid_cnt_w[0][i - 1];
+									// temp_root_valid_cnt_w[0][i] = temp_root_valid_cnt_w[0][i - 1];
 								end
 							end
 						end
 						root_cnt_w[0] = temp_root_cnt_w[0][7];
-						root_valid_cnt_w[0] = temp_root_valid_cnt_w[0][7];
+						// root_valid_cnt_w[0] = temp_root_valid_cnt_w[0][7];
 						cnt_w = cnt_r - 1;
 						for (i = 0; i < 8; i = i + 1) begin
 							for (j = 0; j < 3; j = j + 1) begin
@@ -1081,28 +1085,28 @@ module bch(
 							end
 							else if (temp_root_w[0][0] == 0) begin
 								temp_root_cnt_w[0][0] = root_cnt_r[0] + 1;
-								root_w[0][root_valid_cnt_r[0]] = root_index_w[0];
-								temp_root_valid_cnt_w[0][0] = root_valid_cnt_r[0] + 1;
+								root_w[0][root_cnt_r[0]] = root_index_w[0];
+								// temp_root_valid_cnt_w[0][0] = root_valid_cnt_r[0] + 1;
 							end
 							else begin 
 								temp_root_cnt_w[0][0] = root_cnt_r[0];
-								temp_root_valid_cnt_w[0][0] = root_valid_cnt_r[0];
+								// temp_root_valid_cnt_w[0][0] = root_valid_cnt_r[0];
 							end
 							for (i = 1; i < 8; i = i + 1) begin
 								temp_root_w[0][i] = stage1_buff_r[0][i][0] ^ stage1_buff_r[0][i][1] ^ stage1_buff_r[0][i][2] ^ stage1_buff_r[0][i][3] ^ stage1_buff_r[0][i][4];
 								if (temp_root_w[0][i] == 0) begin
 									temp_root_cnt_w[0][i] = temp_root_cnt_w[0][i - 1] + 1;
-									root_w[0][temp_root_valid_cnt_w[0][i - 1]] = root_index_w[i];
-									temp_root_valid_cnt_w[0][i] = temp_root_valid_cnt_w[0][i - 1] + 1;
+									root_w[0][temp_root_cnt_w[0][i - 1]] = root_index_w[i];
+									// temp_root_valid_cnt_w[0][i] = temp_root_valid_cnt_w[0][i - 1] + 1;
 								end
 								else begin
 									temp_root_cnt_w[0][i] = temp_root_cnt_w[0][i - 1];
-									temp_root_valid_cnt_w[0][i] = temp_root_valid_cnt_w[0][i - 1];
+									// temp_root_valid_cnt_w[0][i] = temp_root_valid_cnt_w[0][i - 1];
 								end
 							end
 						end
 						root_cnt_w[0] = temp_root_cnt_w[0][7];
-						root_valid_cnt_w[0] = temp_root_valid_cnt_w[0][7];
+						// root_valid_cnt_w[0] = temp_root_valid_cnt_w[0][7];
 						cnt_w = cnt_r - 1;
 						for (i = 0; i < 8; i = i + 1) begin
 							for (j = 0; j < 5; j = j + 1) begin
@@ -1161,104 +1165,106 @@ module bch(
 								end
 								else if (temp_root_w[l][0] == 0) begin
 									temp_root_cnt_w[l][0] = root_cnt_r[l + 1] + 1;
-									case (l[1:0]) // synopsys parallel_case
-										2'd0: begin
-											if (root_index_w[0] != index1_r) begin
-												root_w[1][root_valid_cnt_r[1]] = root_index_w[0];
-												temp_root_valid_cnt_w[0][0] = root_valid_cnt_r[1] + 1;
-											end
-											else begin
-												index1_invalid_w[1] = 1;
-												temp_root_valid_cnt_w[0][0] = root_valid_cnt_r[1];
-											end
-										end
-										2'd1: begin
-											if (root_index_w[0] != index2_r) begin
-												root_w[2][root_valid_cnt_r[2]] = root_index_w[0];
-												temp_root_valid_cnt_w[1][0] = root_valid_cnt_r[2] + 1;
-											end
-											else begin
-												index2_invalid_w[2] = 1;
-												temp_root_valid_cnt_w[1][0] = root_valid_cnt_r[2];
-											end
-										end
-										2'd2: begin
-											if (root_index_w[0] != index1_r && root_index_w[0] != index2_r) begin
-												root_w[3][root_valid_cnt_r[3]] = root_index_w[0];
-												temp_root_valid_cnt_w[2][0] = root_valid_cnt_r[3] + 1;
-											end
-											else begin
-												if (root_index_w[0] == index1_r) begin 
-													index1_invalid_w[3] = 1;
-												end
-												else if (root_index_w[0] == index2_r) begin 
-													index2_invalid_w[3] = 1;
-												end
-												temp_root_valid_cnt_w[2][0] = root_valid_cnt_r[3];
-											end
-										end
-										default: begin
+									root_w[l + 1][root_cnt_r[l + 1]] = root_index_w[0];
+									// case (l[1:0]) // synopsys parallel_case
+									// 	2'd0: begin
+									// 		if (root_index_w[0] != index1_r) begin
+									// 			root_w[1][root_valid_cnt_r[1]] = root_index_w[0];
+									// 			temp_root_valid_cnt_w[0][0] = root_valid_cnt_r[1] + 1;
+									// 		end
+									// 		else begin
+									// 			index1_invalid_w[1] = 1;
+									// 			temp_root_valid_cnt_w[0][0] = root_valid_cnt_r[1];
+									// 		end
+									// 	end
+									// 	2'd1: begin
+									// 		if (root_index_w[0] != index2_r) begin
+									// 			root_w[2][root_valid_cnt_r[2]] = root_index_w[0];
+									// 			temp_root_valid_cnt_w[1][0] = root_valid_cnt_r[2] + 1;
+									// 		end
+									// 		else begin
+									// 			index2_invalid_w[2] = 1;
+									// 			temp_root_valid_cnt_w[1][0] = root_valid_cnt_r[2];
+									// 		end
+									// 	end
+									// 	2'd2: begin
+									// 		if (root_index_w[0] != index1_r && root_index_w[0] != index2_r) begin
+									// 			root_w[3][root_valid_cnt_r[3]] = root_index_w[0];
+									// 			temp_root_valid_cnt_w[2][0] = root_valid_cnt_r[3] + 1;
+									// 		end
+									// 		else begin
+									// 			if (root_index_w[0] == index1_r) begin 
+									// 				index1_invalid_w[3] = 1;
+									// 			end
+									// 			else if (root_index_w[0] == index2_r) begin 
+									// 				index2_invalid_w[3] = 1;
+									// 			end
+									// 			temp_root_valid_cnt_w[2][0] = root_valid_cnt_r[3];
+									// 		end
+									// 	end
+									// 	default: begin
 											
-										end
-									endcase
+									// 	end
+									// endcase
 								end
 								else begin
 									temp_root_cnt_w[l][0] = root_cnt_r[l + 1];
-									temp_root_valid_cnt_w[l][0] = root_valid_cnt_r[l + 1];
+									// temp_root_valid_cnt_w[l][0] = root_valid_cnt_r[l + 1];
 								end 
 								for (i = 1; i < 8; i = i + 1) begin
 									temp_root_w[l][i] = stage1_buff_r[l][i][0] ^ stage1_buff_r[l][i][1] ^ stage1_buff_r[l][i][2];
 									if (temp_root_w[l][i] == 0) begin
 										temp_root_cnt_w[l][i] = temp_root_cnt_w[l][i - 1] + 1;
-										case (l[1:0]) // synopsys parallel_case
-											2'd0: begin
-												if (root_index_w[i] != index1_r) begin
-													root_w[1][temp_root_valid_cnt_w[0][i - 1]] = root_index_w[i];
-													temp_root_valid_cnt_w[0][i] = temp_root_valid_cnt_w[0][i - 1] + 1;
-												end
-												else begin
-													index1_invalid_w[1] = 1;
-													temp_root_valid_cnt_w[0][i] = temp_root_valid_cnt_w[0][i - 1];
-												end
-											end
-											2'd1: begin
-												if (root_index_w[i] != index2_r) begin
-													root_w[2][temp_root_valid_cnt_w[1][i - 1]] = root_index_w[i];
-													temp_root_valid_cnt_w[1][i] = temp_root_valid_cnt_w[1][i - 1] + 1;
-												end
-												else begin
-													index2_invalid_w[2] = 1;
-													temp_root_valid_cnt_w[1][i] = temp_root_valid_cnt_w[1][i - 1];
-												end
-											end
-											2'd2: begin
-												if ((root_index_w[i] != index1_r) && (root_index_w[i] != index2_r)) begin
-													root_w[l + 1][temp_root_valid_cnt_w[l][i - 1]] = root_index_w[i];
-													temp_root_valid_cnt_w[l][i] = temp_root_valid_cnt_w[l][i - 1] + 1;
-												end
-												else begin
-													if (root_index_w[i] == index1_r) begin 
-														index1_invalid_w[l + 1] = 1;
-													end
-													else if (root_index_w[i] == index2_r) begin 
-														index2_invalid_w[l + 1] = 1;
-													end
-													temp_root_valid_cnt_w[l][i] = temp_root_valid_cnt_w[l][i - 1];
-												end
-											end
-											default: begin
+										root_w[l + 1][temp_root_cnt_w[l][i - 1]] = root_index_w[i];
+										// case (l[1:0]) // synopsys parallel_case
+										// 	2'd0: begin
+										// 		if (root_index_w[i] != index1_r) begin
+										// 			root_w[1][temp_root_valid_cnt_w[0][i - 1]] = root_index_w[i];
+										// 			temp_root_valid_cnt_w[0][i] = temp_root_valid_cnt_w[0][i - 1] + 1;
+										// 		end
+										// 		else begin
+										// 			index1_invalid_w[1] = 1;
+										// 			temp_root_valid_cnt_w[0][i] = temp_root_valid_cnt_w[0][i - 1];
+										// 		end
+										// 	end
+										// 	2'd1: begin
+										// 		if (root_index_w[i] != index2_r) begin
+										// 			root_w[2][temp_root_valid_cnt_w[1][i - 1]] = root_index_w[i];
+										// 			temp_root_valid_cnt_w[1][i] = temp_root_valid_cnt_w[1][i - 1] + 1;
+										// 		end
+										// 		else begin
+										// 			index2_invalid_w[2] = 1;
+										// 			temp_root_valid_cnt_w[1][i] = temp_root_valid_cnt_w[1][i - 1];
+										// 		end
+										// 	end
+										// 	2'd2: begin
+										// 		if ((root_index_w[i] != index1_r) && (root_index_w[i] != index2_r)) begin
+										// 			root_w[l + 1][temp_root_valid_cnt_w[l][i - 1]] = root_index_w[i];
+										// 			temp_root_valid_cnt_w[l][i] = temp_root_valid_cnt_w[l][i - 1] + 1;
+										// 		end
+										// 		else begin
+										// 			if (root_index_w[i] == index1_r) begin 
+										// 				index1_invalid_w[l + 1] = 1;
+										// 			end
+										// 			else if (root_index_w[i] == index2_r) begin 
+										// 				index2_invalid_w[l + 1] = 1;
+										// 			end
+										// 			temp_root_valid_cnt_w[l][i] = temp_root_valid_cnt_w[l][i - 1];
+										// 		end
+										// 	end
+										// 	default: begin
 												
-											end
-										endcase
+										// 	end
+										// endcase
 									end
 									else begin
 										temp_root_cnt_w[l][i] = temp_root_cnt_w[l][i - 1];
-										temp_root_valid_cnt_w[l][i] = temp_root_valid_cnt_w[l][i - 1];
+										// temp_root_valid_cnt_w[l][i] = temp_root_valid_cnt_w[l][i - 1];
 									end
 								end
 							end
 							root_cnt_w[l + 1] = temp_root_cnt_w[l][7];
-							root_valid_cnt_w[l + 1] = temp_root_valid_cnt_w[l][7];
+							// root_valid_cnt_w[l + 1] = temp_root_valid_cnt_w[l][7];
 							cnt_w = cnt_r - 1;
 							for (i = 0; i < 8; i = i + 1) begin
 								for (j = 0; j < 5; j = j + 1) begin
@@ -1281,104 +1287,106 @@ module bch(
 								end
 								else if (temp_root_w[l][0] == 0) begin
 									temp_root_cnt_w[l][0] = root_cnt_r[l + 1] + 1;
-									case (l[1:0]) // synopsys parallel_case
-										2'd0: begin
-											if (root_index_w[0] != index1_r) begin
-												root_w[1][root_valid_cnt_r[1]] = root_index_w[0];
-												temp_root_valid_cnt_w[0][0] = root_valid_cnt_r[1] + 1;
-											end
-											else begin
-												index1_invalid_w[l + 1] = 1;
-												temp_root_valid_cnt_w[l][0] = root_valid_cnt_r[l + 1];
-											end
-										end
-										2'd1: begin
-											if (root_index_w[0] != index2_r) begin
-												root_w[l + 1][root_valid_cnt_r[l + 1]] = root_index_w[0];
-												temp_root_valid_cnt_w[l][0] = root_valid_cnt_r[l + 1] + 1;
-											end
-											else begin
-												index2_invalid_w[l + 1] = 1;
-												temp_root_valid_cnt_w[l][0] = root_valid_cnt_r[l + 1];
-											end
-										end
-										2'd2: begin
-											if (root_index_w[0] != index1_r && root_index_w[0] != index2_r) begin
-												root_w[l + 1][root_valid_cnt_r[l + 1]] = root_index_w[0];
-												temp_root_valid_cnt_w[l][0] = root_valid_cnt_r[l + 1] + 1;
-											end
-											else begin
-												if (root_index_w[0] == index1_r) begin 
-													index1_invalid_w[l + 1] = 1;
-												end
-												else if (root_index_w[0] == index2_r) begin 
-													index2_invalid_w[l + 1] = 1;
-												end
-												temp_root_valid_cnt_w[l][0] = root_valid_cnt_r[l + 1];
-											end
-										end
-										default: begin
+									root_w[l + 1][root_cnt_r[l + 1]] = root_index_w[0];
+									// case (l[1:0]) // synopsys parallel_case
+									// 	2'd0: begin
+									// 		if (root_index_w[0] != index1_r) begin
+									// 			root_w[1][root_valid_cnt_r[1]] = root_index_w[0];
+									// 			temp_root_valid_cnt_w[0][0] = root_valid_cnt_r[1] + 1;
+									// 		end
+									// 		else begin
+									// 			index1_invalid_w[l + 1] = 1;
+									// 			temp_root_valid_cnt_w[l][0] = root_valid_cnt_r[l + 1];
+									// 		end
+									// 	end
+									// 	2'd1: begin
+									// 		if (root_index_w[0] != index2_r) begin
+									// 			root_w[l + 1][root_valid_cnt_r[l + 1]] = root_index_w[0];
+									// 			temp_root_valid_cnt_w[l][0] = root_valid_cnt_r[l + 1] + 1;
+									// 		end
+									// 		else begin
+									// 			index2_invalid_w[l + 1] = 1;
+									// 			temp_root_valid_cnt_w[l][0] = root_valid_cnt_r[l + 1];
+									// 		end
+									// 	end
+									// 	2'd2: begin
+									// 		if (root_index_w[0] != index1_r && root_index_w[0] != index2_r) begin
+									// 			root_w[l + 1][root_valid_cnt_r[l + 1]] = root_index_w[0];
+									// 			temp_root_valid_cnt_w[l][0] = root_valid_cnt_r[l + 1] + 1;
+									// 		end
+									// 		else begin
+									// 			if (root_index_w[0] == index1_r) begin 
+									// 				index1_invalid_w[l + 1] = 1;
+									// 			end
+									// 			else if (root_index_w[0] == index2_r) begin 
+									// 				index2_invalid_w[l + 1] = 1;
+									// 			end
+									// 			temp_root_valid_cnt_w[l][0] = root_valid_cnt_r[l + 1];
+									// 		end
+									// 	end
+									// 	default: begin
 											
-										end
-									endcase
+									// 	end
+									// endcase
 								end
 								else begin
 									temp_root_cnt_w[l][0] = root_cnt_r[l + 1];
-									temp_root_valid_cnt_w[l][0] = root_valid_cnt_r[l + 1];
+									// temp_root_valid_cnt_w[l][0] = root_valid_cnt_r[l + 1];
 								end 
 								for (i = 1; i < 8; i = i + 1) begin
 									temp_root_w[l][i] = stage1_buff_r[l][i][0] ^ stage1_buff_r[l][i][1] ^ stage1_buff_r[l][i][2];
 									if (temp_root_w[l][i] == 0) begin
 										temp_root_cnt_w[l][i] = temp_root_cnt_w[l][i - 1] + 1;
-										case (l[1:0]) // synopsys parallel_case)
-											2'd0: begin
-												if (root_index_w[i] != index1_r) begin
-													root_w[l + 1][temp_root_valid_cnt_w[l][i - 1]] = root_index_w[i];
-													temp_root_valid_cnt_w[l][i] = temp_root_valid_cnt_w[l][i - 1] + 1;
-												end
-												else begin
-													index1_invalid_w[l + 1] = 1;
-													temp_root_valid_cnt_w[l][i] = temp_root_valid_cnt_w[l][i - 1];
-												end
-											end
-											2'd1: begin
-												if (root_index_w[i] != index2_r) begin
-													root_w[l + 1][temp_root_valid_cnt_w[l][i - 1]] = root_index_w[i];
-													temp_root_valid_cnt_w[l][i] = temp_root_valid_cnt_w[l][i - 1] + 1;
-												end
-												else begin
-													index2_invalid_w[l + 1] = 1;
-													temp_root_valid_cnt_w[l][i] = temp_root_valid_cnt_w[l][i - 1];
-												end
-											end
-											2'd2: begin
-												if ((root_index_w[i] != index1_r) && (root_index_w[i] != index2_r)) begin
-													root_w[l + 1][temp_root_valid_cnt_w[l][i - 1]] = root_index_w[i];
-													temp_root_valid_cnt_w[l][i] = temp_root_valid_cnt_w[l][i - 1] + 1;
-												end
-												else begin
-													if (root_index_w[i] == index1_r) begin 
-														index1_invalid_w[l + 1] = 1;
-													end
-													else if (root_index_w[i] == index2_r) begin 
-														index2_invalid_w[l + 1] = 1;
-													end
-													temp_root_valid_cnt_w[l][i] = temp_root_valid_cnt_w[l][i - 1];
-												end
-											end
-											default: begin
+										root_w[l + 1][temp_root_cnt_w[l][i - 1]] = root_index_w[i];
+										// case (l[1:0]) // synopsys parallel_case)
+										// 	2'd0: begin
+										// 		if (root_index_w[i] != index1_r) begin
+										// 			root_w[l + 1][temp_root_valid_cnt_w[l][i - 1]] = root_index_w[i];
+										// 			temp_root_valid_cnt_w[l][i] = temp_root_valid_cnt_w[l][i - 1] + 1;
+										// 		end
+										// 		else begin
+										// 			index1_invalid_w[l + 1] = 1;
+										// 			temp_root_valid_cnt_w[l][i] = temp_root_valid_cnt_w[l][i - 1];
+										// 		end
+										// 	end
+										// 	2'd1: begin
+										// 		if (root_index_w[i] != index2_r) begin
+										// 			root_w[l + 1][temp_root_valid_cnt_w[l][i - 1]] = root_index_w[i];
+										// 			temp_root_valid_cnt_w[l][i] = temp_root_valid_cnt_w[l][i - 1] + 1;
+										// 		end
+										// 		else begin
+										// 			index2_invalid_w[l + 1] = 1;
+										// 			temp_root_valid_cnt_w[l][i] = temp_root_valid_cnt_w[l][i - 1];
+										// 		end
+										// 	end
+										// 	2'd2: begin
+										// 		if ((root_index_w[i] != index1_r) && (root_index_w[i] != index2_r)) begin
+										// 			root_w[l + 1][temp_root_valid_cnt_w[l][i - 1]] = root_index_w[i];
+										// 			temp_root_valid_cnt_w[l][i] = temp_root_valid_cnt_w[l][i - 1] + 1;
+										// 		end
+										// 		else begin
+										// 			if (root_index_w[i] == index1_r) begin 
+										// 				index1_invalid_w[l + 1] = 1;
+										// 			end
+										// 			else if (root_index_w[i] == index2_r) begin 
+										// 				index2_invalid_w[l + 1] = 1;
+										// 			end
+										// 			temp_root_valid_cnt_w[l][i] = temp_root_valid_cnt_w[l][i - 1];
+										// 		end
+										// 	end
+										// 	default: begin
 												
-											end
-										endcase
+										// 	end
+										// endcase
 									end
 									else begin
 										temp_root_cnt_w[l][i] = temp_root_cnt_w[l][i - 1];
-										temp_root_valid_cnt_w[l][i] = temp_root_valid_cnt_w[l][i - 1];
+										// temp_root_valid_cnt_w[l][i] = temp_root_valid_cnt_w[l][i - 1];
 									end
 								end
 							end
 							root_cnt_w[l + 1] = temp_root_cnt_w[l][7];
-							root_valid_cnt_w[l + 1] = temp_root_valid_cnt_w[l][7];
+							// root_valid_cnt_w[l + 1] = temp_root_valid_cnt_w[l][7];
 							cnt_w = cnt_r - 1;
 							for (i = 0; i < 8; i = i + 1) begin
 								for (j = 0; j < 5; j = j + 1) begin
@@ -1400,104 +1408,106 @@ module bch(
 								end
 								else if (temp_root_w[l][0] == 0) begin
 									temp_root_cnt_w[l][0] = root_cnt_r[l + 1] + 1;
-									case (l[1:0]) // synopsys parallel_case
-										2'd0: begin
-											if (root_index_w[0] != index1_r) begin
-												root_w[l + 1][root_valid_cnt_r[l + 1]] = (cnt_r << 3) + 7'd7;
-												temp_root_valid_cnt_w[l][0] = root_valid_cnt_r[l + 1] + 1;
-											end
-											else begin
-												index1_invalid_w[l + 1] = 1;
-												temp_root_valid_cnt_w[l][0] = root_valid_cnt_r[l + 1];
-											end
-										end
-										2'd1: begin
-											if (root_index_w[0] != index2_r) begin
-												root_w[l + 1][root_valid_cnt_r[l + 1]] = root_index_w[0];
-												temp_root_valid_cnt_w[l][0] = root_valid_cnt_r[l + 1] + 1;
-											end
-											else begin
-												index2_invalid_w[l + 1] = 1;
-												temp_root_valid_cnt_w[l][0] = root_valid_cnt_r[l + 1];
-											end
-										end
-										2'd2: begin
-											if (root_index_w[0] != index1_r && root_index_w[0] != index2_r) begin
-												root_w[l + 1][root_valid_cnt_r[l + 1]] = root_index_w[0];
-												temp_root_valid_cnt_w[l][0] = root_valid_cnt_r[l + 1] + 1;
-											end
-											else begin
-												if (root_index_w[0] == index1_r) begin 
-													index1_invalid_w[l + 1] = 1;
-												end
-												else if (root_index_w[0] == index2_r) begin 
-													index2_invalid_w[l + 1] = 1;
-												end
-												temp_root_valid_cnt_w[l][0] = root_valid_cnt_r[l + 1];
-											end
-										end 
-										default: begin
+									root_w[l + 1][root_cnt_r[l + 1]] = root_index_w[0];
+									// case (l[1:0]) // synopsys parallel_case
+									// 	2'd0: begin
+									// 		if (root_index_w[0] != index1_r) begin
+									// 			root_w[l + 1][root_valid_cnt_r[l + 1]] = (cnt_r << 3) + 7'd7;
+									// 			temp_root_valid_cnt_w[l][0] = root_valid_cnt_r[l + 1] + 1;
+									// 		end
+									// 		else begin
+									// 			index1_invalid_w[l + 1] = 1;
+									// 			temp_root_valid_cnt_w[l][0] = root_valid_cnt_r[l + 1];
+									// 		end
+									// 	end
+									// 	2'd1: begin
+									// 		if (root_index_w[0] != index2_r) begin
+									// 			root_w[l + 1][root_valid_cnt_r[l + 1]] = root_index_w[0];
+									// 			temp_root_valid_cnt_w[l][0] = root_valid_cnt_r[l + 1] + 1;
+									// 		end
+									// 		else begin
+									// 			index2_invalid_w[l + 1] = 1;
+									// 			temp_root_valid_cnt_w[l][0] = root_valid_cnt_r[l + 1];
+									// 		end
+									// 	end
+									// 	2'd2: begin
+									// 		if (root_index_w[0] != index1_r && root_index_w[0] != index2_r) begin
+									// 			root_w[l + 1][root_valid_cnt_r[l + 1]] = root_index_w[0];
+									// 			temp_root_valid_cnt_w[l][0] = root_valid_cnt_r[l + 1] + 1;
+									// 		end
+									// 		else begin
+									// 			if (root_index_w[0] == index1_r) begin 
+									// 				index1_invalid_w[l + 1] = 1;
+									// 			end
+									// 			else if (root_index_w[0] == index2_r) begin 
+									// 				index2_invalid_w[l + 1] = 1;
+									// 			end
+									// 			temp_root_valid_cnt_w[l][0] = root_valid_cnt_r[l + 1];
+									// 		end
+									// 	end 
+									// 	default: begin
 											
-										end
-									endcase
+									// 	end
+									// endcase
 								end
 								else begin
 									temp_root_cnt_w[l][0] = root_cnt_r[l + 1];
-									temp_root_valid_cnt_w[l][0] = root_valid_cnt_r[l + 1];
+									// temp_root_valid_cnt_w[l][0] = root_valid_cnt_r[l + 1];
 								end 
 								for (i = 1; i < 8; i = i + 1) begin
 									temp_root_w[l][i] = stage1_buff_r[l][i][0] ^ stage1_buff_r[l][i][1] ^ stage1_buff_r[l][i][2] ^ stage1_buff_r[l][i][3] ^ stage1_buff_r[l][i][4];
 									if (temp_root_w[l][i] == 0) begin
 										temp_root_cnt_w[l][i] = temp_root_cnt_w[l][i - 1] + 1;
-										case (l[1:0]) // synopsys parallel_case
-											2'd0: begin
-												if (root_index_w[i] != index1_r) begin
-													root_w[l + 1][temp_root_valid_cnt_w[l][i - 1]] = root_index_w[i];
-													temp_root_valid_cnt_w[l][i] = temp_root_valid_cnt_w[l][i - 1] + 1;
-												end
-												else begin
-													index1_invalid_w[l + 1] = 1;
-													temp_root_valid_cnt_w[l][i] = temp_root_valid_cnt_w[l][i - 1];
-												end
-											end
-											2'd1: begin
-												if (root_index_w[i] != index2_r) begin
-													root_w[l + 1][temp_root_valid_cnt_w[l][i - 1]] = root_index_w[i];
-													temp_root_valid_cnt_w[l][i] = temp_root_valid_cnt_w[l][i - 1] + 1;
-												end
-												else begin
-													index2_invalid_w[l + 1] = 1;
-													temp_root_valid_cnt_w[l][i] = temp_root_valid_cnt_w[l][i - 1];
-												end
-											end
-											2'd2: begin
-												if ((root_index_w[i] != index1_r) && (root_index_w[i] != index2_r)) begin
-													root_w[l + 1][temp_root_valid_cnt_w[l][i - 1]] = (cnt_r << 3) + 7'd7 - i[6:0];
-													temp_root_valid_cnt_w[l][i] = temp_root_valid_cnt_w[l][i - 1] + 1;
-												end
-												else begin
-													if (root_index_w[i] == index1_r) begin 
-														index1_invalid_w[l + 1] = 1;
-													end
-													else if (root_index_w[i] == index2_r) begin 
-														index2_invalid_w[l + 1] = 1;
-													end
-													temp_root_valid_cnt_w[l][i] = temp_root_valid_cnt_w[l][i - 1];
-												end
-											end 
-											default: begin
+										root_w[l + 1][temp_root_cnt_w[l][i - 1]] = root_index_w[i];
+									// 	case (l[1:0]) // synopsys parallel_case
+									// 		2'd0: begin
+									// 			if (root_index_w[i] != index1_r) begin
+									// 				root_w[l + 1][temp_root_valid_cnt_w[l][i - 1]] = root_index_w[i];
+									// 				temp_root_valid_cnt_w[l][i] = temp_root_valid_cnt_w[l][i - 1] + 1;
+									// 			end
+									// 			else begin
+									// 				index1_invalid_w[l + 1] = 1;
+									// 				temp_root_valid_cnt_w[l][i] = temp_root_valid_cnt_w[l][i - 1];
+									// 			end
+									// 		end
+									// 		2'd1: begin
+									// 			if (root_index_w[i] != index2_r) begin
+									// 				root_w[l + 1][temp_root_valid_cnt_w[l][i - 1]] = root_index_w[i];
+									// 				temp_root_valid_cnt_w[l][i] = temp_root_valid_cnt_w[l][i - 1] + 1;
+									// 			end
+									// 			else begin
+									// 				index2_invalid_w[l + 1] = 1;
+									// 				temp_root_valid_cnt_w[l][i] = temp_root_valid_cnt_w[l][i - 1];
+									// 			end
+									// 		end
+									// 		2'd2: begin
+									// 			if ((root_index_w[i] != index1_r) && (root_index_w[i] != index2_r)) begin
+									// 				root_w[l + 1][temp_root_valid_cnt_w[l][i - 1]] = (cnt_r << 3) + 7'd7 - i[6:0];
+									// 				temp_root_valid_cnt_w[l][i] = temp_root_valid_cnt_w[l][i - 1] + 1;
+									// 			end
+									// 			else begin
+									// 				if (root_index_w[i] == index1_r) begin 
+									// 					index1_invalid_w[l + 1] = 1;
+									// 				end
+									// 				else if (root_index_w[i] == index2_r) begin 
+									// 					index2_invalid_w[l + 1] = 1;
+									// 				end
+									// 				temp_root_valid_cnt_w[l][i] = temp_root_valid_cnt_w[l][i - 1];
+									// 			end
+									// 		end 
+									// 		default: begin
 												
-											end
-										endcase
+									// 		end
+									// 	endcase
 									end
 									else begin
 										temp_root_cnt_w[l][i] = temp_root_cnt_w[l][i - 1];
-										temp_root_valid_cnt_w[l][i] = temp_root_valid_cnt_w[l][i - 1];
+										// temp_root_valid_cnt_w[l][i] = temp_root_valid_cnt_w[l][i - 1];
 									end
 								end
 							end
 							root_cnt_w[l + 1] = temp_root_cnt_w[l][7];
-							root_valid_cnt_w[l + 1] = temp_root_valid_cnt_w[l][7];
+							// root_valid_cnt_w[l + 1] = temp_root_valid_cnt_w[l][7];
 							cnt_w = cnt_r - 1;
 							for (i = 0; i < 8; i = i + 1) begin
 								for (j = 0; j < 5; j = j + 1) begin
@@ -1513,10 +1523,14 @@ module bch(
 						default: begin
 						end
 					endcase
-					if (cnt_r == 0) begin
-						state_w = S_CORR_1;
-						cnt_w = 0;
-					end
+				end
+				if (cnt_r == 0) begin
+					state_w = S_CORR_1;
+					cnt_w = 0;
+					corr_w[0] = 0;
+					corr_w[1] = min1_r;
+					corr_w[2] = min2_r;
+					corr_w[3] = min1_r + min2_r;
 				end
 			end
 			S_OUT_HARD_BUFF: begin
@@ -1559,58 +1573,145 @@ module bch(
 				else cnt_w = cnt_r - 1;
 			end
 			S_CORR_1: begin
-				for (i = 0; i < 4; i = i + 1) begin
-					if (cnt_r < root_valid_cnt_r[i]) corr_w[i] = corr_r[i] + data_r[root_r[i][cnt_r[2:0]]];
-					else corr_w[i] = corr_r[i];
+				if (cnt_r < root_cnt_r[0]) corr_w[0] = corr_r[0] + data_r[root_r[0][cnt_r[2:0]]];
+				else corr_w[0] = corr_r[0];
+
+				if (cnt_r < root_cnt_r[1]) begin
+					if (root_r[1][cnt_r[2:0]] == index1_r) corr_w[1] = corr_r[1] - min1_r;
+					else corr_w[1] = corr_r[1] + data_r[root_r[1][cnt_r[2:0]]];
 				end
-				cnt_w = cnt_r + 1;
-				state_w = ((cnt_r == 3 && code_r == 3) || (cnt_r == 1 && code_r != 3)) ? state_r : S_CORR_2;
+				else corr_w[1] = corr_r[1];
+
+				if (cnt_r < root_cnt_r[2]) begin
+					if (root_r[2][cnt_r[2:0]] == index2_r) corr_w[2] = corr_r[2] - min2_r;
+					else corr_w[2] = corr_r[2] + data_r[root_r[2][cnt_r[2:0]]];
+				end
+				else corr_w[2] = corr_r[2];
+
+				if (cnt_r < root_cnt_r[3]) begin
+					if (root_r[3][cnt_r[2:0]] == index1_r) corr_w[3] = corr_r[3] - min1_r;
+					else if (root_r[3][cnt_r[2:0]] == index2_r) corr_w[3] = corr_r[3] - min2_r;
+					else corr_w[3] = corr_r[3] + data_r[root_r[3][cnt_r[2:0]]];
+				end
+				else corr_w[3] = corr_r[3];
+
+				if ((cnt_r == 1 && code_r != 3) || (cnt_r == 3 || code_r == 3)) state_w = S_CORR_2;
+				else begin
+					state_w = state_r;
+					cnt_w = cnt_r + 1;
+				end
+				// for (i = 0; i < 4; i = i + 1) begin
+				// 	if (cnt_r < root_valid_cnt_r[i]) corr_w[i] = corr_r[i] + data_r[root_r[i][cnt_r[2:0]]];
+				// 	else corr_w[i] = corr_r[i];
+				// end
+				// cnt_w = cnt_r + 1;
+				// state_w = ((cnt_r == 3 && code_r == 3) || (cnt_r == 1 && code_r != 3)) ? state_r : S_CORR_2;
 			end
 			S_CORR_2: begin
-				corr_w[0] = corr_r[0];
-				if (!index1_invalid_r[1]) corr_w[1] = corr_r[1] + min1_r;
-				else corr_w[1] = corr_r[1];
-				if (!index2_invalid_r[2]) corr_w[2] = corr_r[2] + min2_r;
-				else corr_w[2] = corr_r[2];
-				if (!index1_invalid_r[3] && !index2_invalid_r[3]) corr_w[3] = corr_r[3] + min1_r + min2_r;
-				else if (!index1_invalid_r[3] && index2_invalid_r[3]) corr_w[3] = corr_r[3] + min1_r;
-				else if (index1_invalid_r[3] && !index2_invalid_r[3]) corr_w[3] = corr_r[3] + min2_r;
-				else corr_w[3] = corr_r[3];
-				state_w = S_OUT_SOFT_BUFF;
-			end
-			S_OUT_SOFT_BUFF: begin
+				// corr_w[0] = corr_r[0];
+				// if (!index1_invalid_r[1]) corr_w[1] = corr_r[1] + min1_r;
+				// else corr_w[1] = corr_r[1];
+				// if (!index2_invalid_r[2]) corr_w[2] = corr_r[2] + min2_r;
+				// else corr_w[2] = corr_r[2];
+				// if (!index1_invalid_r[3] && !index2_invalid_r[3]) corr_w[3] = corr_r[3] + min1_r + min2_r;
+				// else if (!index1_invalid_r[3] && index2_invalid_r[3]) corr_w[3] = corr_r[3] + min1_r;
+				// else if (index1_invalid_r[3] && !index2_invalid_r[3]) corr_w[3] = corr_r[3] + min2_r;
+				// else corr_w[3] = corr_r[3];
 				for (i = 0; i < 4; i = i + 1) begin
 					if (root_cnt_r[i] < power_r[i]) begin // decode failure
 						corr_w[i] = 10'd1023;
 					end
 					else begin
 						if (power_r[i] == 0) begin
-							index1_invalid_w[i] = 0;
-							index2_invalid_w[i] = 0;
 							case (i[1:0])
 								0: corr_w[0] = 0;
 								1: corr_w[1] = min1_r;
 								2: corr_w[2] = min2_r;
 								3: corr_w[3] = min1_r + min2_r;
-								default: begin
-									
-								end
 							endcase
 						end
 					end
 				end
 				corr_sel_w = compare_corr(corr_w[0], corr_w[1], corr_w[2], corr_w[3]);
+				state_w = S_OUT_SOFT_BUFF;
+			end
+			S_OUT_SOFT_BUFF: begin
+				flag_w[0] = 0;
+				case (corr_sel_r)
+					0: begin
+						
+					end 
+					1: begin
+						root_compact_w[0] = root_cnt_r[1];
+						for (i = 1; i < 5; i = i + 1) begin
+							if (i <= root_cnt_r[1]) begin
+								if (root_r[1][i - 1] != index1_r) begin
+									root_w[1][flag_w[i - 1]] = root_r[1][i - 1];
+									flag_w[i] = flag_w[i - 1] + 1;
+									root_compact_w[i] = root_compact_w[i - 1];
+								end
+								else begin
+									index1_invalid_w[1] = 1;
+									flag_w[i] = flag_w[i - 1];
+									root_compact_w[i] = root_compact_w[i - 1] - 1;
+								end
+							end
+							else root_compact_w[i] = root_compact_w[i - 1];
+						end
+						root_cnt_w[1] = root_compact_w[4];
+					end
+					2: begin
+						root_compact_w[0] = root_cnt_r[2];
+						for (i = 1; i < 5; i = i + 1) begin
+							if (i <= root_cnt_r[2]) begin
+								if (root_r[2][i - 1] != index2_r) begin
+									root_w[2][flag_w[i - 1]] = root_r[2][i - 1];
+									flag_w[i] = flag_w[i - 1] + 1;
+									root_compact_w[i] = root_compact_w[i - 1];
+								end
+								else begin
+									index2_invalid_w[2] = 1;
+									flag_w[i] = flag_w[i - 1];
+									root_compact_w[i] = root_compact_w[i - 1] - 1;
+								end
+							end
+							else root_compact_w[i] = root_compact_w[i - 1];
+						end
+						root_cnt_w[2] = root_compact_w[4];
+					end
+					3: begin
+						root_compact_w[0] = root_cnt_r[3];
+						for (i = 1; i < 5; i = i + 1) begin
+							if (i <= root_cnt_r[3]) begin
+								if (root_r[3][i - 1] != index1_r && root_r[3][i - 1] != index2_r) begin
+									root_w[3][flag_w[i - 1]] = root_r[3][i - 1];
+									flag_w[i] = flag_w[i - 1] + 1;
+									root_compact_w[i] = root_compact_w[i - 1];
+								end
+								else begin
+									if (root_r[3][i - 1] == index1_r) index1_invalid_w[3] = 1;
+									else index2_invalid_w[3] = 1;
+									flag_w[i] = flag_w[i - 1];
+									root_compact_w[i] = root_compact_w[i - 1] - 1;
+								end
+								end
+							else root_compact_w[i] = root_compact_w[i - 1];
+						end
+						root_cnt_w[3] = root_compact_w[4];
+					end
+					default: begin end
+				endcase
 				state_w = S_OUT_SOFT_BUFF2;
 			end
 			S_OUT_SOFT_BUFF2: begin
-				if (corr_sel_r == corr_r[0]) begin
+				if (corr_sel_r == 0) begin
 					if (power_r[0] == 0) cnt_w = 1023;
-					else cnt_w = root_valid_cnt_r[0] - 1;
+					else cnt_w = root_cnt_r[0] - 1;
 					flipped_stack_ptr_w = 2;
 				end 
-				else if (corr_sel_r == corr_r[1])  begin
+				else if (corr_sel_r == 1)  begin
 					if (power_r[1] == 0) cnt_w = 1023;
-					else cnt_w = root_valid_cnt_r[1] - 1;
+					else cnt_w = root_cnt_r[1] - 1;
 					if (index1_invalid_r[1]) begin
 						flipped_stack_ptr_w = 2;
 					end
@@ -1619,9 +1720,9 @@ module bch(
 						flipped_stack_ptr_w = 1;
 					end
 				end 
-				else if (corr_sel_r == corr_r[2]) begin
+				else if (corr_sel_r == 2) begin
 					if (power_r[2] == 0) cnt_w = 1023;
-					else cnt_w = root_valid_cnt_r[2] - 1;
+					else cnt_w = root_cnt_r[2] - 1;
 					if (index2_invalid_r[2]) begin
 						flipped_stack_ptr_w = 2;
 					end
@@ -1632,7 +1733,7 @@ module bch(
 				end 
 				else begin
 					if (power_r[3] == 0) cnt_w = 1023;
-					else cnt_w = root_valid_cnt_r[3] - 1;
+					else cnt_w = root_cnt_r[3] - 1;
 					if (index1_invalid_r[3] && index2_invalid_r[3]) begin
 						flipped_stack_ptr_w = 2;
 					end
@@ -1661,12 +1762,12 @@ module bch(
 			S_OUT_SOFT: begin
 				if (cnt_r != 1023) begin
 					case (corr_sel_r) // synopsys parallel_case
-						corr_r[0]: begin
+						0: begin
 							finish_w = 1;
 							odata_w = root_r[0][cnt_r[1:0]];
 							cnt_w = cnt_r - 1;
 						end
-						corr_r[1]: begin
+						1: begin
 							finish_w = 1;
 							if (flipped_stack_ptr_r < 2) begin
 								if (root_r[1][cnt_r[1:0]] < flipped_stack_r[flipped_stack_ptr_r]) begin
@@ -1683,7 +1784,7 @@ module bch(
 								cnt_w = cnt_r - 1;
 							end
 						end
-						corr_r[2]: begin
+						2: begin
 							finish_w = 1;
 							if (flipped_stack_ptr_r < 2) begin
 								if (root_r[2][cnt_r[1:0]] < flipped_stack_r[flipped_stack_ptr_r]) begin
@@ -1700,7 +1801,7 @@ module bch(
 								cnt_w = cnt_r - 1;
 							end
 						end
-						corr_r[3]: begin
+						3: begin
 							finish_w = 1;
 							if (flipped_stack_ptr_r < 2) begin
 								if (root_r[3][cnt_r[1:0]] < flipped_stack_r[flipped_stack_ptr_r]) begin
@@ -1724,24 +1825,24 @@ module bch(
 				end
 				else begin
 					case (corr_sel_r) // synopsys parallel_case
-						corr_r[0]: begin
+						0: begin
 							finish_w = 1;
 						end
-						corr_r[1]: begin
-							finish_w = 1;
-							if (flipped_stack_ptr_r < 2) begin
-								odata_w = flipped_stack_r[flipped_stack_ptr_r];
-								flipped_stack_ptr_w = flipped_stack_ptr_r + 1;
-							end
-						end
-						corr_r[2]: begin
+						1: begin
 							finish_w = 1;
 							if (flipped_stack_ptr_r < 2) begin
 								odata_w = flipped_stack_r[flipped_stack_ptr_r];
 								flipped_stack_ptr_w = flipped_stack_ptr_r + 1;
 							end
 						end
-						corr_r[3]: begin
+						2: begin
+							finish_w = 1;
+							if (flipped_stack_ptr_r < 2) begin
+								odata_w = flipped_stack_r[flipped_stack_ptr_r];
+								flipped_stack_ptr_w = flipped_stack_ptr_r + 1;
+							end
+						end
+						3: begin
 							finish_w = 1;
 							if (flipped_stack_ptr_r < 2) begin
 								odata_w = flipped_stack_r[flipped_stack_ptr_r];
@@ -3007,14 +3108,30 @@ module bch(
 		input [9:0] i_corr4;
 		reg [9:0] stage1_min1;
 		reg [9:0] stage1_min2;
+		reg [1:0] index1;
+		reg [1:0] index2;
 		begin
+			index1 = 2'd0;
+			index2 = 2'd0;
 			compare_corr = 0;
-			if (i_corr1 <= i_corr2) stage1_min1 = i_corr1;
-			else stage1_min1 = i_corr2;
-			if (i_corr3 <= i_corr4) stage1_min2 = i_corr3;
-			else stage1_min2 = i_corr4;
-			if (stage1_min1 <= stage1_min2) compare_corr = stage1_min1;
-			else compare_corr = stage1_min2;
+			if (i_corr1 <= i_corr2) begin
+				stage1_min1 = i_corr1;
+				index1 = 2'd0;
+			end 
+			else begin 
+				stage1_min1 = i_corr2;
+				index1 = 2'd1;
+			end
+			if (i_corr3 <= i_corr4) begin 
+				stage1_min2 = i_corr3;
+				index2 = 2'd2;
+			end 
+			else begin 
+				stage1_min2 = i_corr4;
+				index2 = 2'd3;
+			end
+			if (stage1_min1 <= stage1_min2) compare_corr = index1;
+			else compare_corr = index2;
 		end
 		
 	endfunction
