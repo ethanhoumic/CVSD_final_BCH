@@ -90,10 +90,9 @@ module bch(
 	reg [10:0] temp_root_w [0:2][0:7];
 	reg [2:0]  temp_root_cnt_w [0:2][0:7];
 	reg [9:0]  root_r [0:3][0:3], root_w [0:3][0:3];
-	reg [2:0]  root_valid_cnt_r [0:3], root_valid_cnt_w [0:3];
-	reg [2:0]  temp_root_valid_cnt_w [0:2][0:7];
 	reg [10:0] delta_poly_w [0:2][0:7][0:4];    // first index: parallel number, second index: degree
 	wire [9:0] root_index_w [0:7];
+	wire [7:0] chien_cnt_max_w = ((code_r == 1) ? 8 : (code_r == 2) ? 32 : 128);
 
 	genvar k, m;
 	generate
@@ -156,24 +155,24 @@ module bch(
 					delta_poly_w[i][2][4] = shift_poly_8_6(delta_r[i][4]);
 					delta_poly_w[i][3][1] = shift_poly_3_6(delta_r[i][1]);
 					delta_poly_w[i][3][2] = shift_poly_6_6(delta_r[i][2]);
-					delta_poly_w[i][3][3] = shift_poly_4_6(shift_poly_5_6(delta_r[i][3]));
-					delta_poly_w[i][3][4] = shift_poly_6_6(shift_poly_6_6(delta_r[i][4]));
+					delta_poly_w[i][3][3] = shift_poly_9_6(delta_r[i][3]);
+					delta_poly_w[i][3][4] = shift_poly_12_6(delta_r[i][4]);
 					delta_poly_w[i][4][1] = shift_poly_4_6(delta_r[i][1]);
 					delta_poly_w[i][4][2] = shift_poly_8_6(delta_r[i][2]);
-					delta_poly_w[i][4][3] = shift_poly_6_6(shift_poly_6_6(delta_r[i][3]));
-					delta_poly_w[i][4][4] = shift_poly_8_6(shift_poly_8_6(delta_r[i][4]));
+					delta_poly_w[i][4][3] = shift_poly_12_6(delta_r[i][3]);
+					delta_poly_w[i][4][4] = shift_poly_16_6(delta_r[i][4]);
 					delta_poly_w[i][5][1] = shift_poly_5_6(delta_r[i][1]);
-					delta_poly_w[i][5][2] = shift_poly_5_6(shift_poly_5_6(delta_r[i][2]));
-					delta_poly_w[i][5][3] = shift_poly_7_6(shift_poly_8_6(delta_r[i][3]));
-					delta_poly_w[i][5][4] = shift_poly_6_6(shift_poly_7_6(shift_poly_7_6(delta_r[i][4])));
+					delta_poly_w[i][5][2] = shift_poly_10_6(delta_r[i][2]);
+					delta_poly_w[i][5][3] = shift_poly_15_6(delta_r[i][3]);
+					delta_poly_w[i][5][4] = shift_poly_20_6(delta_r[i][4]);
 					delta_poly_w[i][6][1] = shift_poly_6_6(delta_r[i][1]);
-					delta_poly_w[i][6][2] = shift_poly_6_6(shift_poly_6_6(delta_r[i][2]));
-					delta_poly_w[i][6][3] = shift_poly_6_6(shift_poly_6_6(shift_poly_6_6(delta_r[i][3])));
-					delta_poly_w[i][6][4] = shift_poly_8_6(shift_poly_8_6(shift_poly_8_6(delta_r[i][4])));
+					delta_poly_w[i][6][2] = shift_poly_12_6(delta_r[i][2]);
+					delta_poly_w[i][6][3] = shift_poly_18_6(delta_r[i][3]);
+					delta_poly_w[i][6][4] = shift_poly_24_6(delta_r[i][4]);
 					delta_poly_w[i][7][1] = shift_poly_7_6(delta_r[i][1]);
-					delta_poly_w[i][7][2] = shift_poly_7_6(shift_poly_7_6(delta_r[i][2]));
-					delta_poly_w[i][7][3] = shift_poly_7_6(shift_poly_7_6(shift_poly_7_6(delta_r[i][3])));
-					delta_poly_w[i][7][4] = shift_poly_7_6(shift_poly_7_6(shift_poly_7_6(shift_poly_7_6(delta_r[i][4]))));
+					delta_poly_w[i][7][2] = shift_poly_14_6(delta_r[i][2]);
+					delta_poly_w[i][7][3] = shift_poly_21_6(delta_r[i][3]);
+					delta_poly_w[i][7][4] = shift_poly_28_6(delta_r[i][4]);
 				end
 			end
 			2: begin
@@ -188,24 +187,24 @@ module bch(
 					delta_poly_w[i][2][4] = shift_poly_8_8(delta_r[i][4]);
 					delta_poly_w[i][3][1] = shift_poly_3_8(delta_r[i][1]);
 					delta_poly_w[i][3][2] = shift_poly_6_8(delta_r[i][2]);
-					delta_poly_w[i][3][3] = shift_poly_4_8(shift_poly_5_8(delta_r[i][3]));
-					delta_poly_w[i][3][4] = shift_poly_6_8(shift_poly_6_8(delta_r[i][4]));
+					delta_poly_w[i][3][3] = shift_poly_9_8(delta_r[i][3]);
+					delta_poly_w[i][3][4] = shift_poly_12_8(delta_r[i][4]);
 					delta_poly_w[i][4][1] = shift_poly_4_8(delta_r[i][1]);
 					delta_poly_w[i][4][2] = shift_poly_8_8(delta_r[i][2]);
-					delta_poly_w[i][4][3] = shift_poly_6_8(shift_poly_6_8(delta_r[i][3]));
-					delta_poly_w[i][4][4] = shift_poly_8_8(shift_poly_8_8(delta_r[i][4]));
+					delta_poly_w[i][4][3] = shift_poly_12_8(delta_r[i][3]);
+					delta_poly_w[i][4][4] = shift_poly_16_8(delta_r[i][4]);
 					delta_poly_w[i][5][1] = shift_poly_5_8(delta_r[i][1]);
-					delta_poly_w[i][5][2] = shift_poly_5_8(shift_poly_5_8(delta_r[i][2]));
-					delta_poly_w[i][5][3] = shift_poly_7_8(shift_poly_8_8(delta_r[i][3]));
-					delta_poly_w[i][5][4] = shift_poly_6_8(shift_poly_7_8(shift_poly_7_8(delta_r[i][4])));
+					delta_poly_w[i][5][2] = shift_poly_10_8(delta_r[i][2]);
+					delta_poly_w[i][5][3] = shift_poly_15_8(delta_r[i][3]);
+					delta_poly_w[i][5][4] = shift_poly_20_8(delta_r[i][4]);
 					delta_poly_w[i][6][1] = shift_poly_6_8(delta_r[i][1]);
-					delta_poly_w[i][6][2] = shift_poly_6_8(shift_poly_6_8(delta_r[i][2]));
-					delta_poly_w[i][6][3] = shift_poly_6_8(shift_poly_6_8(shift_poly_6_8(delta_r[i][3])));
-					delta_poly_w[i][6][4] = shift_poly_8_8(shift_poly_8_8(shift_poly_8_8(delta_r[i][4])));
+					delta_poly_w[i][6][2] = shift_poly_12_8(delta_r[i][2]);
+					delta_poly_w[i][6][3] = shift_poly_18_8(delta_r[i][3]);
+					delta_poly_w[i][6][4] = shift_poly_24_8(delta_r[i][4]);
 					delta_poly_w[i][7][1] = shift_poly_7_8(delta_r[i][1]);
-					delta_poly_w[i][7][2] = shift_poly_7_8(shift_poly_7_8(delta_r[i][2]));
-					delta_poly_w[i][7][3] = shift_poly_7_8(shift_poly_7_8(shift_poly_7_8(delta_r[i][3])));
-					delta_poly_w[i][7][4] = shift_poly_7_8(shift_poly_7_8(shift_poly_7_8(shift_poly_7_8(delta_r[i][4]))));
+					delta_poly_w[i][7][2] = shift_poly_14_8(delta_r[i][2]);
+					delta_poly_w[i][7][3] = shift_poly_21_8(delta_r[i][3]);
+					delta_poly_w[i][7][4] = shift_poly_28_8(delta_r[i][4]);
 				end
 			end
 			3: begin
@@ -220,24 +219,24 @@ module bch(
 					delta_poly_w[i][2][4] = shift_poly_8_10(delta_r[i][4]);
 					delta_poly_w[i][3][1] = shift_poly_3_10(delta_r[i][1]);
 					delta_poly_w[i][3][2] = shift_poly_6_10(delta_r[i][2]);
-					delta_poly_w[i][3][3] = shift_poly_4_10(shift_poly_5_10(delta_r[i][3]));
-					delta_poly_w[i][3][4] = shift_poly_6_10(shift_poly_6_10(delta_r[i][4]));
+					delta_poly_w[i][3][3] = shift_poly_9_10(delta_r[i][3]);
+					delta_poly_w[i][3][4] = shift_poly_12_10(delta_r[i][4]);
 					delta_poly_w[i][4][1] = shift_poly_4_10(delta_r[i][1]);
 					delta_poly_w[i][4][2] = shift_poly_8_10(delta_r[i][2]);
-					delta_poly_w[i][4][3] = shift_poly_6_10(shift_poly_6_10(delta_r[i][3]));
-					delta_poly_w[i][4][4] = shift_poly_8_10(shift_poly_8_10(delta_r[i][4]));
+					delta_poly_w[i][4][3] = shift_poly_12_10(delta_r[i][3]);
+					delta_poly_w[i][4][4] = shift_poly_16_10(delta_r[i][4]);
 					delta_poly_w[i][5][1] = shift_poly_5_10(delta_r[i][1]);
-					delta_poly_w[i][5][2] = shift_poly_5_10(shift_poly_5_10(delta_r[i][2]));
-					delta_poly_w[i][5][3] = shift_poly_7_10(shift_poly_8_10(delta_r[i][3]));
-					delta_poly_w[i][5][4] = shift_poly_6_10(shift_poly_7_10(shift_poly_7_10(delta_r[i][4])));
+					delta_poly_w[i][5][2] = shift_poly_10_10(delta_r[i][2]);
+					delta_poly_w[i][5][3] = shift_poly_15_10(delta_r[i][3]);
+					delta_poly_w[i][5][4] = shift_poly_20_10(delta_r[i][4]);
 					delta_poly_w[i][6][1] = shift_poly_6_10(delta_r[i][1]);
-					delta_poly_w[i][6][2] = shift_poly_6_10(shift_poly_6_10(delta_r[i][2]));
-					delta_poly_w[i][6][3] = shift_poly_6_10(shift_poly_6_10(shift_poly_6_10(delta_r[i][3])));
-					delta_poly_w[i][6][4] = shift_poly_8_10(shift_poly_8_10(shift_poly_8_10(delta_r[i][4])));
+					delta_poly_w[i][6][2] = shift_poly_12_10(delta_r[i][2]);
+					delta_poly_w[i][6][3] = shift_poly_18_10(delta_r[i][3]);
+					delta_poly_w[i][6][4] = shift_poly_24_10(delta_r[i][4]);
 					delta_poly_w[i][7][1] = shift_poly_7_10(delta_r[i][1]);
-					delta_poly_w[i][7][2] = shift_poly_7_10(shift_poly_7_10(delta_r[i][2]));
-					delta_poly_w[i][7][3] = shift_poly_7_10(shift_poly_7_10(shift_poly_7_10(delta_r[i][3])));
-					delta_poly_w[i][7][4] = shift_poly_7_10(shift_poly_7_10(shift_poly_7_10(shift_poly_7_10(delta_r[i][4]))));
+					delta_poly_w[i][7][2] = shift_poly_14_10(delta_r[i][2]);
+					delta_poly_w[i][7][3] = shift_poly_21_10(delta_r[i][3]);
+					delta_poly_w[i][7][4] = shift_poly_28_10(delta_r[i][4]);
 				end
 			end
 			default: begin
@@ -281,14 +280,12 @@ module bch(
 				temp_root_w[j][i] = 1;
 				temp_root_cnt_w[j][i] = 0;
 				S_w[j][i] = S_r[j][i];
-				temp_root_valid_cnt_w[j][i] = 0;
 			end
 		end 
 		for (i = 0; i < 4; i = i + 1) begin
 			power_w[i] = power_r[i];
 			corr_w[i] = corr_r[i];
 			root_cnt_w[i] = root_cnt_r[i];
-			root_valid_cnt_w[i] = root_valid_cnt_r[i];
 			index1_invalid_w[i] = index1_invalid_r[i];
 			index2_invalid_w[i] = index2_invalid_r[i];
 			for (j = 0; j < 4; j = j + 1) begin
@@ -342,260 +339,52 @@ module bch(
 				case (code_r) // synopsys parallel_case
 					1: begin
 						if (cnt_r == 63) begin
-							S_temp2_w[0] = {9'b0, idata[55]};
-							S_temp2_w[1] = {9'b0, idata[55]};
-							S_temp2_w[2] = {9'b0, idata[55]};
-							S_temp2_w[3] = {9'b0, idata[55]};
-							S_temp3_w[0] = shift_poly_1_6(S_temp2_w[0]) ^ {9'b0, idata[47]};
-							S_temp3_w[1] = shift_poly_2_6(S_temp2_w[1]) ^ {9'b0, idata[47]};
-							S_temp3_w[2] = shift_poly_3_6(S_temp2_w[2]) ^ {9'b0, idata[47]};
-							S_temp3_w[3] = shift_poly_4_6(S_temp2_w[3]) ^ {9'b0, idata[47]};
-							S_temp4_w[0] = shift_poly_1_6(S_temp3_w[0]) ^ {9'b0, idata[39]};
-							S_temp4_w[1] = shift_poly_2_6(S_temp3_w[1]) ^ {9'b0, idata[39]};
-							S_temp4_w[2] = shift_poly_3_6(S_temp3_w[2]) ^ {9'b0, idata[39]};
-							S_temp4_w[3] = shift_poly_4_6(S_temp3_w[3]) ^ {9'b0, idata[39]};
-							S_temp5_w[0] = shift_poly_1_6(S_temp4_w[0]) ^ {9'b0, idata[31]};
-							S_temp5_w[1] = shift_poly_2_6(S_temp4_w[1]) ^ {9'b0, idata[31]};
-							S_temp5_w[2] = shift_poly_3_6(S_temp4_w[2]) ^ {9'b0, idata[31]};
-							S_temp5_w[3] = shift_poly_4_6(S_temp4_w[3]) ^ {9'b0, idata[31]};
-							S_temp6_w[0] = shift_poly_1_6(S_temp5_w[0]) ^ {9'b0, idata[23]};
-							S_temp6_w[1] = shift_poly_2_6(S_temp5_w[1]) ^ {9'b0, idata[23]};
-							S_temp6_w[2] = shift_poly_3_6(S_temp5_w[2]) ^ {9'b0, idata[23]};
-							S_temp6_w[3] = shift_poly_4_6(S_temp5_w[3]) ^ {9'b0, idata[23]};
-							S_temp7_w[0] = shift_poly_1_6(S_temp6_w[0]) ^ {9'b0, idata[15]};
-							S_temp7_w[1] = shift_poly_2_6(S_temp6_w[1]) ^ {9'b0, idata[15]};
-							S_temp7_w[2] = shift_poly_3_6(S_temp6_w[2]) ^ {9'b0, idata[15]};
-							S_temp7_w[3] = shift_poly_4_6(S_temp6_w[3]) ^ {9'b0, idata[15]};
-							S_w[0][0] = shift_poly_1_6(S_temp7_w[0]) ^ {9'b0, idata[7]};
-							S_w[0][1] = shift_poly_2_6(S_temp7_w[1]) ^ {9'b0, idata[7]};
-							S_w[0][2] = shift_poly_3_6(S_temp7_w[2]) ^ {9'b0, idata[7]};
-							S_w[0][3] = shift_poly_4_6(S_temp7_w[3]) ^ {9'b0, idata[7]};
+							S_w[0][0] = {9'b0, idata[7]} ^ shift_poly_1_6({9'b0, idata[15]}) ^ shift_poly_2_6({9'b0, idata[23]}) ^ shift_poly_3_6({9'b0, idata[31]}) ^ shift_poly_4_6({9'b0, idata[39]}) ^ shift_poly_5_6({9'b0, idata[47]}) ^ shift_poly_6_6({9'b0, idata[55]});
+							S_w[0][1] = {9'b0, idata[7]} ^ shift_poly_2_6({9'b0, idata[15]}) ^ shift_poly_4_6({9'b0, idata[23]}) ^ shift_poly_6_6({9'b0, idata[31]}) ^ shift_poly_8_6({9'b0, idata[39]}) ^ shift_poly_10_6({9'b0, idata[47]}) ^ shift_poly_12_6({9'b0, idata[55]});
+							S_w[0][2] = {9'b0, idata[7]} ^ shift_poly_3_6({9'b0, idata[15]}) ^ shift_poly_6_6({9'b0, idata[23]}) ^ shift_poly_9_6({9'b0, idata[31]}) ^ shift_poly_12_6({9'b0, idata[39]}) ^ shift_poly_15_6({9'b0, idata[47]}) ^ shift_poly_18_6({9'b0, idata[55]});
+							S_w[0][3] = {9'b0, idata[7]} ^ shift_poly_4_6({9'b0, idata[15]}) ^ shift_poly_8_6({9'b0, idata[23]}) ^ shift_poly_12_6({9'b0, idata[31]}) ^ shift_poly_16_6({9'b0, idata[39]}) ^ shift_poly_20_6({9'b0, idata[47]}) ^ shift_poly_24_6({9'b0, idata[55]});
 						end
 						else if (cnt_r >= 7) begin
-							S_temp1_w[0] = shift_poly_1_6(S_r[0][0]) ^ {9'b0, idata[63]};
-							S_temp1_w[1] = shift_poly_2_6(S_r[0][1]) ^ {9'b0, idata[63]};
-							S_temp1_w[2] = shift_poly_3_6(S_r[0][2]) ^ {9'b0, idata[63]};
-							S_temp1_w[3] = shift_poly_4_6(S_r[0][3]) ^ {9'b0, idata[63]};
-							S_temp2_w[0] = shift_poly_1_6(S_temp1_w[0]) ^ {9'b0, idata[55]};
-							S_temp2_w[1] = shift_poly_2_6(S_temp1_w[1]) ^ {9'b0, idata[55]};
-							S_temp2_w[2] = shift_poly_3_6(S_temp1_w[2]) ^ {9'b0, idata[55]};
-							S_temp2_w[3] = shift_poly_4_6(S_temp1_w[3]) ^ {9'b0, idata[55]};
-							S_temp3_w[0] = shift_poly_1_6(S_temp2_w[0]) ^ {9'b0, idata[47]};
-							S_temp3_w[1] = shift_poly_2_6(S_temp2_w[1]) ^ {9'b0, idata[47]};
-							S_temp3_w[2] = shift_poly_3_6(S_temp2_w[2]) ^ {9'b0, idata[47]};
-							S_temp3_w[3] = shift_poly_4_6(S_temp2_w[3]) ^ {9'b0, idata[47]};
-							S_temp4_w[0] = shift_poly_1_6(S_temp3_w[0]) ^ {9'b0, idata[39]};
-							S_temp4_w[1] = shift_poly_2_6(S_temp3_w[1]) ^ {9'b0, idata[39]};
-							S_temp4_w[2] = shift_poly_3_6(S_temp3_w[2]) ^ {9'b0, idata[39]};
-							S_temp4_w[3] = shift_poly_4_6(S_temp3_w[3]) ^ {9'b0, idata[39]};
-							S_temp5_w[0] = shift_poly_1_6(S_temp4_w[0]) ^ {9'b0, idata[31]};
-							S_temp5_w[1] = shift_poly_2_6(S_temp4_w[1]) ^ {9'b0, idata[31]};
-							S_temp5_w[2] = shift_poly_3_6(S_temp4_w[2]) ^ {9'b0, idata[31]};
-							S_temp5_w[3] = shift_poly_4_6(S_temp4_w[3]) ^ {9'b0, idata[31]};
-							S_temp6_w[0] = shift_poly_1_6(S_temp5_w[0]) ^ {9'b0, idata[23]};
-							S_temp6_w[1] = shift_poly_2_6(S_temp5_w[1]) ^ {9'b0, idata[23]};
-							S_temp6_w[2] = shift_poly_3_6(S_temp5_w[2]) ^ {9'b0, idata[23]};
-							S_temp6_w[3] = shift_poly_4_6(S_temp5_w[3]) ^ {9'b0, idata[23]};
-							S_temp7_w[0] = shift_poly_1_6(S_temp6_w[0]) ^ {9'b0, idata[15]};
-							S_temp7_w[1] = shift_poly_2_6(S_temp6_w[1]) ^ {9'b0, idata[15]};
-							S_temp7_w[2] = shift_poly_3_6(S_temp6_w[2]) ^ {9'b0, idata[15]};
-							S_temp7_w[3] = shift_poly_4_6(S_temp6_w[3]) ^ {9'b0, idata[15]};
-							S_w[0][0] = shift_poly_1_6(S_temp7_w[0]) ^ {9'b0, idata[7]};
-							S_w[0][1] = shift_poly_2_6(S_temp7_w[1]) ^ {9'b0, idata[7]};
-							S_w[0][2] = shift_poly_3_6(S_temp7_w[2]) ^ {9'b0, idata[7]};
-							S_w[0][3] = shift_poly_4_6(S_temp7_w[3]) ^ {9'b0, idata[7]};
+							S_w[0][0] = {9'b0, idata[7]} ^ shift_poly_1_6({9'b0, idata[15]}) ^ shift_poly_2_6({9'b0, idata[23]}) ^ shift_poly_3_6({9'b0, idata[31]}) ^ shift_poly_4_6({9'b0, idata[39]}) ^ shift_poly_5_6({9'b0, idata[47]}) ^ shift_poly_6_6({9'b0, idata[55]}) ^ shift_poly_7_6({9'b0, idata[63]}) ^ shift_poly_8_6(S_r[0][0]);
+							S_w[0][1] = {9'b0, idata[7]} ^ shift_poly_2_6({9'b0, idata[15]}) ^ shift_poly_4_6({9'b0, idata[23]}) ^ shift_poly_6_6({9'b0, idata[31]}) ^ shift_poly_8_6({9'b0, idata[39]}) ^ shift_poly_10_6({9'b0, idata[47]}) ^ shift_poly_12_6({9'b0, idata[55]}) ^ shift_poly_14_6({9'b0, idata[63]}) ^ shift_poly_16_6(S_r[0][1]);
+							S_w[0][2] = {9'b0, idata[7]} ^ shift_poly_3_6({9'b0, idata[15]}) ^ shift_poly_6_6({9'b0, idata[23]}) ^ shift_poly_9_6({9'b0, idata[31]}) ^ shift_poly_12_6({9'b0, idata[39]}) ^ shift_poly_15_6({9'b0, idata[47]}) ^ shift_poly_18_6({9'b0, idata[55]}) ^ shift_poly_21_6({9'b0, idata[63]}) ^ shift_poly_24_6(S_r[0][2]);
+							S_w[0][3] = {9'b0, idata[7]} ^ shift_poly_4_6({9'b0, idata[15]}) ^ shift_poly_8_6({9'b0, idata[23]}) ^ shift_poly_12_6({9'b0, idata[31]}) ^ shift_poly_16_6({9'b0, idata[39]}) ^ shift_poly_20_6({9'b0, idata[47]}) ^ shift_poly_24_6({9'b0, idata[55]}) ^ shift_poly_28_6({9'b0, idata[63]}) ^ shift_poly_32_6(S_r[0][3]);
 						end
 					end
 					2: begin
 						if (cnt_r == 255) begin
-							S_temp2_w[0] = {9'b0, idata[55]};
-							S_temp2_w[1] = {9'b0, idata[55]};
-							S_temp2_w[2] = {9'b0, idata[55]};
-							S_temp2_w[3] = {9'b0, idata[55]};
-							S_temp3_w[0] = shift_poly_1_8(S_temp2_w[0]) ^ {9'b0, idata[47]};
-							S_temp3_w[1] = shift_poly_2_8(S_temp2_w[1]) ^ {9'b0, idata[47]};
-							S_temp3_w[2] = shift_poly_3_8(S_temp2_w[2]) ^ {9'b0, idata[47]};
-							S_temp3_w[3] = shift_poly_4_8(S_temp2_w[3]) ^ {9'b0, idata[47]};
-							S_temp4_w[0] = shift_poly_1_8(S_temp3_w[0]) ^ {9'b0, idata[39]};
-							S_temp4_w[1] = shift_poly_2_8(S_temp3_w[1]) ^ {9'b0, idata[39]};
-							S_temp4_w[2] = shift_poly_3_8(S_temp3_w[2]) ^ {9'b0, idata[39]};
-							S_temp4_w[3] = shift_poly_4_8(S_temp3_w[3]) ^ {9'b0, idata[39]};
-							S_temp5_w[0] = shift_poly_1_8(S_temp4_w[0]) ^ {9'b0, idata[31]};
-							S_temp5_w[1] = shift_poly_2_8(S_temp4_w[1]) ^ {9'b0, idata[31]};
-							S_temp5_w[2] = shift_poly_3_8(S_temp4_w[2]) ^ {9'b0, idata[31]};
-							S_temp5_w[3] = shift_poly_4_8(S_temp4_w[3]) ^ {9'b0, idata[31]};
-							S_temp6_w[0] = shift_poly_1_8(S_temp5_w[0]) ^ {9'b0, idata[23]};
-							S_temp6_w[1] = shift_poly_2_8(S_temp5_w[1]) ^ {9'b0, idata[23]};
-							S_temp6_w[2] = shift_poly_3_8(S_temp5_w[2]) ^ {9'b0, idata[23]};
-							S_temp6_w[3] = shift_poly_4_8(S_temp5_w[3]) ^ {9'b0, idata[23]};
-							S_temp7_w[0] = shift_poly_1_8(S_temp6_w[0]) ^ {9'b0, idata[15]};
-							S_temp7_w[1] = shift_poly_2_8(S_temp6_w[1]) ^ {9'b0, idata[15]};
-							S_temp7_w[2] = shift_poly_3_8(S_temp6_w[2]) ^ {9'b0, idata[15]};
-							S_temp7_w[3] = shift_poly_4_8(S_temp6_w[3]) ^ {9'b0, idata[15]};
-							S_w[0][0] = shift_poly_1_8(S_temp7_w[0]) ^ {9'b0, idata[7]};
-							S_w[0][1] = shift_poly_2_8(S_temp7_w[1]) ^ {9'b0, idata[7]};
-							S_w[0][2] = shift_poly_3_8(S_temp7_w[2]) ^ {9'b0, idata[7]};
-							S_w[0][3] = shift_poly_4_8(S_temp7_w[3]) ^ {9'b0, idata[7]};
+							S_w[0][0] = {9'b0, idata[7]} ^ shift_poly_1_8({9'b0, idata[15]}) ^ shift_poly_2_8({9'b0, idata[23]}) ^ shift_poly_3_8({9'b0, idata[31]}) ^ shift_poly_4_8({9'b0, idata[39]}) ^ shift_poly_5_8({9'b0, idata[47]}) ^ shift_poly_6_8({9'b0, idata[55]});
+							S_w[0][1] = {9'b0, idata[7]} ^ shift_poly_2_8({9'b0, idata[15]}) ^ shift_poly_4_8({9'b0, idata[23]}) ^ shift_poly_6_8({9'b0, idata[31]}) ^ shift_poly_8_8({9'b0, idata[39]}) ^ shift_poly_10_8({9'b0, idata[47]}) ^ shift_poly_12_8({9'b0, idata[55]});
+							S_w[0][2] = {9'b0, idata[7]} ^ shift_poly_3_8({9'b0, idata[15]}) ^ shift_poly_6_8({9'b0, idata[23]}) ^ shift_poly_9_8({9'b0, idata[31]}) ^ shift_poly_12_8({9'b0, idata[39]}) ^ shift_poly_15_8({9'b0, idata[47]}) ^ shift_poly_18_8({9'b0, idata[55]});
+							S_w[0][3] = {9'b0, idata[7]} ^ shift_poly_4_8({9'b0, idata[15]}) ^ shift_poly_8_8({9'b0, idata[23]}) ^ shift_poly_12_8({9'b0, idata[31]}) ^ shift_poly_16_8({9'b0, idata[39]}) ^ shift_poly_20_8({9'b0, idata[47]}) ^ shift_poly_24_8({9'b0, idata[55]});
 						end
 						else if (cnt_r >= 7) begin
-							S_temp1_w[0] = shift_poly_1_8(S_r[0][0]) ^ {9'b0, idata[63]};
-							S_temp1_w[1] = shift_poly_2_8(S_r[0][1]) ^ {9'b0, idata[63]};
-							S_temp1_w[2] = shift_poly_3_8(S_r[0][2]) ^ {9'b0, idata[63]};
-							S_temp1_w[3] = shift_poly_4_8(S_r[0][3]) ^ {9'b0, idata[63]};
-							S_temp2_w[0] = shift_poly_1_8(S_temp1_w[0]) ^ {9'b0, idata[55]};
-							S_temp2_w[1] = shift_poly_2_8(S_temp1_w[1]) ^ {9'b0, idata[55]};
-							S_temp2_w[2] = shift_poly_3_8(S_temp1_w[2]) ^ {9'b0, idata[55]};
-							S_temp2_w[3] = shift_poly_4_8(S_temp1_w[3]) ^ {9'b0, idata[55]};
-							S_temp3_w[0] = shift_poly_1_8(S_temp2_w[0]) ^ {9'b0, idata[47]};
-							S_temp3_w[1] = shift_poly_2_8(S_temp2_w[1]) ^ {9'b0, idata[47]};
-							S_temp3_w[2] = shift_poly_3_8(S_temp2_w[2]) ^ {9'b0, idata[47]};
-							S_temp3_w[3] = shift_poly_4_8(S_temp2_w[3]) ^ {9'b0, idata[47]};
-							S_temp4_w[0] = shift_poly_1_8(S_temp3_w[0]) ^ {9'b0, idata[39]};
-							S_temp4_w[1] = shift_poly_2_8(S_temp3_w[1]) ^ {9'b0, idata[39]};
-							S_temp4_w[2] = shift_poly_3_8(S_temp3_w[2]) ^ {9'b0, idata[39]};
-							S_temp4_w[3] = shift_poly_4_8(S_temp3_w[3]) ^ {9'b0, idata[39]};
-							S_temp5_w[0] = shift_poly_1_8(S_temp4_w[0]) ^ {9'b0, idata[31]};
-							S_temp5_w[1] = shift_poly_2_8(S_temp4_w[1]) ^ {9'b0, idata[31]};
-							S_temp5_w[2] = shift_poly_3_8(S_temp4_w[2]) ^ {9'b0, idata[31]};
-							S_temp5_w[3] = shift_poly_4_8(S_temp4_w[3]) ^ {9'b0, idata[31]};
-							S_temp6_w[0] = shift_poly_1_8(S_temp5_w[0]) ^ {9'b0, idata[23]};
-							S_temp6_w[1] = shift_poly_2_8(S_temp5_w[1]) ^ {9'b0, idata[23]};
-							S_temp6_w[2] = shift_poly_3_8(S_temp5_w[2]) ^ {9'b0, idata[23]};
-							S_temp6_w[3] = shift_poly_4_8(S_temp5_w[3]) ^ {9'b0, idata[23]};
-							S_temp7_w[0] = shift_poly_1_8(S_temp6_w[0]) ^ {9'b0, idata[15]};
-							S_temp7_w[1] = shift_poly_2_8(S_temp6_w[1]) ^ {9'b0, idata[15]};
-							S_temp7_w[2] = shift_poly_3_8(S_temp6_w[2]) ^ {9'b0, idata[15]};
-							S_temp7_w[3] = shift_poly_4_8(S_temp6_w[3]) ^ {9'b0, idata[15]};
-							S_w[0][0] = shift_poly_1_8(S_temp7_w[0]) ^ {9'b0, idata[7]};
-							S_w[0][1] = shift_poly_2_8(S_temp7_w[1]) ^ {9'b0, idata[7]};
-							S_w[0][2] = shift_poly_3_8(S_temp7_w[2]) ^ {9'b0, idata[7]};
-							S_w[0][3] = shift_poly_4_8(S_temp7_w[3]) ^ {9'b0, idata[7]};
+							S_w[0][0] = {9'b0, idata[7]} ^ shift_poly_1_8({9'b0, idata[15]}) ^ shift_poly_2_8({9'b0, idata[23]}) ^ shift_poly_3_8({9'b0, idata[31]}) ^ shift_poly_4_8({9'b0, idata[39]}) ^ shift_poly_5_8({9'b0, idata[47]}) ^ shift_poly_6_8({9'b0, idata[55]}) ^ shift_poly_7_8({9'b0, idata[63]}) ^ shift_poly_8_8(S_r[0][0]);
+							S_w[0][1] = {9'b0, idata[7]} ^ shift_poly_2_8({9'b0, idata[15]}) ^ shift_poly_4_8({9'b0, idata[23]}) ^ shift_poly_6_8({9'b0, idata[31]}) ^ shift_poly_8_8({9'b0, idata[39]}) ^ shift_poly_10_8({9'b0, idata[47]}) ^ shift_poly_12_8({9'b0, idata[55]}) ^ shift_poly_14_8({9'b0, idata[63]}) ^ shift_poly_16_8(S_r[0][1]);
+							S_w[0][2] = {9'b0, idata[7]} ^ shift_poly_3_8({9'b0, idata[15]}) ^ shift_poly_6_8({9'b0, idata[23]}) ^ shift_poly_9_8({9'b0, idata[31]}) ^ shift_poly_12_8({9'b0, idata[39]}) ^ shift_poly_15_8({9'b0, idata[47]}) ^ shift_poly_18_8({9'b0, idata[55]}) ^ shift_poly_21_8({9'b0, idata[63]}) ^ shift_poly_24_8(S_r[0][2]);
+							S_w[0][3] = {9'b0, idata[7]} ^ shift_poly_4_8({9'b0, idata[15]}) ^ shift_poly_8_8({9'b0, idata[23]}) ^ shift_poly_12_8({9'b0, idata[31]}) ^ shift_poly_16_8({9'b0, idata[39]}) ^ shift_poly_20_8({9'b0, idata[47]}) ^ shift_poly_24_8({9'b0, idata[55]}) ^ shift_poly_28_8({9'b0, idata[63]}) ^ shift_poly_32_8(S_r[0][3]);
 						end
 					end
 					3: begin
 						if (cnt_r == 1023) begin
-							S_temp2_w[0] = {9'b0, idata[55]};
-							S_temp2_w[1] = {9'b0, idata[55]};
-							S_temp2_w[2] = {9'b0, idata[55]};
-							S_temp2_w[3] = {9'b0, idata[55]};
-							S_temp2_w[4] = {9'b0, idata[55]};
-							S_temp2_w[5] = {9'b0, idata[55]};
-							S_temp2_w[6] = {9'b0, idata[55]};
-							S_temp2_w[7] = {9'b0, idata[55]};
-							S_temp3_w[0] = shift_poly_1_10(S_temp2_w[0]) ^ {9'b0, idata[47]};
-							S_temp3_w[1] = shift_poly_2_10(S_temp2_w[1]) ^ {9'b0, idata[47]};
-							S_temp3_w[2] = shift_poly_3_10(S_temp2_w[2]) ^ {9'b0, idata[47]};
-							S_temp3_w[3] = shift_poly_4_10(S_temp2_w[3]) ^ {9'b0, idata[47]};
-							S_temp3_w[4] = shift_poly_5_10(S_temp2_w[4]) ^ {9'b0, idata[47]};
-							S_temp3_w[5] = shift_poly_6_10(S_temp2_w[5]) ^ {9'b0, idata[47]};
-							S_temp3_w[6] = shift_poly_7_10(S_temp2_w[6]) ^ {9'b0, idata[47]};
-							S_temp3_w[7] = shift_poly_8_10(S_temp2_w[7]) ^ {9'b0, idata[47]};
-							S_temp4_w[0] = shift_poly_1_10(S_temp3_w[0]) ^ {9'b0, idata[39]};
-							S_temp4_w[1] = shift_poly_2_10(S_temp3_w[1]) ^ {9'b0, idata[39]};
-							S_temp4_w[2] = shift_poly_3_10(S_temp3_w[2]) ^ {9'b0, idata[39]};
-							S_temp4_w[3] = shift_poly_4_10(S_temp3_w[3]) ^ {9'b0, idata[39]};
-							S_temp4_w[4] = shift_poly_5_10(S_temp3_w[4]) ^ {9'b0, idata[39]};
-							S_temp4_w[5] = shift_poly_6_10(S_temp3_w[5]) ^ {9'b0, idata[39]};
-							S_temp4_w[6] = shift_poly_7_10(S_temp3_w[6]) ^ {9'b0, idata[39]};
-							S_temp4_w[7] = shift_poly_8_10(S_temp3_w[7]) ^ {9'b0, idata[39]};
-							S_temp5_w[0] = shift_poly_1_10(S_temp4_w[0]) ^ {9'b0, idata[31]};
-							S_temp5_w[1] = shift_poly_2_10(S_temp4_w[1]) ^ {9'b0, idata[31]};
-							S_temp5_w[2] = shift_poly_3_10(S_temp4_w[2]) ^ {9'b0, idata[31]};
-							S_temp5_w[3] = shift_poly_4_10(S_temp4_w[3]) ^ {9'b0, idata[31]};
-							S_temp5_w[4] = shift_poly_5_10(S_temp4_w[4]) ^ {9'b0, idata[31]};
-							S_temp5_w[5] = shift_poly_6_10(S_temp4_w[5]) ^ {9'b0, idata[31]};
-							S_temp5_w[6] = shift_poly_7_10(S_temp4_w[6]) ^ {9'b0, idata[31]};
-							S_temp5_w[7] = shift_poly_8_10(S_temp4_w[7]) ^ {9'b0, idata[31]};
-							S_temp6_w[0] = shift_poly_1_10(S_temp5_w[0]) ^ {9'b0, idata[23]};
-							S_temp6_w[1] = shift_poly_2_10(S_temp5_w[1]) ^ {9'b0, idata[23]};
-							S_temp6_w[2] = shift_poly_3_10(S_temp5_w[2]) ^ {9'b0, idata[23]};
-							S_temp6_w[3] = shift_poly_4_10(S_temp5_w[3]) ^ {9'b0, idata[23]};
-							S_temp6_w[4] = shift_poly_5_10(S_temp5_w[4]) ^ {9'b0, idata[23]};
-							S_temp6_w[5] = shift_poly_6_10(S_temp5_w[5]) ^ {9'b0, idata[23]};
-							S_temp6_w[6] = shift_poly_7_10(S_temp5_w[6]) ^ {9'b0, idata[23]};
-							S_temp6_w[7] = shift_poly_8_10(S_temp5_w[7]) ^ {9'b0, idata[23]};
-							S_temp7_w[0] = shift_poly_1_10(S_temp6_w[0]) ^ {9'b0, idata[15]};
-							S_temp7_w[1] = shift_poly_2_10(S_temp6_w[1]) ^ {9'b0, idata[15]};
-							S_temp7_w[2] = shift_poly_3_10(S_temp6_w[2]) ^ {9'b0, idata[15]};
-							S_temp7_w[3] = shift_poly_4_10(S_temp6_w[3]) ^ {9'b0, idata[15]};
-							S_temp7_w[4] = shift_poly_5_10(S_temp6_w[4]) ^ {9'b0, idata[15]};
-							S_temp7_w[5] = shift_poly_6_10(S_temp6_w[5]) ^ {9'b0, idata[15]};
-							S_temp7_w[6] = shift_poly_7_10(S_temp6_w[6]) ^ {9'b0, idata[15]};
-							S_temp7_w[7] = shift_poly_8_10(S_temp6_w[7]) ^ {9'b0, idata[15]};
-							S_w[0][0] = shift_poly_1_10(S_temp7_w[0]) ^ {9'b0, idata[7]};
-							S_w[0][1] = shift_poly_2_10(S_temp7_w[1]) ^ {9'b0, idata[7]};
-							S_w[0][2] = shift_poly_3_10(S_temp7_w[2]) ^ {9'b0, idata[7]};
-							S_w[0][3] = shift_poly_4_10(S_temp7_w[3]) ^ {9'b0, idata[7]};
-							S_w[0][4] = shift_poly_5_10(S_temp7_w[4]) ^ {9'b0, idata[7]};
-							S_w[0][5] = shift_poly_6_10(S_temp7_w[5]) ^ {9'b0, idata[7]};
-							S_w[0][6] = shift_poly_7_10(S_temp7_w[6]) ^ {9'b0, idata[7]};
-							S_w[0][7] = shift_poly_8_10(S_temp7_w[7]) ^ {9'b0, idata[7]};
+							S_w[0][0] = {9'b0, idata[7]} ^ shift_poly_1_10({9'b0, idata[15]}) ^ shift_poly_2_10({9'b0, idata[23]}) ^ shift_poly_3_10({9'b0, idata[31]}) ^ shift_poly_4_10({9'b0, idata[39]}) ^ shift_poly_5_10({9'b0, idata[47]}) ^ shift_poly_6_10({9'b0, idata[55]});
+							S_w[0][1] = {9'b0, idata[7]} ^ shift_poly_2_10({9'b0, idata[15]}) ^ shift_poly_4_10({9'b0, idata[23]}) ^ shift_poly_6_10({9'b0, idata[31]}) ^ shift_poly_8_10({9'b0, idata[39]}) ^ shift_poly_10_10({9'b0, idata[47]}) ^ shift_poly_12_10({9'b0, idata[55]});
+							S_w[0][2] = {9'b0, idata[7]} ^ shift_poly_3_10({9'b0, idata[15]}) ^ shift_poly_6_10({9'b0, idata[23]}) ^ shift_poly_9_10({9'b0, idata[31]}) ^ shift_poly_12_10({9'b0, idata[39]}) ^ shift_poly_15_10({9'b0, idata[47]}) ^ shift_poly_18_10({9'b0, idata[55]});
+							S_w[0][3] = {9'b0, idata[7]} ^ shift_poly_4_10({9'b0, idata[15]}) ^ shift_poly_8_10({9'b0, idata[23]}) ^ shift_poly_12_10({9'b0, idata[31]}) ^ shift_poly_16_10({9'b0, idata[39]}) ^ shift_poly_20_10({9'b0, idata[47]}) ^ shift_poly_24_10({9'b0, idata[55]});
+							S_w[0][4] = {9'b0, idata[7]} ^ shift_poly_5_10({9'b0, idata[15]}) ^ shift_poly_10_10({9'b0, idata[23]}) ^ shift_poly_15_10({9'b0, idata[31]}) ^ shift_poly_20_10({9'b0, idata[39]}) ^ shift_poly_25_10({9'b0, idata[47]}) ^ shift_poly_30_10({9'b0, idata[55]});
+							S_w[0][5] = {9'b0, idata[7]} ^ shift_poly_6_10({9'b0, idata[15]}) ^ shift_poly_12_10({9'b0, idata[23]}) ^ shift_poly_18_10({9'b0, idata[31]}) ^ shift_poly_24_10({9'b0, idata[39]}) ^ shift_poly_30_10({9'b0, idata[47]}) ^ shift_poly_36_10({9'b0, idata[55]});
+							S_w[0][6] = {9'b0, idata[7]} ^ shift_poly_7_10({9'b0, idata[15]}) ^ shift_poly_14_10({9'b0, idata[23]}) ^ shift_poly_21_10({9'b0, idata[31]}) ^ shift_poly_28_10({9'b0, idata[39]}) ^ shift_poly_35_10({9'b0, idata[47]}) ^ shift_poly_42_10({9'b0, idata[55]});
+							S_w[0][7] = {9'b0, idata[7]} ^ shift_poly_8_10({9'b0, idata[15]}) ^ shift_poly_16_10({9'b0, idata[23]}) ^ shift_poly_24_10({9'b0, idata[31]}) ^ shift_poly_32_10({9'b0, idata[39]}) ^ shift_poly_40_10({9'b0, idata[47]}) ^ shift_poly_48_10({9'b0, idata[55]});
 						end
 						else if (cnt_r >= 7) begin
-							S_temp1_w[0] = shift_poly_1_10(S_r[0][0]) ^ {9'b0, idata[63]};
-							S_temp1_w[1] = shift_poly_2_10(S_r[0][1]) ^ {9'b0, idata[63]};
-							S_temp1_w[2] = shift_poly_3_10(S_r[0][2]) ^ {9'b0, idata[63]};
-							S_temp1_w[3] = shift_poly_4_10(S_r[0][3]) ^ {9'b0, idata[63]};
-							S_temp1_w[4] = shift_poly_5_10(S_r[0][4]) ^ {9'b0, idata[63]};
-							S_temp1_w[5] = shift_poly_6_10(S_r[0][5]) ^ {9'b0, idata[63]};
-							S_temp1_w[6] = shift_poly_7_10(S_r[0][6]) ^ {9'b0, idata[63]};
-							S_temp1_w[7] = shift_poly_8_10(S_r[0][7]) ^ {9'b0, idata[63]};
-							S_temp2_w[0] = shift_poly_1_10(S_temp1_w[0]) ^ {9'b0, idata[55]};
-							S_temp2_w[1] = shift_poly_2_10(S_temp1_w[1]) ^ {9'b0, idata[55]};
-							S_temp2_w[2] = shift_poly_3_10(S_temp1_w[2]) ^ {9'b0, idata[55]};
-							S_temp2_w[3] = shift_poly_4_10(S_temp1_w[3]) ^ {9'b0, idata[55]};
-							S_temp2_w[4] = shift_poly_5_10(S_temp1_w[4]) ^ {9'b0, idata[55]};
-							S_temp2_w[5] = shift_poly_6_10(S_temp1_w[5]) ^ {9'b0, idata[55]};
-							S_temp2_w[6] = shift_poly_7_10(S_temp1_w[6]) ^ {9'b0, idata[55]};
-							S_temp2_w[7] = shift_poly_8_10(S_temp1_w[7]) ^ {9'b0, idata[55]};
-							S_temp3_w[0] = shift_poly_1_10(S_temp2_w[0]) ^ {9'b0, idata[47]};
-							S_temp3_w[1] = shift_poly_2_10(S_temp2_w[1]) ^ {9'b0, idata[47]};
-							S_temp3_w[2] = shift_poly_3_10(S_temp2_w[2]) ^ {9'b0, idata[47]};
-							S_temp3_w[3] = shift_poly_4_10(S_temp2_w[3]) ^ {9'b0, idata[47]};
-							S_temp3_w[4] = shift_poly_5_10(S_temp2_w[4]) ^ {9'b0, idata[47]};
-							S_temp3_w[5] = shift_poly_6_10(S_temp2_w[5]) ^ {9'b0, idata[47]};
-							S_temp3_w[6] = shift_poly_7_10(S_temp2_w[6]) ^ {9'b0, idata[47]};
-							S_temp3_w[7] = shift_poly_8_10(S_temp2_w[7]) ^ {9'b0, idata[47]};
-							S_temp4_w[0] = shift_poly_1_10(S_temp3_w[0]) ^ {9'b0, idata[39]};
-							S_temp4_w[1] = shift_poly_2_10(S_temp3_w[1]) ^ {9'b0, idata[39]};
-							S_temp4_w[2] = shift_poly_3_10(S_temp3_w[2]) ^ {9'b0, idata[39]};
-							S_temp4_w[3] = shift_poly_4_10(S_temp3_w[3]) ^ {9'b0, idata[39]};
-							S_temp4_w[4] = shift_poly_5_10(S_temp3_w[4]) ^ {9'b0, idata[39]};
-							S_temp4_w[5] = shift_poly_6_10(S_temp3_w[5]) ^ {9'b0, idata[39]};
-							S_temp4_w[6] = shift_poly_7_10(S_temp3_w[6]) ^ {9'b0, idata[39]};
-							S_temp4_w[7] = shift_poly_8_10(S_temp3_w[7]) ^ {9'b0, idata[39]};
-							S_temp5_w[0] = shift_poly_1_10(S_temp4_w[0]) ^ {9'b0, idata[31]};
-							S_temp5_w[1] = shift_poly_2_10(S_temp4_w[1]) ^ {9'b0, idata[31]};
-							S_temp5_w[2] = shift_poly_3_10(S_temp4_w[2]) ^ {9'b0, idata[31]};
-							S_temp5_w[3] = shift_poly_4_10(S_temp4_w[3]) ^ {9'b0, idata[31]};
-							S_temp5_w[4] = shift_poly_5_10(S_temp4_w[4]) ^ {9'b0, idata[31]};
-							S_temp5_w[5] = shift_poly_6_10(S_temp4_w[5]) ^ {9'b0, idata[31]};
-							S_temp5_w[6] = shift_poly_7_10(S_temp4_w[6]) ^ {9'b0, idata[31]};
-							S_temp5_w[7] = shift_poly_8_10(S_temp4_w[7]) ^ {9'b0, idata[31]};
-							S_temp6_w[0] = shift_poly_1_10(S_temp5_w[0]) ^ {9'b0, idata[23]};
-							S_temp6_w[1] = shift_poly_2_10(S_temp5_w[1]) ^ {9'b0, idata[23]};
-							S_temp6_w[2] = shift_poly_3_10(S_temp5_w[2]) ^ {9'b0, idata[23]};
-							S_temp6_w[3] = shift_poly_4_10(S_temp5_w[3]) ^ {9'b0, idata[23]};
-							S_temp6_w[4] = shift_poly_5_10(S_temp5_w[4]) ^ {9'b0, idata[23]};
-							S_temp6_w[5] = shift_poly_6_10(S_temp5_w[5]) ^ {9'b0, idata[23]};
-							S_temp6_w[6] = shift_poly_7_10(S_temp5_w[6]) ^ {9'b0, idata[23]};
-							S_temp6_w[7] = shift_poly_8_10(S_temp5_w[7]) ^ {9'b0, idata[23]};
-							S_temp7_w[0] = shift_poly_1_10(S_temp6_w[0]) ^ {9'b0, idata[15]};
-							S_temp7_w[1] = shift_poly_2_10(S_temp6_w[1]) ^ {9'b0, idata[15]};
-							S_temp7_w[2] = shift_poly_3_10(S_temp6_w[2]) ^ {9'b0, idata[15]};
-							S_temp7_w[3] = shift_poly_4_10(S_temp6_w[3]) ^ {9'b0, idata[15]};
-							S_temp7_w[4] = shift_poly_5_10(S_temp6_w[4]) ^ {9'b0, idata[15]};
-							S_temp7_w[5] = shift_poly_6_10(S_temp6_w[5]) ^ {9'b0, idata[15]};
-							S_temp7_w[6] = shift_poly_7_10(S_temp6_w[6]) ^ {9'b0, idata[15]};
-							S_temp7_w[7] = shift_poly_8_10(S_temp6_w[7]) ^ {9'b0, idata[15]};
-							S_w[0][0] = shift_poly_1_10(S_temp7_w[0]) ^ {9'b0, idata[7]};
-							S_w[0][1] = shift_poly_2_10(S_temp7_w[1]) ^ {9'b0, idata[7]};
-							S_w[0][2] = shift_poly_3_10(S_temp7_w[2]) ^ {9'b0, idata[7]};
-							S_w[0][3] = shift_poly_4_10(S_temp7_w[3]) ^ {9'b0, idata[7]};
-							S_w[0][4] = shift_poly_5_10(S_temp7_w[4]) ^ {9'b0, idata[7]};
-							S_w[0][5] = shift_poly_6_10(S_temp7_w[5]) ^ {9'b0, idata[7]};
-							S_w[0][6] = shift_poly_7_10(S_temp7_w[6]) ^ {9'b0, idata[7]};
-							S_w[0][7] = shift_poly_8_10(S_temp7_w[7]) ^ {9'b0, idata[7]};
+							S_w[0][0] = {9'b0, idata[7]} ^ shift_poly_1_10({9'b0, idata[15]}) ^ shift_poly_2_10({9'b0, idata[23]}) ^ shift_poly_3_10({9'b0, idata[31]}) ^ shift_poly_4_10({9'b0, idata[39]}) ^ shift_poly_5_10({9'b0, idata[47]}) ^ shift_poly_6_10({9'b0, idata[55]}) ^ shift_poly_7_10({9'b0, idata[63]}) ^ shift_poly_8_10(S_r[0][0]);
+							S_w[0][1] = {9'b0, idata[7]} ^ shift_poly_2_10({9'b0, idata[15]}) ^ shift_poly_4_10({9'b0, idata[23]}) ^ shift_poly_6_10({9'b0, idata[31]}) ^ shift_poly_8_10({9'b0, idata[39]}) ^ shift_poly_10_10({9'b0, idata[47]}) ^ shift_poly_12_10({9'b0, idata[55]}) ^ shift_poly_14_10({9'b0, idata[63]}) ^ shift_poly_16_10(S_r[0][1]);
+							S_w[0][2] = {9'b0, idata[7]} ^ shift_poly_3_10({9'b0, idata[15]}) ^ shift_poly_6_10({9'b0, idata[23]}) ^ shift_poly_9_10({9'b0, idata[31]}) ^ shift_poly_12_10({9'b0, idata[39]}) ^ shift_poly_15_10({9'b0, idata[47]}) ^ shift_poly_18_10({9'b0, idata[55]}) ^ shift_poly_21_10({9'b0, idata[63]}) ^ shift_poly_24_10(S_r[0][2]);
+							S_w[0][3] = {9'b0, idata[7]} ^ shift_poly_4_10({9'b0, idata[15]}) ^ shift_poly_8_10({9'b0, idata[23]}) ^ shift_poly_12_10({9'b0, idata[31]}) ^ shift_poly_16_10({9'b0, idata[39]}) ^ shift_poly_20_10({9'b0, idata[47]}) ^ shift_poly_24_10({9'b0, idata[55]}) ^ shift_poly_28_10({9'b0, idata[63]}) ^ shift_poly_32_10(S_r[0][3]);
+							S_w[0][4] = {9'b0, idata[7]} ^ shift_poly_5_10({9'b0, idata[15]}) ^ shift_poly_10_10({9'b0, idata[23]}) ^ shift_poly_15_10({9'b0, idata[31]}) ^ shift_poly_20_10({9'b0, idata[39]}) ^ shift_poly_25_10({9'b0, idata[47]}) ^ shift_poly_30_10({9'b0, idata[55]}) ^ shift_poly_35_10({9'b0, idata[63]}) ^ shift_poly_40_10(S_r[0][4]);
+							S_w[0][5] = {9'b0, idata[7]} ^ shift_poly_6_10({9'b0, idata[15]}) ^ shift_poly_12_10({9'b0, idata[23]}) ^ shift_poly_18_10({9'b0, idata[31]}) ^ shift_poly_24_10({9'b0, idata[39]}) ^ shift_poly_30_10({9'b0, idata[47]}) ^ shift_poly_36_10({9'b0, idata[55]}) ^ shift_poly_42_10({9'b0, idata[63]}) ^ shift_poly_48_10(S_r[0][5]);
+							S_w[0][6] = {9'b0, idata[7]} ^ shift_poly_7_10({9'b0, idata[15]}) ^ shift_poly_14_10({9'b0, idata[23]}) ^ shift_poly_21_10({9'b0, idata[31]}) ^ shift_poly_28_10({9'b0, idata[39]}) ^ shift_poly_35_10({9'b0, idata[47]}) ^ shift_poly_42_10({9'b0, idata[55]}) ^ shift_poly_49_10({9'b0, idata[63]}) ^ shift_poly_56_10(S_r[0][6]);
+							S_w[0][7] = {9'b0, idata[7]} ^ shift_poly_8_10({9'b0, idata[15]}) ^ shift_poly_16_10({9'b0, idata[23]}) ^ shift_poly_24_10({9'b0, idata[31]}) ^ shift_poly_32_10({9'b0, idata[39]}) ^ shift_poly_40_10({9'b0, idata[47]}) ^ shift_poly_48_10({9'b0, idata[55]}) ^ shift_poly_56_10({9'b0, idata[63]}) ^ shift_poly_64_10(S_r[0][7]);
 						end
 					end
 					default: state_w = S_IDLE;
@@ -619,77 +408,27 @@ module bch(
 					ready_w = 0;
 					cnt_w = cnt_r - 1;
 				end else begin
-					case (code_r) // synopsys parallel_case
-						1: begin
-							if (S1_S4_0) begin
-								cnt_w = 1023;
-								state_w = S_OUT_HARD;
-								finish_w = 1;
-								odata_w = 1023;
-							end
-							else begin
-								cnt_w = 0;
-								state_w = (mode_r) ? S_BER_SOFT1 : S_BER_HARD;
-								delta_w[0][0] = 1;
-								delta_rho_w[0][0] = 1;
-								for (i = 1; i < 5; i = i + 1) begin
-									delta_w[0][i] = 0;
-									delta_rho_w[0][i] = 0;
-								end
-								rho_w[0] = -1;
-								l_rho_w[0] = 0;
-								l_w[0] = 0;
-								d_rho_w[0] = 1;
-								d_w[0] = S_r[0][0];
-							end
+					if (S1_S4_0 && code_r != 3 || S1_S8_0 && code_r == 3) begin
+						cnt_w = 1023;
+						state_w = S_OUT_HARD;
+						finish_w = 1;
+						odata_w = 1023;
+					end
+					else begin
+						cnt_w = 0;
+						state_w = (mode_r) ? S_BER_SOFT1 : S_BER_HARD;
+						delta_w[0][0] = 1;
+						delta_rho_w[0][0] = 1;
+						for (i = 1; i < 5; i = i + 1) begin
+							delta_w[0][i] = 0;
+							delta_rho_w[0][i] = 0;
 						end
-						2: begin
-							if (S1_S4_0) begin
-								cnt_w = 1023;
-								state_w = S_OUT_HARD;
-								finish_w = 1;
-								odata_w = 1023;
-							end
-							else begin
-								cnt_w = 0;
-								state_w = (mode_r) ? S_BER_SOFT1 : S_BER_HARD;
-								delta_w[0][0] = 1;
-								delta_rho_w[0][0] = 1;
-								for (i = 1; i < 5; i = i + 1) begin
-									delta_w[0][i] = 0;
-									delta_rho_w[0][i] = 0;
-								end
-								rho_w[0] = -1;
-								l_rho_w[0] = 0;
-								l_w[0] = 0;
-								d_rho_w[0] = 1;
-								d_w[0] = S_r[0][0];
-							end
-						end
-						3: begin
-							if (S1_S8_0) begin
-								cnt_w = 1023;
-								state_w = S_OUT_HARD;
-								finish_w = 1;
-								odata_w = 1023;
-							end
-							else begin
-								cnt_w = 0;
-								state_w = (mode_r) ? S_BER_SOFT1 : S_BER_HARD;
-								delta_w[0][0] = 1;
-								delta_rho_w[0][0] = 1;
-								for (i = 1; i < 5; i = i + 1) begin
-									delta_w[0][i] = 0;
-									delta_rho_w[0][i] = 0;
-								end
-								rho_w[0] = -1;
-								l_rho_w[0] = 0;
-								l_w[0] = 0;
-								d_rho_w[0] = 1;
-								d_w[0] = S_r[0][0];
-							end
-						end
-					endcase	
+						rho_w[0] = -1;
+						l_rho_w[0] = 0;
+						l_w[0] = 0;
+						d_rho_w[0] = 1;
+						d_w[0] = S_r[0][0];
+					end
 				end
 			end
 			S_BER_HARD, S_BER_SOFT1: begin
@@ -833,697 +572,242 @@ module bch(
 							else power_w[i + 1] = 3;
 						end
 						else power_w[i + 1] = 4;
-						// corr_w[1] = min1_r;
-						// corr_w[2] = min2_r;
-						// corr_w[3] = min1_r + min2_r;
-						case (code_r)
-							1: cnt_w = 8;
-							2: cnt_w = 32;
-							3: cnt_w = 128;
-							default: cnt_w = 8;
-						endcase
+						cnt_w = chien_cnt_max_w;
 					end
 				end
 			end
-			S_CHI_HARD: begin
-				case (code_r) // synopsys parallel_case
-					1: begin
-						if (cnt_r == 8) begin
+			S_CHI_HARD, S_CHI_SOFT1: begin
+				if (cnt_r == chien_cnt_max_w) begin
 
+				end
+				else begin
+					temp_root_w[0][0] = (code_r != 3) ? stage1_buff_r[0][0][0] ^ stage1_buff_r[0][0][1] ^ stage1_buff_r[0][0][2] : stage1_buff_r[0][0][0] ^ stage1_buff_r[0][0][1] ^ stage1_buff_r[0][0][2] ^ stage1_buff_r[0][0][3] ^ stage1_buff_r[0][0][4];
+					if (cnt_r == chien_cnt_max_w - 1) begin end
+					else if (temp_root_w[0][0] == 0) begin
+						root_w[0][root_cnt_r[0]] = root_index_w[0];
+						temp_root_cnt_w[0][0] = root_cnt_r[0] + 1;
+					end
+					else temp_root_cnt_w[0][0] = root_cnt_r[0];
+					for (i = 1; i < 8; i = i + 1) begin
+						temp_root_w[0][i] = (code_r != 3) ? stage1_buff_r[0][i][0] ^ stage1_buff_r[0][i][1] ^ stage1_buff_r[0][i][2] : stage1_buff_r[0][i][0] ^ stage1_buff_r[0][i][1] ^ stage1_buff_r[0][i][2] ^ stage1_buff_r[0][i][3] ^ stage1_buff_r[0][i][4];
+						if (temp_root_w[0][i] == 0) begin
+							temp_root_cnt_w[0][i] = temp_root_cnt_w[0][i - 1] + 1;
+							root_w[0][temp_root_cnt_w[0][i - 1]] = root_index_w[i];
 						end
-						else begin
-							temp_root_w[0][0] = stage1_buff_r[0][0][0] ^ stage1_buff_r[0][0][1] ^ stage1_buff_r[0][0][2];
-							if (cnt_r == 7) begin
-
-							end
-							else if (temp_root_w[0][0] == 0) begin
-								root_w[0][root_cnt_r[0]] = root_index_w[0];
-								temp_root_cnt_w[0][0] = root_cnt_r[0] + 1;
-							end
-							else temp_root_cnt_w[0][0] = root_cnt_r[0];
-							for (i = 1; i < 8; i = i + 1) begin
-								temp_root_w[0][i] = stage1_buff_r[0][i][0] ^ stage1_buff_r[0][i][1] ^ stage1_buff_r[0][i][2];
-								if (temp_root_w[0][i] == 0) begin
-									temp_root_cnt_w[0][i] = temp_root_cnt_w[0][i - 1] + 1;
-									root_w[0][temp_root_cnt_w[0][i - 1]] = root_index_w[i];
-								end
-								else begin
-									temp_root_cnt_w[0][i] = temp_root_cnt_w[0][i - 1];
-								end
-							end
+						else temp_root_cnt_w[0][i] = temp_root_cnt_w[0][i - 1];
+					end
+				end
+				root_cnt_w[0] = temp_root_cnt_w[0][7];
+				
+				if (root_cnt_w[0] == 2 && code_r != 3) begin
+					state_w = S_OUT_HARD_BUFF;
+					cnt_w = 1;
+				end
+				else if (root_cnt_w[0] == 4 && code_r == 3) begin
+					state_w = S_OUT_HARD_BUFF;
+					cnt_w = 3;
+				end
+				else begin
+					cnt_w = cnt_r - 1;
+					for (i = 0; i < 8; i = i + 1) begin
+						for (j = 0; j < 5; j = j + 1) begin
+							stage1_buff_w[0][i][j] = delta_poly_w[0][i][j];
 						end
-						root_cnt_w[0] = temp_root_cnt_w[0][7];
-						
-						if (root_cnt_w[0] == 2) begin
-							state_w = S_OUT_HARD_BUFF;
-							cnt_w = 1;
-						end
-						else begin
-							cnt_w = cnt_r - 1;
-							for (i = 0; i < 8; i = i + 1) begin
-								for (j = 0; j < 3; j = j + 1) begin
-									stage1_buff_w[0][i][j] = delta_poly_w[0][i][j];
-								end
-							end
+					end
+					case (code_r)
+						1: begin
 							delta_w[0][0] = delta_r[0][0];
 							delta_w[0][1] = shift_poly_8_6(delta_r[0][1]);
 							delta_w[0][2] = shift_poly_8_6(shift_poly_8_6(delta_r[0][2]));
-						end
-					end 
-					
-					2: begin
-						if (cnt_r == 32) begin
-
-						end
-						else begin
-							temp_root_w[0][0] = stage1_buff_r[0][0][0] ^ stage1_buff_r[0][0][1] ^ stage1_buff_r[0][0][2];
-							if (cnt_r == 31) begin
-
-							end
-							else if (temp_root_w[0][0] == 0) begin
-								temp_root_cnt_w[0][0] = root_cnt_r[0] + 1;
-								root_w[0][root_cnt_r[0]] = root_index_w[0];
-							end
-							else temp_root_cnt_w[0][0] = root_cnt_r[0];
-							for (i = 1; i < 8; i = i + 1) begin
-								temp_root_w[0][i] = stage1_buff_r[0][i][0] ^ stage1_buff_r[0][i][1] ^ stage1_buff_r[0][i][2];
-								if (temp_root_w[0][i] == 0) begin
-									temp_root_cnt_w[0][i] = temp_root_cnt_w[0][i - 1] + 1;
-									root_w[0][temp_root_cnt_w[0][i - 1]] = root_index_w[i];
-								end
-								else begin
-									temp_root_cnt_w[0][i] = temp_root_cnt_w[0][i - 1];
-								end
-							end
-						end
-						root_cnt_w[0] = temp_root_cnt_w[0][7];
-						if (root_cnt_w[0] == 2) begin
-							state_w = S_OUT_HARD_BUFF;
-							cnt_w = 1;
-						end
-						else begin
-							cnt_w = cnt_r - 1;
-							for (i = 0; i < 8; i = i + 1) begin
-								for (j = 0; j < 3; j = j + 1) begin
-									stage1_buff_w[0][i][j] = delta_poly_w[0][i][j];
-								end
-							end
+						end 
+						2: begin
 							delta_w[0][0] = delta_r[0][0];
 							delta_w[0][1] = shift_poly_8_8(delta_r[0][1]);
 							delta_w[0][2] = shift_poly_8_8(shift_poly_8_8(delta_r[0][2]));
 						end
-					end
-					3: begin
-						if (cnt_r == 128) begin
-
-						end
-						else begin
-							temp_root_w[0][0] = stage1_buff_r[0][0][0] ^ stage1_buff_r[0][0][1] ^ stage1_buff_r[0][0][2] ^ stage1_buff_r[0][0][3] ^ stage1_buff_r[0][0][4];
-							if (cnt_r == 127) begin
-
-							end
-							else if (temp_root_w[0][0] == 0) begin
-								temp_root_cnt_w[0][0] = root_cnt_r[0] + 1;
-								root_w[0][root_cnt_r[0]] = root_index_w[0];
-							end
-							else temp_root_cnt_w[0][0] = root_cnt_r[0];
-							for (i = 1; i < 8; i = i + 1) begin
-								temp_root_w[0][i] = stage1_buff_r[0][i][0] ^ stage1_buff_r[0][i][1] ^ stage1_buff_r[0][i][2] ^ stage1_buff_r[0][i][3] ^ stage1_buff_r[0][i][4];
-								if (temp_root_w[0][i] == 0) begin
-									temp_root_cnt_w[0][i] = temp_root_cnt_w[0][i - 1] + 1;
-									root_w[0][temp_root_cnt_w[0][i - 1]] = root_index_w[i];
-								end
-								else begin
-									temp_root_cnt_w[0][i] = temp_root_cnt_w[0][i - 1];
-								end
-							end
-						end
-						root_cnt_w[0] = temp_root_cnt_w[0][7];
-						if (root_cnt_w[0] == 4) begin
-							state_w = S_OUT_HARD_BUFF;
-							cnt_w = 3;
-						end
-						else begin
-							cnt_w = cnt_r - 1;
-							for (i = 0; i < 8; i = i + 1) begin
-								for (j = 0; j < 5; j = j + 1) begin
-									stage1_buff_w[0][i][j] = delta_poly_w[0][i][j];
-								end
-							end
+						3: begin
 							delta_w[0][0] = delta_r[0][0];
 							delta_w[0][1] = shift_poly_8_10(delta_r[0][1]);
 							delta_w[0][2] = shift_poly_8_10(shift_poly_8_10(delta_r[0][2]));
 							delta_w[0][3] = shift_poly_8_10(shift_poly_8_10(shift_poly_8_10(delta_r[0][3])));
 							delta_w[0][4] = shift_poly_8_10(shift_poly_8_10(shift_poly_8_10(shift_poly_8_10(delta_r[0][4]))));
 						end
-					end
-					default: begin
-					end
-				endcase
-				if (cnt_r == 0) begin
-					state_w = S_OUT_HARD_BUFF;
-					cnt_w = root_cnt_w[0] - 1;
+						default: begin end
+					endcase
 				end
-			end
-			S_CHI_SOFT1: begin
-				case (code_r) // synopsys parallel_case
-					1: begin
-						if (cnt_r == 8) begin
-
-						end
-						else begin
-							temp_root_w[0][0] = stage1_buff_r[0][0][0] ^ stage1_buff_r[0][0][1] ^ stage1_buff_r[0][0][2];
-							if (cnt_r == 7) begin
-
-							end
-							else if (temp_root_w[0][0] == 0) begin
-								temp_root_cnt_w[0][0] = root_cnt_r[0] + 1;
-								root_w[0][root_cnt_r[0]] = root_index_w[0];
-								// temp_root_valid_cnt_w[0][0] = root_valid_cnt_r[0] + 1;
-							end
-							else begin 
-								temp_root_cnt_w[0][0] = root_cnt_r[0];
-								// temp_root_valid_cnt_w[0][0] = root_valid_cnt_r[0];
-							end
-							for (i = 1; i < 8; i = i + 1) begin
-								temp_root_w[0][i] = stage1_buff_r[0][i][0] ^ stage1_buff_r[0][i][1] ^ stage1_buff_r[0][i][2];
-								if (temp_root_w[0][i] == 0) begin
-									temp_root_cnt_w[0][i] = temp_root_cnt_w[0][i - 1] + 1;
-									// temp_root_valid_cnt_w[0][i] = temp_root_valid_cnt_w[0][i - 1] + 1;
-									root_w[0][temp_root_cnt_w[0][i - 1]] = root_index_w[i];
-								end
-								else begin
-									temp_root_cnt_w[0][i] = temp_root_cnt_w[0][i - 1];
-									// temp_root_valid_cnt_w[0][i] = temp_root_valid_cnt_w[0][i - 1];
-								end
-							end
-						end
-						root_cnt_w[0] = temp_root_cnt_w[0][7];
-						// root_valid_cnt_w[0] = temp_root_valid_cnt_w[0][7];
-						cnt_w = cnt_r - 1;
-						for (i = 0; i < 8; i = i + 1) begin
-							for (j = 0; j < 3; j = j + 1) begin
-								stage1_buff_w[0][i][j] = delta_poly_w[0][i][j];
-							end
-						end
-						delta_w[0][0] = delta_r[0][0];
-						delta_w[0][1] = shift_poly_8_6(delta_r[0][1]);
-						delta_w[0][2] = shift_poly_8_6(shift_poly_8_6(delta_r[0][2]));
-					end 
-					
-					2: begin
-						if (cnt_r == 32) begin
-
-						end
-						else begin
-							temp_root_w[0][0] = stage1_buff_r[0][0][0] ^ stage1_buff_r[0][0][1] ^ stage1_buff_r[0][0][2];
-							if (cnt_r == 31) begin
-								
-							end
-							else if (temp_root_w[0][0] == 0) begin
-								temp_root_cnt_w[0][0] = root_cnt_r[0] + 1;
-								// temp_root_valid_cnt_w[0][0] = root_valid_cnt_r[0] + 1;
-								root_w[0][root_cnt_r[0]] = root_index_w[0];
-							end
-							else begin 
-								temp_root_cnt_w[0][0] = root_cnt_r[0];
-								// temp_root_valid_cnt_w[0][0] = root_valid_cnt_r[0];
-							end
-							for (i = 1; i < 8; i = i + 1) begin
-								temp_root_w[0][i] = stage1_buff_r[0][i][0] ^ stage1_buff_r[0][i][1] ^ stage1_buff_r[0][i][2];
-								if (temp_root_w[0][i] == 0) begin
-									temp_root_cnt_w[0][i] = temp_root_cnt_w[0][i - 1] + 1;
-									root_w[0][temp_root_cnt_w[0][i - 1]] = root_index_w[i];
-									// temp_root_valid_cnt_w[0][i] = temp_root_valid_cnt_w[0][i - 1] + 1;
-								end
-								else begin
-									temp_root_cnt_w[0][i] = temp_root_cnt_w[0][i - 1];
-									// temp_root_valid_cnt_w[0][i] = temp_root_valid_cnt_w[0][i - 1];
-								end
-							end
-						end
-						root_cnt_w[0] = temp_root_cnt_w[0][7];
-						// root_valid_cnt_w[0] = temp_root_valid_cnt_w[0][7];
-						cnt_w = cnt_r - 1;
-						for (i = 0; i < 8; i = i + 1) begin
-							for (j = 0; j < 3; j = j + 1) begin
-								stage1_buff_w[0][i][j] = delta_poly_w[0][i][j];
-							end
-						end
-						delta_w[0][0] = delta_r[0][0];
-						delta_w[0][1] = shift_poly_8_8(delta_r[0][1]);
-						delta_w[0][2] = shift_poly_8_8(shift_poly_8_8(delta_r[0][2]));
+				if (cnt_r == 0) begin
+					if (!mode_r) begin
+						state_w = S_OUT_HARD_BUFF;
+						cnt_w = root_cnt_w[0] - 1;
 					end
-					3: begin
-						if (cnt_r == 128) begin
-
+					else begin
+						state_w = S_BER_SOFT2;
+						cnt_w = 0;
+						for(i = 0; i < 8; i = i + 1) begin
+							S_w[0][i] = S_r[0][i] ^ alpha_r[0][i];
+							S_w[1][i] = S_r[0][i] ^ alpha_r[1][i];
+							S_w[2][i] = S_w[0][i] ^ alpha_r[1][i];
 						end
-						else begin
-							temp_root_w[0][0] = stage1_buff_r[0][0][0] ^ stage1_buff_r[0][0][1] ^ stage1_buff_r[0][0][2] ^ stage1_buff_r[0][0][3] ^ stage1_buff_r[0][0][4];
-							if (cnt_r == 127) begin
-								
-							end
-							else if (temp_root_w[0][0] == 0) begin
-								temp_root_cnt_w[0][0] = root_cnt_r[0] + 1;
-								root_w[0][root_cnt_r[0]] = root_index_w[0];
-								// temp_root_valid_cnt_w[0][0] = root_valid_cnt_r[0] + 1;
-							end
-							else begin 
-								temp_root_cnt_w[0][0] = root_cnt_r[0];
-								// temp_root_valid_cnt_w[0][0] = root_valid_cnt_r[0];
-							end
-							for (i = 1; i < 8; i = i + 1) begin
-								temp_root_w[0][i] = stage1_buff_r[0][i][0] ^ stage1_buff_r[0][i][1] ^ stage1_buff_r[0][i][2] ^ stage1_buff_r[0][i][3] ^ stage1_buff_r[0][i][4];
-								if (temp_root_w[0][i] == 0) begin
-									temp_root_cnt_w[0][i] = temp_root_cnt_w[0][i - 1] + 1;
-									root_w[0][temp_root_cnt_w[0][i - 1]] = root_index_w[i];
-									// temp_root_valid_cnt_w[0][i] = temp_root_valid_cnt_w[0][i - 1] + 1;
-								end
-								else begin
-									temp_root_cnt_w[0][i] = temp_root_cnt_w[0][i - 1];
-									// temp_root_valid_cnt_w[0][i] = temp_root_valid_cnt_w[0][i - 1];
-								end
-							end
-						end
-						root_cnt_w[0] = temp_root_cnt_w[0][7];
-						// root_valid_cnt_w[0] = temp_root_valid_cnt_w[0][7];
-						cnt_w = cnt_r - 1;
 						for (i = 0; i < 8; i = i + 1) begin
 							for (j = 0; j < 5; j = j + 1) begin
-								stage1_buff_w[0][i][j] = delta_poly_w[0][i][j];
+								stage1_buff_w[0][i][j] = 0;
 							end
 						end
-						delta_w[0][0] = delta_r[0][0];
-						delta_w[0][1] = shift_poly_8_10(delta_r[0][1]);
-						delta_w[0][2] = shift_poly_8_10(shift_poly_8_10(delta_r[0][2]));
-						delta_w[0][3] = shift_poly_8_10(shift_poly_8_10(shift_poly_8_10(delta_r[0][3])));
-						delta_w[0][4] = shift_poly_8_10(shift_poly_8_10(shift_poly_8_10(shift_poly_8_10(delta_r[0][4]))));
-
-					end
-					default: begin
-					end
-				endcase
-				if (cnt_r == 0) begin
-					state_w = S_BER_SOFT2;
-					cnt_w = 0;
-					for(i = 0; i < 8; i = i + 1) begin
-						S_w[0][i] = S_r[0][i] ^ alpha_r[0][i];
-						S_w[1][i] = S_r[0][i] ^ alpha_r[1][i];
-						S_w[2][i] = S_w[0][i] ^ alpha_r[1][i];
-					end
-					for (i = 0; i < 8; i = i + 1) begin
-						for (j = 0; j < 5; j = j + 1) begin
-							stage1_buff_w[0][i][j] = 0;
-						end
-					end
-					for (i = 0; i < 3; i = i + 1) begin
-						delta_w[i][0] = 1;
-						delta_rho_w[i][0] = 1;
-						rho_w[i] = -1;
-						l_rho_w[i] = 0;
-						l_w[i] = 0;
-						d_rho_w[i] = 1;
-						d_w[i] = S_w[i][0];
-						for (j = 1; j < 5; j = j + 1) begin
-							delta_w[i][j] = 0;
-							delta_rho_w[i][j] = 0;
+						for (i = 0; i < 3; i = i + 1) begin
+							delta_w[i][0] = 1;
+							delta_rho_w[i][0] = 1;
+							rho_w[i] = -1;
+							l_rho_w[i] = 0;
+							l_w[i] = 0;
+							d_rho_w[i] = 1;
+							d_w[i] = S_w[i][0];
+							for (j = 1; j < 5; j = j + 1) begin
+								delta_w[i][j] = 0;
+								delta_rho_w[i][j] = 0;
+							end
 						end
 					end
 				end
 			end
+			// S_CHI_SOFT1: begin
+			// 	if (cnt_r == chien_cnt_max_w) begin
+
+			// 	end
+			// 	else begin
+			// 		temp_root_w[0][0] = (code_r != 3) ? stage1_buff_r[0][0][0] ^ stage1_buff_r[0][0][1] ^ stage1_buff_r[0][0][2] : stage1_buff_r[0][0][0] ^ stage1_buff_r[0][0][1] ^ stage1_buff_r[0][0][2] ^ stage1_buff_r[0][0][3] ^ stage1_buff_r[0][0][4];
+			// 		if (cnt_r == chien_cnt_max_w - 1) begin
+
+			// 		end
+			// 		else if (temp_root_w[0][0] == 0) begin
+			// 			temp_root_cnt_w[0][0] = root_cnt_r[0] + 1;
+			// 			root_w[0][root_cnt_r[0]] = root_index_w[0];
+			// 		end
+			// 		else begin 
+			// 			temp_root_cnt_w[0][0] = root_cnt_r[0];
+			// 		end
+			// 		for (i = 1; i < 8; i = i + 1) begin
+			// 			temp_root_w[0][i] = (code_r != 3) ? stage1_buff_r[0][i][0] ^ stage1_buff_r[0][i][1] ^ stage1_buff_r[0][i][2] : stage1_buff_r[0][i][0] ^ stage1_buff_r[0][i][1] ^ stage1_buff_r[0][i][2] ^ stage1_buff_r[0][i][3] ^ stage1_buff_r[0][i][4];
+			// 			if (temp_root_w[0][i] == 0) begin
+			// 				temp_root_cnt_w[0][i] = temp_root_cnt_w[0][i - 1] + 1;
+			// 				root_w[0][temp_root_cnt_w[0][i - 1]] = root_index_w[i];
+			// 			end
+			// 			else begin
+			// 				temp_root_cnt_w[0][i] = temp_root_cnt_w[0][i - 1];
+			// 			end
+			// 		end
+			// 	end
+			// 	root_cnt_w[0] = temp_root_cnt_w[0][7];
+			// 	cnt_w = cnt_r - 1;
+			// 	for (i = 0; i < 8; i = i + 1) begin
+			// 		for (j = 0; j < 5; j = j + 1) begin
+			// 			stage1_buff_w[0][i][j] = delta_poly_w[0][i][j];
+			// 		end
+			// 	end
+			// 	case (code_r)
+			// 		1: begin
+			// 			delta_w[0][0] = delta_r[0][0];
+			// 			delta_w[0][1] = shift_poly_8_6(delta_r[0][1]);
+			// 			delta_w[0][2] = shift_poly_8_6(shift_poly_8_6(delta_r[0][2]));
+			// 		end 
+			// 		2: begin
+			// 			delta_w[0][0] = delta_r[0][0];
+			// 			delta_w[0][1] = shift_poly_8_8(delta_r[0][1]);
+			// 			delta_w[0][2] = shift_poly_8_8(shift_poly_8_8(delta_r[0][2]));
+			// 		end
+			// 		3: begin
+			// 			delta_w[0][0] = delta_r[0][0];
+			// 			delta_w[0][1] = shift_poly_8_10(delta_r[0][1]);
+			// 			delta_w[0][2] = shift_poly_8_10(shift_poly_8_10(delta_r[0][2]));
+			// 			delta_w[0][3] = shift_poly_8_10(shift_poly_8_10(shift_poly_8_10(delta_r[0][3])));
+			// 			delta_w[0][4] = shift_poly_8_10(shift_poly_8_10(shift_poly_8_10(shift_poly_8_10(delta_r[0][4]))));
+			// 		end
+			// 		default: begin end
+			// 	endcase
+			// 	if (cnt_r == 0) begin
+			// 		state_w = S_BER_SOFT2;
+			// 		cnt_w = 0;
+			// 		for(i = 0; i < 8; i = i + 1) begin
+			// 			S_w[0][i] = S_r[0][i] ^ alpha_r[0][i];
+			// 			S_w[1][i] = S_r[0][i] ^ alpha_r[1][i];
+			// 			S_w[2][i] = S_w[0][i] ^ alpha_r[1][i];
+			// 		end
+			// 		for (i = 0; i < 8; i = i + 1) begin
+			// 			for (j = 0; j < 5; j = j + 1) begin
+			// 				stage1_buff_w[0][i][j] = 0;
+			// 			end
+			// 		end
+			// 		for (i = 0; i < 3; i = i + 1) begin
+			// 			delta_w[i][0] = 1;
+			// 			delta_rho_w[i][0] = 1;
+			// 			rho_w[i] = -1;
+			// 			l_rho_w[i] = 0;
+			// 			l_w[i] = 0;
+			// 			d_rho_w[i] = 1;
+			// 			d_w[i] = S_w[i][0];
+			// 			for (j = 1; j < 5; j = j + 1) begin
+			// 				delta_w[i][j] = 0;
+			// 				delta_rho_w[i][j] = 0;
+			// 			end
+			// 		end
+			// 	end
+			// end
 			S_CHI_SOFT2: begin
 				for (l = 0; l < 3; l = l + 1) begin
-					case (code_r) // synopsys parallel_case
-						1: begin
-							if (cnt_r == 8) begin
+					if (cnt_r == chien_cnt_max_w) begin
 
+					end
+					else begin
+						temp_root_w[l][0] = (code_r != 3) ? stage1_buff_r[l][0][0] ^ stage1_buff_r[l][0][1] ^ stage1_buff_r[l][0][2] : stage1_buff_r[l][0][0] ^ stage1_buff_r[l][0][1] ^ stage1_buff_r[l][0][2] ^ stage1_buff_r[l][0][3] ^ stage1_buff_r[l][0][4];
+						if (cnt_r == chien_cnt_max_w - 1) begin
+
+						end
+						else if (temp_root_w[l][0] == 0) begin
+							temp_root_cnt_w[l][0] = root_cnt_r[l + 1] + 1;
+							root_w[l + 1][root_cnt_r[l + 1]] = root_index_w[0];
+						end
+						else begin
+							temp_root_cnt_w[l][0] = root_cnt_r[l + 1];
+						end 
+						for (i = 1; i < 8; i = i + 1) begin
+							temp_root_w[l][i] = (code_r != 3) ? stage1_buff_r[l][i][0] ^ stage1_buff_r[l][i][1] ^ stage1_buff_r[l][i][2] : stage1_buff_r[l][i][0] ^ stage1_buff_r[l][i][1] ^ stage1_buff_r[l][i][2] ^ stage1_buff_r[l][i][3] ^ stage1_buff_r[l][i][4];
+							if (temp_root_w[l][i] == 0) begin
+								temp_root_cnt_w[l][i] = temp_root_cnt_w[l][i - 1] + 1;
+								root_w[l + 1][temp_root_cnt_w[l][i - 1]] = root_index_w[i];
 							end
 							else begin
-								temp_root_w[l][0] = stage1_buff_r[l][0][0] ^ stage1_buff_r[l][0][1] ^ stage1_buff_r[l][0][2];
-								if (cnt_r == 7) begin
-
-								end
-								else if (temp_root_w[l][0] == 0) begin
-									temp_root_cnt_w[l][0] = root_cnt_r[l + 1] + 1;
-									root_w[l + 1][root_cnt_r[l + 1]] = root_index_w[0];
-									// case (l[1:0]) // synopsys parallel_case
-									// 	2'd0: begin
-									// 		if (root_index_w[0] != index1_r) begin
-									// 			root_w[1][root_valid_cnt_r[1]] = root_index_w[0];
-									// 			temp_root_valid_cnt_w[0][0] = root_valid_cnt_r[1] + 1;
-									// 		end
-									// 		else begin
-									// 			index1_invalid_w[1] = 1;
-									// 			temp_root_valid_cnt_w[0][0] = root_valid_cnt_r[1];
-									// 		end
-									// 	end
-									// 	2'd1: begin
-									// 		if (root_index_w[0] != index2_r) begin
-									// 			root_w[2][root_valid_cnt_r[2]] = root_index_w[0];
-									// 			temp_root_valid_cnt_w[1][0] = root_valid_cnt_r[2] + 1;
-									// 		end
-									// 		else begin
-									// 			index2_invalid_w[2] = 1;
-									// 			temp_root_valid_cnt_w[1][0] = root_valid_cnt_r[2];
-									// 		end
-									// 	end
-									// 	2'd2: begin
-									// 		if (root_index_w[0] != index1_r && root_index_w[0] != index2_r) begin
-									// 			root_w[3][root_valid_cnt_r[3]] = root_index_w[0];
-									// 			temp_root_valid_cnt_w[2][0] = root_valid_cnt_r[3] + 1;
-									// 		end
-									// 		else begin
-									// 			if (root_index_w[0] == index1_r) begin 
-									// 				index1_invalid_w[3] = 1;
-									// 			end
-									// 			else if (root_index_w[0] == index2_r) begin 
-									// 				index2_invalid_w[3] = 1;
-									// 			end
-									// 			temp_root_valid_cnt_w[2][0] = root_valid_cnt_r[3];
-									// 		end
-									// 	end
-									// 	default: begin
-											
-									// 	end
-									// endcase
-								end
-								else begin
-									temp_root_cnt_w[l][0] = root_cnt_r[l + 1];
-									// temp_root_valid_cnt_w[l][0] = root_valid_cnt_r[l + 1];
-								end 
-								for (i = 1; i < 8; i = i + 1) begin
-									temp_root_w[l][i] = stage1_buff_r[l][i][0] ^ stage1_buff_r[l][i][1] ^ stage1_buff_r[l][i][2];
-									if (temp_root_w[l][i] == 0) begin
-										temp_root_cnt_w[l][i] = temp_root_cnt_w[l][i - 1] + 1;
-										root_w[l + 1][temp_root_cnt_w[l][i - 1]] = root_index_w[i];
-										// case (l[1:0]) // synopsys parallel_case
-										// 	2'd0: begin
-										// 		if (root_index_w[i] != index1_r) begin
-										// 			root_w[1][temp_root_valid_cnt_w[0][i - 1]] = root_index_w[i];
-										// 			temp_root_valid_cnt_w[0][i] = temp_root_valid_cnt_w[0][i - 1] + 1;
-										// 		end
-										// 		else begin
-										// 			index1_invalid_w[1] = 1;
-										// 			temp_root_valid_cnt_w[0][i] = temp_root_valid_cnt_w[0][i - 1];
-										// 		end
-										// 	end
-										// 	2'd1: begin
-										// 		if (root_index_w[i] != index2_r) begin
-										// 			root_w[2][temp_root_valid_cnt_w[1][i - 1]] = root_index_w[i];
-										// 			temp_root_valid_cnt_w[1][i] = temp_root_valid_cnt_w[1][i - 1] + 1;
-										// 		end
-										// 		else begin
-										// 			index2_invalid_w[2] = 1;
-										// 			temp_root_valid_cnt_w[1][i] = temp_root_valid_cnt_w[1][i - 1];
-										// 		end
-										// 	end
-										// 	2'd2: begin
-										// 		if ((root_index_w[i] != index1_r) && (root_index_w[i] != index2_r)) begin
-										// 			root_w[l + 1][temp_root_valid_cnt_w[l][i - 1]] = root_index_w[i];
-										// 			temp_root_valid_cnt_w[l][i] = temp_root_valid_cnt_w[l][i - 1] + 1;
-										// 		end
-										// 		else begin
-										// 			if (root_index_w[i] == index1_r) begin 
-										// 				index1_invalid_w[l + 1] = 1;
-										// 			end
-										// 			else if (root_index_w[i] == index2_r) begin 
-										// 				index2_invalid_w[l + 1] = 1;
-										// 			end
-										// 			temp_root_valid_cnt_w[l][i] = temp_root_valid_cnt_w[l][i - 1];
-										// 		end
-										// 	end
-										// 	default: begin
-												
-										// 	end
-										// endcase
-									end
-									else begin
-										temp_root_cnt_w[l][i] = temp_root_cnt_w[l][i - 1];
-										// temp_root_valid_cnt_w[l][i] = temp_root_valid_cnt_w[l][i - 1];
-									end
-								end
+								temp_root_cnt_w[l][i] = temp_root_cnt_w[l][i - 1];
 							end
-							root_cnt_w[l + 1] = temp_root_cnt_w[l][7];
-							// root_valid_cnt_w[l + 1] = temp_root_valid_cnt_w[l][7];
-							cnt_w = cnt_r - 1;
-							for (i = 0; i < 8; i = i + 1) begin
-								for (j = 0; j < 5; j = j + 1) begin
-									stage1_buff_w[l][i][j] = delta_poly_w[l][i][j];
-								end
-							end
+						end
+					end
+					root_cnt_w[l + 1] = temp_root_cnt_w[l][7];
+					cnt_w = cnt_r - 1;
+					for (i = 0; i < 8; i = i + 1) begin
+						for (j = 0; j < 5; j = j + 1) begin
+							stage1_buff_w[l][i][j] = delta_poly_w[l][i][j];
+						end
+					end
+					case (code_r)
+						1: begin
 							delta_w[l][0] = delta_r[l][0];
 							delta_w[l][1] = shift_poly_8_6(delta_r[l][1]);
 							delta_w[l][2] = shift_poly_8_6(shift_poly_8_6(delta_r[l][2]));
-						end 
-						
+						end
 						2: begin
-							if (cnt_r == 32) begin
-
-							end
-							else begin
-								temp_root_w[l][0] = stage1_buff_r[l][0][0] ^ stage1_buff_r[l][0][1] ^ stage1_buff_r[l][0][2];
-								if (cnt_r == 31) begin
-
-								end
-								else if (temp_root_w[l][0] == 0) begin
-									temp_root_cnt_w[l][0] = root_cnt_r[l + 1] + 1;
-									root_w[l + 1][root_cnt_r[l + 1]] = root_index_w[0];
-									// case (l[1:0]) // synopsys parallel_case
-									// 	2'd0: begin
-									// 		if (root_index_w[0] != index1_r) begin
-									// 			root_w[1][root_valid_cnt_r[1]] = root_index_w[0];
-									// 			temp_root_valid_cnt_w[0][0] = root_valid_cnt_r[1] + 1;
-									// 		end
-									// 		else begin
-									// 			index1_invalid_w[l + 1] = 1;
-									// 			temp_root_valid_cnt_w[l][0] = root_valid_cnt_r[l + 1];
-									// 		end
-									// 	end
-									// 	2'd1: begin
-									// 		if (root_index_w[0] != index2_r) begin
-									// 			root_w[l + 1][root_valid_cnt_r[l + 1]] = root_index_w[0];
-									// 			temp_root_valid_cnt_w[l][0] = root_valid_cnt_r[l + 1] + 1;
-									// 		end
-									// 		else begin
-									// 			index2_invalid_w[l + 1] = 1;
-									// 			temp_root_valid_cnt_w[l][0] = root_valid_cnt_r[l + 1];
-									// 		end
-									// 	end
-									// 	2'd2: begin
-									// 		if (root_index_w[0] != index1_r && root_index_w[0] != index2_r) begin
-									// 			root_w[l + 1][root_valid_cnt_r[l + 1]] = root_index_w[0];
-									// 			temp_root_valid_cnt_w[l][0] = root_valid_cnt_r[l + 1] + 1;
-									// 		end
-									// 		else begin
-									// 			if (root_index_w[0] == index1_r) begin 
-									// 				index1_invalid_w[l + 1] = 1;
-									// 			end
-									// 			else if (root_index_w[0] == index2_r) begin 
-									// 				index2_invalid_w[l + 1] = 1;
-									// 			end
-									// 			temp_root_valid_cnt_w[l][0] = root_valid_cnt_r[l + 1];
-									// 		end
-									// 	end
-									// 	default: begin
-											
-									// 	end
-									// endcase
-								end
-								else begin
-									temp_root_cnt_w[l][0] = root_cnt_r[l + 1];
-									// temp_root_valid_cnt_w[l][0] = root_valid_cnt_r[l + 1];
-								end 
-								for (i = 1; i < 8; i = i + 1) begin
-									temp_root_w[l][i] = stage1_buff_r[l][i][0] ^ stage1_buff_r[l][i][1] ^ stage1_buff_r[l][i][2];
-									if (temp_root_w[l][i] == 0) begin
-										temp_root_cnt_w[l][i] = temp_root_cnt_w[l][i - 1] + 1;
-										root_w[l + 1][temp_root_cnt_w[l][i - 1]] = root_index_w[i];
-										// case (l[1:0]) // synopsys parallel_case)
-										// 	2'd0: begin
-										// 		if (root_index_w[i] != index1_r) begin
-										// 			root_w[l + 1][temp_root_valid_cnt_w[l][i - 1]] = root_index_w[i];
-										// 			temp_root_valid_cnt_w[l][i] = temp_root_valid_cnt_w[l][i - 1] + 1;
-										// 		end
-										// 		else begin
-										// 			index1_invalid_w[l + 1] = 1;
-										// 			temp_root_valid_cnt_w[l][i] = temp_root_valid_cnt_w[l][i - 1];
-										// 		end
-										// 	end
-										// 	2'd1: begin
-										// 		if (root_index_w[i] != index2_r) begin
-										// 			root_w[l + 1][temp_root_valid_cnt_w[l][i - 1]] = root_index_w[i];
-										// 			temp_root_valid_cnt_w[l][i] = temp_root_valid_cnt_w[l][i - 1] + 1;
-										// 		end
-										// 		else begin
-										// 			index2_invalid_w[l + 1] = 1;
-										// 			temp_root_valid_cnt_w[l][i] = temp_root_valid_cnt_w[l][i - 1];
-										// 		end
-										// 	end
-										// 	2'd2: begin
-										// 		if ((root_index_w[i] != index1_r) && (root_index_w[i] != index2_r)) begin
-										// 			root_w[l + 1][temp_root_valid_cnt_w[l][i - 1]] = root_index_w[i];
-										// 			temp_root_valid_cnt_w[l][i] = temp_root_valid_cnt_w[l][i - 1] + 1;
-										// 		end
-										// 		else begin
-										// 			if (root_index_w[i] == index1_r) begin 
-										// 				index1_invalid_w[l + 1] = 1;
-										// 			end
-										// 			else if (root_index_w[i] == index2_r) begin 
-										// 				index2_invalid_w[l + 1] = 1;
-										// 			end
-										// 			temp_root_valid_cnt_w[l][i] = temp_root_valid_cnt_w[l][i - 1];
-										// 		end
-										// 	end
-										// 	default: begin
-												
-										// 	end
-										// endcase
-									end
-									else begin
-										temp_root_cnt_w[l][i] = temp_root_cnt_w[l][i - 1];
-										// temp_root_valid_cnt_w[l][i] = temp_root_valid_cnt_w[l][i - 1];
-									end
-								end
-							end
-							root_cnt_w[l + 1] = temp_root_cnt_w[l][7];
-							// root_valid_cnt_w[l + 1] = temp_root_valid_cnt_w[l][7];
-							cnt_w = cnt_r - 1;
-							for (i = 0; i < 8; i = i + 1) begin
-								for (j = 0; j < 5; j = j + 1) begin
-									stage1_buff_w[l][i][j] = delta_poly_w[l][i][j];
-								end
-							end
 							delta_w[l][0] = delta_r[l][0];
 							delta_w[l][1] = shift_poly_8_8(delta_r[l][1]);
 							delta_w[l][2] = shift_poly_8_8(shift_poly_8_8(delta_r[l][2]));
-						end 
+						end
 						3: begin
-							if (cnt_r == 128) begin
-
-							end
-							else begin
-								temp_root_w[l][0] = stage1_buff_r[l][0][0] ^ stage1_buff_r[l][0][1] ^ stage1_buff_r[l][0][2] ^ stage1_buff_r[l][0][3] ^ stage1_buff_r[l][0][4];
-								if (cnt_r == 127) begin
-
-								end
-								else if (temp_root_w[l][0] == 0) begin
-									temp_root_cnt_w[l][0] = root_cnt_r[l + 1] + 1;
-									root_w[l + 1][root_cnt_r[l + 1]] = root_index_w[0];
-									// case (l[1:0]) // synopsys parallel_case
-									// 	2'd0: begin
-									// 		if (root_index_w[0] != index1_r) begin
-									// 			root_w[l + 1][root_valid_cnt_r[l + 1]] = (cnt_r << 3) + 7'd7;
-									// 			temp_root_valid_cnt_w[l][0] = root_valid_cnt_r[l + 1] + 1;
-									// 		end
-									// 		else begin
-									// 			index1_invalid_w[l + 1] = 1;
-									// 			temp_root_valid_cnt_w[l][0] = root_valid_cnt_r[l + 1];
-									// 		end
-									// 	end
-									// 	2'd1: begin
-									// 		if (root_index_w[0] != index2_r) begin
-									// 			root_w[l + 1][root_valid_cnt_r[l + 1]] = root_index_w[0];
-									// 			temp_root_valid_cnt_w[l][0] = root_valid_cnt_r[l + 1] + 1;
-									// 		end
-									// 		else begin
-									// 			index2_invalid_w[l + 1] = 1;
-									// 			temp_root_valid_cnt_w[l][0] = root_valid_cnt_r[l + 1];
-									// 		end
-									// 	end
-									// 	2'd2: begin
-									// 		if (root_index_w[0] != index1_r && root_index_w[0] != index2_r) begin
-									// 			root_w[l + 1][root_valid_cnt_r[l + 1]] = root_index_w[0];
-									// 			temp_root_valid_cnt_w[l][0] = root_valid_cnt_r[l + 1] + 1;
-									// 		end
-									// 		else begin
-									// 			if (root_index_w[0] == index1_r) begin 
-									// 				index1_invalid_w[l + 1] = 1;
-									// 			end
-									// 			else if (root_index_w[0] == index2_r) begin 
-									// 				index2_invalid_w[l + 1] = 1;
-									// 			end
-									// 			temp_root_valid_cnt_w[l][0] = root_valid_cnt_r[l + 1];
-									// 		end
-									// 	end 
-									// 	default: begin
-											
-									// 	end
-									// endcase
-								end
-								else begin
-									temp_root_cnt_w[l][0] = root_cnt_r[l + 1];
-									// temp_root_valid_cnt_w[l][0] = root_valid_cnt_r[l + 1];
-								end 
-								for (i = 1; i < 8; i = i + 1) begin
-									temp_root_w[l][i] = stage1_buff_r[l][i][0] ^ stage1_buff_r[l][i][1] ^ stage1_buff_r[l][i][2] ^ stage1_buff_r[l][i][3] ^ stage1_buff_r[l][i][4];
-									if (temp_root_w[l][i] == 0) begin
-										temp_root_cnt_w[l][i] = temp_root_cnt_w[l][i - 1] + 1;
-										root_w[l + 1][temp_root_cnt_w[l][i - 1]] = root_index_w[i];
-									// 	case (l[1:0]) // synopsys parallel_case
-									// 		2'd0: begin
-									// 			if (root_index_w[i] != index1_r) begin
-									// 				root_w[l + 1][temp_root_valid_cnt_w[l][i - 1]] = root_index_w[i];
-									// 				temp_root_valid_cnt_w[l][i] = temp_root_valid_cnt_w[l][i - 1] + 1;
-									// 			end
-									// 			else begin
-									// 				index1_invalid_w[l + 1] = 1;
-									// 				temp_root_valid_cnt_w[l][i] = temp_root_valid_cnt_w[l][i - 1];
-									// 			end
-									// 		end
-									// 		2'd1: begin
-									// 			if (root_index_w[i] != index2_r) begin
-									// 				root_w[l + 1][temp_root_valid_cnt_w[l][i - 1]] = root_index_w[i];
-									// 				temp_root_valid_cnt_w[l][i] = temp_root_valid_cnt_w[l][i - 1] + 1;
-									// 			end
-									// 			else begin
-									// 				index2_invalid_w[l + 1] = 1;
-									// 				temp_root_valid_cnt_w[l][i] = temp_root_valid_cnt_w[l][i - 1];
-									// 			end
-									// 		end
-									// 		2'd2: begin
-									// 			if ((root_index_w[i] != index1_r) && (root_index_w[i] != index2_r)) begin
-									// 				root_w[l + 1][temp_root_valid_cnt_w[l][i - 1]] = (cnt_r << 3) + 7'd7 - i[6:0];
-									// 				temp_root_valid_cnt_w[l][i] = temp_root_valid_cnt_w[l][i - 1] + 1;
-									// 			end
-									// 			else begin
-									// 				if (root_index_w[i] == index1_r) begin 
-									// 					index1_invalid_w[l + 1] = 1;
-									// 				end
-									// 				else if (root_index_w[i] == index2_r) begin 
-									// 					index2_invalid_w[l + 1] = 1;
-									// 				end
-									// 				temp_root_valid_cnt_w[l][i] = temp_root_valid_cnt_w[l][i - 1];
-									// 			end
-									// 		end 
-									// 		default: begin
-												
-									// 		end
-									// 	endcase
-									end
-									else begin
-										temp_root_cnt_w[l][i] = temp_root_cnt_w[l][i - 1];
-										// temp_root_valid_cnt_w[l][i] = temp_root_valid_cnt_w[l][i - 1];
-									end
-								end
-							end
-							root_cnt_w[l + 1] = temp_root_cnt_w[l][7];
-							// root_valid_cnt_w[l + 1] = temp_root_valid_cnt_w[l][7];
-							cnt_w = cnt_r - 1;
-							for (i = 0; i < 8; i = i + 1) begin
-								for (j = 0; j < 5; j = j + 1) begin
-									stage1_buff_w[l][i][j] = delta_poly_w[l][i][j];
-								end
-							end
 							delta_w[l][0] = delta_r[l][0];
 							delta_w[l][1] = shift_poly_8_10(delta_r[l][1]);
 							delta_w[l][2] = shift_poly_8_10(shift_poly_8_10(delta_r[l][2]));
 							delta_w[l][3] = shift_poly_8_10(shift_poly_8_10(shift_poly_8_10(delta_r[l][3])));
 							delta_w[l][4] = shift_poly_8_10(shift_poly_8_10(shift_poly_8_10(shift_poly_8_10(delta_r[l][4]))));
-						end 
-						default: begin
 						end
+						default: begin end
 					endcase
-				end
+					
+				end 
 				if (cnt_r == 0) begin
 					state_w = S_CORR_1;
 					cnt_w = 0;
@@ -1600,23 +884,8 @@ module bch(
 					state_w = state_r;
 					cnt_w = cnt_r + 1;
 				end
-				// for (i = 0; i < 4; i = i + 1) begin
-				// 	if (cnt_r < root_valid_cnt_r[i]) corr_w[i] = corr_r[i] + data_r[root_r[i][cnt_r[2:0]]];
-				// 	else corr_w[i] = corr_r[i];
-				// end
-				// cnt_w = cnt_r + 1;
-				// state_w = ((cnt_r == 3 && code_r == 3) || (cnt_r == 1 && code_r != 3)) ? state_r : S_CORR_2;
 			end
 			S_CORR_2: begin
-				// corr_w[0] = corr_r[0];
-				// if (!index1_invalid_r[1]) corr_w[1] = corr_r[1] + min1_r;
-				// else corr_w[1] = corr_r[1];
-				// if (!index2_invalid_r[2]) corr_w[2] = corr_r[2] + min2_r;
-				// else corr_w[2] = corr_r[2];
-				// if (!index1_invalid_r[3] && !index2_invalid_r[3]) corr_w[3] = corr_r[3] + min1_r + min2_r;
-				// else if (!index1_invalid_r[3] && index2_invalid_r[3]) corr_w[3] = corr_r[3] + min1_r;
-				// else if (index1_invalid_r[3] && !index2_invalid_r[3]) corr_w[3] = corr_r[3] + min2_r;
-				// else corr_w[3] = corr_r[3];
 				for (i = 0; i < 4; i = i + 1) begin
 					if (root_cnt_r[i] < power_r[i]) begin // decode failure
 						corr_w[i] = 10'd1023;
@@ -1884,7 +1153,6 @@ module bch(
 					for (i = 0; i < 4; i = i + 1) begin
 						power_w[i] = 0;
 						root_cnt_w[i] = 0;
-						root_valid_cnt_w[i] = 0;
 						corr_w[i] = 0;
 						index1_invalid_w[i] = 0;
 						index2_invalid_w[i] = 0;
@@ -2439,7 +1707,6 @@ module bch(
 				power_r[i] <= 0;
 				corr_r[i] <= 0;
 				root_cnt_r[i] <= 0;
-				root_valid_cnt_r[i] <= 0;
 				index1_invalid_r[i] <= 0;
 				index2_invalid_r[i] <= 0;
 				for (j = 0; j < 4; j = j + 1) begin
@@ -2541,7 +1808,6 @@ module bch(
 			for (i = 0; i < 4; i = i + 1) begin
 				power_r[i] <= power_w[i];
 				corr_r[i] <= corr_w[i];
-				root_valid_cnt_r[i] <= root_valid_cnt_w[i];
 				root_cnt_r[i] <= root_cnt_w[i];
 				index1_invalid_r[i] <= index1_invalid_w[i];
 				index2_invalid_r[i] <= index2_invalid_w[i];
@@ -2704,6 +1970,318 @@ module bch(
 		end
 	endfunction
 
+	function automatic [10:0] shift_poly_9_6;
+		input [9:0] i_poly;
+		begin
+			shift_poly_9_6[0] = i_poly[3] ^ i_poly[2];
+			shift_poly_9_6[1] = i_poly[4] ^ i_poly[2];
+			shift_poly_9_6[2] = i_poly[5] ^ i_poly[3];
+			shift_poly_9_6[3] = i_poly[0] ^ i_poly[4];
+			shift_poly_9_6[4] = i_poly[1] ^ i_poly[0] ^ i_poly[5];
+			shift_poly_9_6[5] = i_poly[2] ^ i_poly[1];
+			shift_poly_9_6[10:6] = 5'd0;
+		end
+	endfunction
+
+	function automatic [10:0] shift_poly_10_6;
+		input [9:0] i_poly;
+		begin
+			shift_poly_10_6[0] = i_poly[2] ^ i_poly[1];
+			shift_poly_10_6[1] = i_poly[3] ^ i_poly[1];
+			shift_poly_10_6[2] = i_poly[4] ^ i_poly[2];
+			shift_poly_10_6[3] = i_poly[5] ^ i_poly[3];
+			shift_poly_10_6[4] = i_poly[0] ^ i_poly[4];
+			shift_poly_10_6[5] = i_poly[1] ^ i_poly[0] ^ i_poly[5];
+			shift_poly_10_6[10:6] = 5'd0;
+		end
+	endfunction
+
+	function automatic [10:0] shift_poly_11_6;
+		input [9:0] i_poly;
+		begin
+			shift_poly_11_6[0] = i_poly[1] ^ i_poly[0] ^ i_poly[5];
+			shift_poly_11_6[1] = i_poly[2] ^ i_poly[0] ^ i_poly[5];
+			shift_poly_11_6[2] = i_poly[3] ^ i_poly[1];
+			shift_poly_11_6[3] = i_poly[4] ^ i_poly[2];
+			shift_poly_11_6[4] = i_poly[5] ^ i_poly[3];
+			shift_poly_11_6[5] = i_poly[0] ^ i_poly[4];
+			shift_poly_11_6[10:6] = 5'd0;
+		end
+	endfunction
+
+	function automatic [10:0] shift_poly_12_6;
+		input [9:0] i_poly;
+		begin
+			shift_poly_12_6[0] = i_poly[0] ^ i_poly[4];
+			shift_poly_12_6[1] = i_poly[1] ^ i_poly[4] ^ i_poly[5];
+			shift_poly_12_6[2] = i_poly[2] ^ i_poly[0] ^ i_poly[5];
+			shift_poly_12_6[3] = i_poly[3] ^ i_poly[1];
+			shift_poly_12_6[4] = i_poly[4] ^ i_poly[2];
+			shift_poly_12_6[5] = i_poly[5] ^ i_poly[3];
+			shift_poly_12_6[10:6] = 5'd0;
+		end
+	endfunction
+
+	function automatic [10:0] shift_poly_13_6;
+		input [9:0] i_poly;
+		begin
+			shift_poly_13_6[0] = i_poly[5] ^ i_poly[3];
+			shift_poly_13_6[1] = i_poly[0] ^ i_poly[4] ^ i_poly[5] ^ i_poly[3];
+			shift_poly_13_6[2] = i_poly[1] ^ i_poly[4] ^ i_poly[5];
+			shift_poly_13_6[3] = i_poly[2] ^ i_poly[0] ^ i_poly[5];
+			shift_poly_13_6[4] = i_poly[3] ^ i_poly[1];
+			shift_poly_13_6[5] = i_poly[4] ^ i_poly[2];
+			shift_poly_13_6[10:6] = 5'd0;
+		end
+	endfunction
+
+	function automatic [10:0] shift_poly_14_6;
+		input [9:0] i_poly;
+		begin
+			shift_poly_14_6[0] = i_poly[4] ^ i_poly[2];
+			shift_poly_14_6[1] = i_poly[5] ^ i_poly[3] ^ i_poly[4] ^ i_poly[2];
+			shift_poly_14_6[2] = i_poly[0] ^ i_poly[4] ^ i_poly[5] ^ i_poly[3];
+			shift_poly_14_6[3] = i_poly[1] ^ i_poly[4] ^ i_poly[5];
+			shift_poly_14_6[4] = i_poly[2] ^ i_poly[0] ^ i_poly[5];
+			shift_poly_14_6[5] = i_poly[3] ^ i_poly[1];
+			shift_poly_14_6[10:6] = 5'd0;
+		end
+	endfunction
+
+	function automatic [10:0] shift_poly_15_6;
+		input [9:0] i_poly;
+		begin
+			shift_poly_15_6[0] = i_poly[3] ^ i_poly[1];
+			shift_poly_15_6[1] = i_poly[4] ^ i_poly[2] ^ i_poly[3] ^ i_poly[1];
+			shift_poly_15_6[2] = i_poly[5] ^ i_poly[3] ^ i_poly[4] ^ i_poly[2];
+			shift_poly_15_6[3] = i_poly[0] ^ i_poly[4] ^ i_poly[5] ^ i_poly[3];
+			shift_poly_15_6[4] = i_poly[1] ^ i_poly[4] ^ i_poly[5];
+			shift_poly_15_6[5] = i_poly[2] ^ i_poly[0] ^ i_poly[5];
+			shift_poly_15_6[10:6] = 5'd0;
+		end
+	endfunction
+
+	function automatic [10:0] shift_poly_16_6;
+		input [9:0] i_poly;
+		begin
+			shift_poly_16_6[0] = i_poly[2] ^ i_poly[0] ^ i_poly[5];
+			shift_poly_16_6[1] = i_poly[3] ^ i_poly[1] ^ i_poly[2] ^ i_poly[0] ^ i_poly[5];
+			shift_poly_16_6[2] = i_poly[4] ^ i_poly[2] ^ i_poly[3] ^ i_poly[1];
+			shift_poly_16_6[3] = i_poly[5] ^ i_poly[3] ^ i_poly[4] ^ i_poly[2];
+			shift_poly_16_6[4] = i_poly[0] ^ i_poly[4] ^ i_poly[5] ^ i_poly[3];
+			shift_poly_16_6[5] = i_poly[1] ^ i_poly[4] ^ i_poly[5];
+			shift_poly_16_6[10:6] = 5'd0;
+		end
+	endfunction
+
+	function automatic [10:0] shift_poly_17_6;
+		input [9:0] i_poly;
+		begin
+			shift_poly_17_6[0] = i_poly[1] ^ i_poly[4] ^ i_poly[5];
+			shift_poly_17_6[1] = i_poly[2] ^ i_poly[0] ^ i_poly[1] ^ i_poly[4];
+			shift_poly_17_6[2] = i_poly[3] ^ i_poly[1] ^ i_poly[2] ^ i_poly[0] ^ i_poly[5];
+			shift_poly_17_6[3] = i_poly[4] ^ i_poly[2] ^ i_poly[3] ^ i_poly[1];
+			shift_poly_17_6[4] = i_poly[5] ^ i_poly[3] ^ i_poly[4] ^ i_poly[2];
+			shift_poly_17_6[5] = i_poly[0] ^ i_poly[4] ^ i_poly[5] ^ i_poly[3];
+			shift_poly_17_6[10:6] = 5'd0;
+		end
+	endfunction
+
+	function automatic [10:0] shift_poly_18_6;
+		input [9:0] i_poly;
+		begin
+			shift_poly_18_6[0] = i_poly[0] ^ i_poly[4] ^ i_poly[5] ^ i_poly[3];
+			shift_poly_18_6[1] = i_poly[1] ^ i_poly[0] ^ i_poly[3];
+			shift_poly_18_6[2] = i_poly[2] ^ i_poly[0] ^ i_poly[1] ^ i_poly[4];
+			shift_poly_18_6[3] = i_poly[3] ^ i_poly[1] ^ i_poly[2] ^ i_poly[0] ^ i_poly[5];
+			shift_poly_18_6[4] = i_poly[4] ^ i_poly[2] ^ i_poly[3] ^ i_poly[1];
+			shift_poly_18_6[5] = i_poly[5] ^ i_poly[3] ^ i_poly[4] ^ i_poly[2];
+			shift_poly_18_6[10:6] = 5'd0;
+		end
+	endfunction
+
+	function automatic [10:0] shift_poly_19_6;
+		input [9:0] i_poly;
+		begin
+			shift_poly_19_6[0] = i_poly[5] ^ i_poly[3] ^ i_poly[4] ^ i_poly[2];
+			shift_poly_19_6[1] = i_poly[0] ^ i_poly[2];
+			shift_poly_19_6[2] = i_poly[1] ^ i_poly[0] ^ i_poly[3];
+			shift_poly_19_6[3] = i_poly[2] ^ i_poly[0] ^ i_poly[1] ^ i_poly[4];
+			shift_poly_19_6[4] = i_poly[3] ^ i_poly[1] ^ i_poly[2] ^ i_poly[0] ^ i_poly[5];
+			shift_poly_19_6[5] = i_poly[4] ^ i_poly[2] ^ i_poly[3] ^ i_poly[1];
+			shift_poly_19_6[10:6] = 5'd0;
+		end
+	endfunction
+
+	function automatic [10:0] shift_poly_20_6;
+		input [9:0] i_poly;
+		begin
+			shift_poly_20_6[0] = i_poly[4] ^ i_poly[2] ^ i_poly[3] ^ i_poly[1];
+			shift_poly_20_6[1] = i_poly[5] ^ i_poly[1];
+			shift_poly_20_6[2] = i_poly[0] ^ i_poly[2];
+			shift_poly_20_6[3] = i_poly[1] ^ i_poly[0] ^ i_poly[3];
+			shift_poly_20_6[4] = i_poly[2] ^ i_poly[0] ^ i_poly[1] ^ i_poly[4];
+			shift_poly_20_6[5] = i_poly[3] ^ i_poly[1] ^ i_poly[2] ^ i_poly[0] ^ i_poly[5];
+			shift_poly_20_6[10:6] = 5'd0;
+		end
+	endfunction
+
+	function automatic [10:0] shift_poly_21_6;
+		input [9:0] i_poly;
+		begin
+			shift_poly_21_6[0] = i_poly[3] ^ i_poly[1] ^ i_poly[2] ^ i_poly[0] ^ i_poly[5];
+			shift_poly_21_6[1] = i_poly[4] ^ i_poly[0] ^ i_poly[5];
+			shift_poly_21_6[2] = i_poly[5] ^ i_poly[1];
+			shift_poly_21_6[3] = i_poly[0] ^ i_poly[2];
+			shift_poly_21_6[4] = i_poly[1] ^ i_poly[0] ^ i_poly[3];
+			shift_poly_21_6[5] = i_poly[2] ^ i_poly[0] ^ i_poly[1] ^ i_poly[4];
+			shift_poly_21_6[10:6] = 5'd0;
+		end
+	endfunction
+
+	function automatic [10:0] shift_poly_22_6;
+		input [9:0] i_poly;
+		begin
+			shift_poly_22_6[0] = i_poly[2] ^ i_poly[0] ^ i_poly[1] ^ i_poly[4];
+			shift_poly_22_6[1] = i_poly[3] ^ i_poly[5] ^ i_poly[4];
+			shift_poly_22_6[2] = i_poly[4] ^ i_poly[0] ^ i_poly[5];
+			shift_poly_22_6[3] = i_poly[5] ^ i_poly[1];
+			shift_poly_22_6[4] = i_poly[0] ^ i_poly[2];
+			shift_poly_22_6[5] = i_poly[1] ^ i_poly[0] ^ i_poly[3];
+			shift_poly_22_6[10:6] = 5'd0;
+		end
+	endfunction
+
+	function automatic [10:0] shift_poly_23_6;
+		input [9:0] i_poly;
+		begin
+			shift_poly_23_6[0] = i_poly[1] ^ i_poly[0] ^ i_poly[3];
+			shift_poly_23_6[1] = i_poly[2] ^ i_poly[4] ^ i_poly[3];
+			shift_poly_23_6[2] = i_poly[3] ^ i_poly[5] ^ i_poly[4];
+			shift_poly_23_6[3] = i_poly[4] ^ i_poly[0] ^ i_poly[5];
+			shift_poly_23_6[4] = i_poly[5] ^ i_poly[1];
+			shift_poly_23_6[5] = i_poly[0] ^ i_poly[2];
+			shift_poly_23_6[10:6] = 5'd0;
+		end
+	endfunction
+
+	function automatic [10:0] shift_poly_24_6;
+		input [9:0] i_poly;
+		begin
+			shift_poly_24_6[0] = i_poly[0] ^ i_poly[2];
+			shift_poly_24_6[1] = i_poly[1] ^ i_poly[2] ^ i_poly[3];
+			shift_poly_24_6[2] = i_poly[2] ^ i_poly[4] ^ i_poly[3];
+			shift_poly_24_6[3] = i_poly[3] ^ i_poly[5] ^ i_poly[4];
+			shift_poly_24_6[4] = i_poly[4] ^ i_poly[0] ^ i_poly[5];
+			shift_poly_24_6[5] = i_poly[5] ^ i_poly[1];
+			shift_poly_24_6[10:6] = 5'd0;
+		end
+	endfunction
+
+	function automatic [10:0] shift_poly_25_6;
+		input [9:0] i_poly;
+		begin
+			shift_poly_25_6[0] = i_poly[5] ^ i_poly[1];
+			shift_poly_25_6[1] = i_poly[0] ^ i_poly[2] ^ i_poly[5] ^ i_poly[1];
+			shift_poly_25_6[2] = i_poly[1] ^ i_poly[2] ^ i_poly[3];
+			shift_poly_25_6[3] = i_poly[2] ^ i_poly[4] ^ i_poly[3];
+			shift_poly_25_6[4] = i_poly[3] ^ i_poly[5] ^ i_poly[4];
+			shift_poly_25_6[5] = i_poly[4] ^ i_poly[0] ^ i_poly[5];
+			shift_poly_25_6[10:6] = 5'd0;
+		end
+	endfunction
+
+	function automatic [10:0] shift_poly_26_6;
+		input [9:0] i_poly;
+		begin
+			shift_poly_26_6[0] = i_poly[4] ^ i_poly[0] ^ i_poly[5];
+			shift_poly_26_6[1] = i_poly[4] ^ i_poly[1] ^ i_poly[0];
+			shift_poly_26_6[2] = i_poly[0] ^ i_poly[2] ^ i_poly[5] ^ i_poly[1];
+			shift_poly_26_6[3] = i_poly[1] ^ i_poly[2] ^ i_poly[3];
+			shift_poly_26_6[4] = i_poly[2] ^ i_poly[4] ^ i_poly[3];
+			shift_poly_26_6[5] = i_poly[3] ^ i_poly[5] ^ i_poly[4];
+			shift_poly_26_6[10:6] = 5'd0;
+		end
+	endfunction
+
+	function automatic [10:0] shift_poly_27_6;
+		input [9:0] i_poly;
+		begin
+			shift_poly_27_6[0] = i_poly[3] ^ i_poly[5] ^ i_poly[4];
+			shift_poly_27_6[1] = i_poly[3] ^ i_poly[0];
+			shift_poly_27_6[2] = i_poly[4] ^ i_poly[1] ^ i_poly[0];
+			shift_poly_27_6[3] = i_poly[0] ^ i_poly[2] ^ i_poly[5] ^ i_poly[1];
+			shift_poly_27_6[4] = i_poly[1] ^ i_poly[2] ^ i_poly[3];
+			shift_poly_27_6[5] = i_poly[2] ^ i_poly[4] ^ i_poly[3];
+			shift_poly_27_6[10:6] = 5'd0;
+		end
+	endfunction
+
+	function automatic [10:0] shift_poly_28_6;
+		input [9:0] i_poly;
+		begin
+			shift_poly_28_6[0] = i_poly[2] ^ i_poly[4] ^ i_poly[3];
+			shift_poly_28_6[1] = i_poly[2] ^ i_poly[5];
+			shift_poly_28_6[2] = i_poly[3] ^ i_poly[0];
+			shift_poly_28_6[3] = i_poly[4] ^ i_poly[1] ^ i_poly[0];
+			shift_poly_28_6[4] = i_poly[0] ^ i_poly[2] ^ i_poly[5] ^ i_poly[1];
+			shift_poly_28_6[5] = i_poly[1] ^ i_poly[2] ^ i_poly[3];
+			shift_poly_28_6[10:6] = 5'd0;
+		end
+	endfunction
+
+	function automatic [10:0] shift_poly_29_6;
+		input [9:0] i_poly;
+		begin
+			shift_poly_29_6[0] = i_poly[1] ^ i_poly[2] ^ i_poly[3];
+			shift_poly_29_6[1] = i_poly[1] ^ i_poly[4];
+			shift_poly_29_6[2] = i_poly[2] ^ i_poly[5];
+			shift_poly_29_6[3] = i_poly[3] ^ i_poly[0];
+			shift_poly_29_6[4] = i_poly[4] ^ i_poly[1] ^ i_poly[0];
+			shift_poly_29_6[5] = i_poly[0] ^ i_poly[2] ^ i_poly[5] ^ i_poly[1];
+			shift_poly_29_6[10:6] = 5'd0;
+		end
+	endfunction
+
+	function automatic [10:0] shift_poly_30_6;
+		input [9:0] i_poly;
+		begin
+			shift_poly_30_6[0] = i_poly[0] ^ i_poly[2] ^ i_poly[5] ^ i_poly[1];
+			shift_poly_30_6[1] = i_poly[0] ^ i_poly[5] ^ i_poly[3];
+			shift_poly_30_6[2] = i_poly[1] ^ i_poly[4];
+			shift_poly_30_6[3] = i_poly[2] ^ i_poly[5];
+			shift_poly_30_6[4] = i_poly[3] ^ i_poly[0];
+			shift_poly_30_6[5] = i_poly[4] ^ i_poly[1] ^ i_poly[0];
+			shift_poly_30_6[10:6] = 5'd0;
+		end
+	endfunction
+
+	function automatic [10:0] shift_poly_31_6;
+		input [9:0] i_poly;
+		begin
+			shift_poly_31_6[0] = i_poly[4] ^ i_poly[1] ^ i_poly[0];
+			shift_poly_31_6[1] = i_poly[5] ^ i_poly[2] ^ i_poly[4];
+			shift_poly_31_6[2] = i_poly[0] ^ i_poly[5] ^ i_poly[3];
+			shift_poly_31_6[3] = i_poly[1] ^ i_poly[4];
+			shift_poly_31_6[4] = i_poly[2] ^ i_poly[5];
+			shift_poly_31_6[5] = i_poly[3] ^ i_poly[0];
+			shift_poly_31_6[10:6] = 5'd0;
+		end
+	endfunction
+
+	function automatic [10:0] shift_poly_32_6;
+		input [9:0] i_poly;
+		begin
+			shift_poly_32_6[0] = i_poly[3] ^ i_poly[0];
+			shift_poly_32_6[1] = i_poly[4] ^ i_poly[1] ^ i_poly[3];
+			shift_poly_32_6[2] = i_poly[5] ^ i_poly[2] ^ i_poly[4];
+			shift_poly_32_6[3] = i_poly[0] ^ i_poly[5] ^ i_poly[3];
+			shift_poly_32_6[4] = i_poly[1] ^ i_poly[4];
+			shift_poly_32_6[5] = i_poly[2] ^ i_poly[5];
+			shift_poly_32_6[10:6] = 5'd0;
+		end
+	endfunction
+
 	function automatic [10:0] shift_poly_1_8;
         input [9:0] i_poly;
         begin
@@ -2823,6 +2401,366 @@ module bch(
             shift_poly_8_8[10:8] = 3'd0;
         end
     endfunction
+
+	function automatic [10:0] shift_poly_9_8;
+        input [9:0] i_poly;
+        begin
+            shift_poly_9_8[0] = i_poly[5] ^ i_poly[4] ^ i_poly[3];
+            shift_poly_9_8[1] = i_poly[0] ^ i_poly[6] ^ i_poly[5] ^ i_poly[4];
+            shift_poly_9_8[2] = i_poly[1] ^ i_poly[7] ^ i_poly[6] ^ i_poly[4] ^ i_poly[3];
+            shift_poly_9_8[3] = i_poly[2] ^ i_poly[7] ^ i_poly[0] ^ i_poly[3];
+            shift_poly_9_8[4] = i_poly[5] ^ i_poly[1] ^ i_poly[0];
+            shift_poly_9_8[5] = i_poly[2] ^ i_poly[1] ^ i_poly[0] ^ i_poly[6];
+            shift_poly_9_8[6] = i_poly[3] ^ i_poly[2] ^ i_poly[1] ^ i_poly[7];
+            shift_poly_9_8[7] = i_poly[4] ^ i_poly[3] ^ i_poly[2];
+            shift_poly_9_8[10:8] = 3'd0;
+        end
+    endfunction
+
+	function automatic [10:0] shift_poly_10_8;
+        input [9:0] i_poly;
+        begin
+            shift_poly_10_8[0] = i_poly[4] ^ i_poly[3] ^ i_poly[2];
+            shift_poly_10_8[1] = i_poly[5] ^ i_poly[4] ^ i_poly[3];
+            shift_poly_10_8[2] = i_poly[0] ^ i_poly[6] ^ i_poly[5] ^ i_poly[3] ^ i_poly[2];
+            shift_poly_10_8[3] = i_poly[1] ^ i_poly[7] ^ i_poly[6] ^ i_poly[2];
+            shift_poly_10_8[4] = i_poly[4] ^ i_poly[7] ^ i_poly[0];
+            shift_poly_10_8[5] = i_poly[5] ^ i_poly[1] ^ i_poly[0];
+            shift_poly_10_8[6] = i_poly[2] ^ i_poly[1] ^ i_poly[0] ^ i_poly[6];
+            shift_poly_10_8[7] = i_poly[3] ^ i_poly[2] ^ i_poly[1] ^ i_poly[7];
+            shift_poly_10_8[10:8] = 3'd0;
+        end
+    endfunction
+
+	function automatic [10:0] shift_poly_11_8;
+        input [9:0] i_poly;
+        begin
+            shift_poly_11_8[0] = i_poly[3] ^ i_poly[2] ^ i_poly[1] ^ i_poly[7];
+            shift_poly_11_8[1] = i_poly[4] ^ i_poly[3] ^ i_poly[2];
+            shift_poly_11_8[2] = i_poly[5] ^ i_poly[4] ^ i_poly[2] ^ i_poly[1] ^ i_poly[7];
+            shift_poly_11_8[3] = i_poly[0] ^ i_poly[6] ^ i_poly[5] ^ i_poly[1] ^ i_poly[7];
+            shift_poly_11_8[4] = i_poly[3] ^ i_poly[6];
+            shift_poly_11_8[5] = i_poly[4] ^ i_poly[7] ^ i_poly[0];
+            shift_poly_11_8[6] = i_poly[5] ^ i_poly[1] ^ i_poly[0];
+            shift_poly_11_8[7] = i_poly[2] ^ i_poly[1] ^ i_poly[0] ^ i_poly[6];
+            shift_poly_11_8[10:8] = 3'd0;
+        end
+    endfunction
+
+	function automatic [10:0] shift_poly_12_8;
+        input [9:0] i_poly;
+        begin
+            shift_poly_12_8[0] = i_poly[2] ^ i_poly[1] ^ i_poly[0] ^ i_poly[6];
+            shift_poly_12_8[1] = i_poly[3] ^ i_poly[2] ^ i_poly[1] ^ i_poly[7];
+            shift_poly_12_8[2] = i_poly[4] ^ i_poly[3] ^ i_poly[1] ^ i_poly[0] ^ i_poly[6];
+            shift_poly_12_8[3] = i_poly[5] ^ i_poly[4] ^ i_poly[7] ^ i_poly[0] ^ i_poly[6];
+            shift_poly_12_8[4] = i_poly[2] ^ i_poly[5] ^ i_poly[7];
+            shift_poly_12_8[5] = i_poly[3] ^ i_poly[6];
+            shift_poly_12_8[6] = i_poly[4] ^ i_poly[7] ^ i_poly[0];
+            shift_poly_12_8[7] = i_poly[5] ^ i_poly[1] ^ i_poly[0];
+            shift_poly_12_8[10:8] = 3'd0;
+        end
+    endfunction
+
+	function automatic [10:0] shift_poly_13_8;
+        input [9:0] i_poly;
+        begin
+            shift_poly_13_8[0] = i_poly[5] ^ i_poly[1] ^ i_poly[0];
+            shift_poly_13_8[1] = i_poly[2] ^ i_poly[1] ^ i_poly[0] ^ i_poly[6];
+            shift_poly_13_8[2] = i_poly[3] ^ i_poly[2] ^ i_poly[5] ^ i_poly[7] ^ i_poly[0];
+            shift_poly_13_8[3] = i_poly[4] ^ i_poly[3] ^ i_poly[5] ^ i_poly[6];
+            shift_poly_13_8[4] = i_poly[1] ^ i_poly[4] ^ i_poly[6] ^ i_poly[7];
+            shift_poly_13_8[5] = i_poly[2] ^ i_poly[5] ^ i_poly[7];
+            shift_poly_13_8[6] = i_poly[3] ^ i_poly[6];
+            shift_poly_13_8[7] = i_poly[4] ^ i_poly[7] ^ i_poly[0];
+            shift_poly_13_8[10:8] = 3'd0;
+        end
+    endfunction
+
+	function automatic [10:0] shift_poly_14_8;
+        input [9:0] i_poly;
+        begin
+            shift_poly_14_8[0] = i_poly[4] ^ i_poly[7] ^ i_poly[0];
+            shift_poly_14_8[1] = i_poly[5] ^ i_poly[1] ^ i_poly[0];
+            shift_poly_14_8[2] = i_poly[2] ^ i_poly[1] ^ i_poly[4] ^ i_poly[6] ^ i_poly[7];
+            shift_poly_14_8[3] = i_poly[3] ^ i_poly[2] ^ i_poly[5] ^ i_poly[4];
+            shift_poly_14_8[4] = i_poly[0] ^ i_poly[3] ^ i_poly[5] ^ i_poly[6] ^ i_poly[7];
+            shift_poly_14_8[5] = i_poly[1] ^ i_poly[4] ^ i_poly[6] ^ i_poly[7];
+            shift_poly_14_8[6] = i_poly[2] ^ i_poly[5] ^ i_poly[7];
+            shift_poly_14_8[7] = i_poly[3] ^ i_poly[6];
+            shift_poly_14_8[10:8] = 3'd0;
+        end
+    endfunction
+
+	function automatic [10:0] shift_poly_15_8;
+        input [9:0] i_poly;
+        begin
+            shift_poly_15_8[0] = i_poly[3] ^ i_poly[6];
+            shift_poly_15_8[1] = i_poly[4] ^ i_poly[7] ^ i_poly[0];
+            shift_poly_15_8[2] = i_poly[5] ^ i_poly[1] ^ i_poly[0] ^ i_poly[3] ^ i_poly[6];
+            shift_poly_15_8[3] = i_poly[2] ^ i_poly[1] ^ i_poly[4] ^ i_poly[3] ^ i_poly[7];
+            shift_poly_15_8[4] = i_poly[6] ^ i_poly[2] ^ i_poly[5] ^ i_poly[4];
+            shift_poly_15_8[5] = i_poly[0] ^ i_poly[3] ^ i_poly[5] ^ i_poly[6] ^ i_poly[7];
+            shift_poly_15_8[6] = i_poly[1] ^ i_poly[4] ^ i_poly[6] ^ i_poly[7];
+            shift_poly_15_8[7] = i_poly[2] ^ i_poly[5] ^ i_poly[7];
+            shift_poly_15_8[10:8] = 3'd0;
+        end
+    endfunction
+
+	function automatic [10:0] shift_poly_16_8;
+        input [9:0] i_poly;
+        begin
+            shift_poly_16_8[0] = i_poly[2] ^ i_poly[5] ^ i_poly[7];
+            shift_poly_16_8[1] = i_poly[3] ^ i_poly[6];
+            shift_poly_16_8[2] = i_poly[4] ^ i_poly[2] ^ i_poly[0] ^ i_poly[5];
+            shift_poly_16_8[3] = i_poly[2] ^ i_poly[1] ^ i_poly[0] ^ i_poly[3] ^ i_poly[6] ^ i_poly[7];
+            shift_poly_16_8[4] = i_poly[5] ^ i_poly[1] ^ i_poly[4] ^ i_poly[3];
+            shift_poly_16_8[5] = i_poly[6] ^ i_poly[2] ^ i_poly[5] ^ i_poly[4];
+            shift_poly_16_8[6] = i_poly[0] ^ i_poly[3] ^ i_poly[5] ^ i_poly[6] ^ i_poly[7];
+            shift_poly_16_8[7] = i_poly[1] ^ i_poly[4] ^ i_poly[6] ^ i_poly[7];
+            shift_poly_16_8[10:8] = 3'd0;
+        end
+    endfunction
+
+	function automatic [10:0] shift_poly_17_8;
+        input [9:0] i_poly;
+        begin
+            shift_poly_17_8[0] = i_poly[1] ^ i_poly[4] ^ i_poly[6] ^ i_poly[7];
+            shift_poly_17_8[1] = i_poly[2] ^ i_poly[5] ^ i_poly[7];
+            shift_poly_17_8[2] = i_poly[3] ^ i_poly[7] ^ i_poly[1] ^ i_poly[4];
+            shift_poly_17_8[3] = i_poly[6] ^ i_poly[2] ^ i_poly[0] ^ i_poly[5] ^ i_poly[1] ^ i_poly[7];
+            shift_poly_17_8[4] = i_poly[2] ^ i_poly[4] ^ i_poly[0] ^ i_poly[3];
+            shift_poly_17_8[5] = i_poly[5] ^ i_poly[1] ^ i_poly[4] ^ i_poly[3];
+            shift_poly_17_8[6] = i_poly[6] ^ i_poly[2] ^ i_poly[5] ^ i_poly[4];
+            shift_poly_17_8[7] = i_poly[0] ^ i_poly[3] ^ i_poly[5] ^ i_poly[6] ^ i_poly[7];
+            shift_poly_17_8[10:8] = 3'd0;
+        end
+    endfunction
+
+	function automatic [10:0] shift_poly_18_8;
+        input [9:0] i_poly;
+        begin
+            shift_poly_18_8[0] = i_poly[0] ^ i_poly[3] ^ i_poly[5] ^ i_poly[6] ^ i_poly[7];
+            shift_poly_18_8[1] = i_poly[1] ^ i_poly[4] ^ i_poly[6] ^ i_poly[7];
+            shift_poly_18_8[2] = i_poly[2] ^ i_poly[3] ^ i_poly[6] ^ i_poly[0];
+            shift_poly_18_8[3] = i_poly[0] ^ i_poly[5] ^ i_poly[1] ^ i_poly[4] ^ i_poly[6];
+            shift_poly_18_8[4] = i_poly[3] ^ i_poly[2] ^ i_poly[1];
+            shift_poly_18_8[5] = i_poly[2] ^ i_poly[4] ^ i_poly[0] ^ i_poly[3];
+            shift_poly_18_8[6] = i_poly[5] ^ i_poly[1] ^ i_poly[4] ^ i_poly[3];
+            shift_poly_18_8[7] = i_poly[6] ^ i_poly[2] ^ i_poly[5] ^ i_poly[4];
+            shift_poly_18_8[10:8] = 3'd0;
+        end
+    endfunction
+
+	function automatic [10:0] shift_poly_19_8;
+        input [9:0] i_poly;
+        begin
+            shift_poly_19_8[0] = i_poly[6] ^ i_poly[2] ^ i_poly[5] ^ i_poly[4];
+            shift_poly_19_8[1] = i_poly[0] ^ i_poly[3] ^ i_poly[5] ^ i_poly[6] ^ i_poly[7];
+            shift_poly_19_8[2] = i_poly[1] ^ i_poly[2] ^ i_poly[5] ^ i_poly[7];
+            shift_poly_19_8[3] = i_poly[5] ^ i_poly[3] ^ i_poly[4] ^ i_poly[0];
+            shift_poly_19_8[4] = i_poly[0] ^ i_poly[2] ^ i_poly[1];
+            shift_poly_19_8[5] = i_poly[3] ^ i_poly[2] ^ i_poly[1];
+            shift_poly_19_8[6] = i_poly[2] ^ i_poly[4] ^ i_poly[0] ^ i_poly[3];
+            shift_poly_19_8[7] = i_poly[5] ^ i_poly[1] ^ i_poly[4] ^ i_poly[3];
+            shift_poly_19_8[10:8] = 3'd0;
+        end
+    endfunction
+
+	function automatic [10:0] shift_poly_20_8;
+        input [9:0] i_poly;
+        begin
+            shift_poly_20_8[0] = i_poly[5] ^ i_poly[1] ^ i_poly[4] ^ i_poly[3];
+            shift_poly_20_8[1] = i_poly[6] ^ i_poly[2] ^ i_poly[5] ^ i_poly[4];
+            shift_poly_20_8[2] = i_poly[0] ^ i_poly[1] ^ i_poly[4] ^ i_poly[6] ^ i_poly[7];
+            shift_poly_20_8[3] = i_poly[4] ^ i_poly[2] ^ i_poly[3] ^ i_poly[7];
+            shift_poly_20_8[4] = i_poly[0] ^ i_poly[1];
+            shift_poly_20_8[5] = i_poly[0] ^ i_poly[2] ^ i_poly[1];
+            shift_poly_20_8[6] = i_poly[3] ^ i_poly[2] ^ i_poly[1];
+            shift_poly_20_8[7] = i_poly[2] ^ i_poly[4] ^ i_poly[0] ^ i_poly[3];
+            shift_poly_20_8[10:8] = 3'd0;
+        end
+    endfunction
+
+	function automatic [10:0] shift_poly_21_8;
+        input [9:0] i_poly;
+        begin
+            shift_poly_21_8[0] = i_poly[2] ^ i_poly[4] ^ i_poly[0] ^ i_poly[3];
+            shift_poly_21_8[1] = i_poly[5] ^ i_poly[1] ^ i_poly[4] ^ i_poly[3];
+            shift_poly_21_8[2] = i_poly[6] ^ i_poly[0] ^ i_poly[5] ^ i_poly[3];
+            shift_poly_21_8[3] = i_poly[2] ^ i_poly[1] ^ i_poly[3] ^ i_poly[6] ^ i_poly[7];
+            shift_poly_21_8[4] = i_poly[0] ^ i_poly[7];
+            shift_poly_21_8[5] = i_poly[0] ^ i_poly[1];
+            shift_poly_21_8[6] = i_poly[0] ^ i_poly[2] ^ i_poly[1];
+            shift_poly_21_8[7] = i_poly[3] ^ i_poly[2] ^ i_poly[1];
+            shift_poly_21_8[10:8] = 3'd0;
+        end
+    endfunction
+
+	function automatic [10:0] shift_poly_22_8;
+        input [9:0] i_poly;
+        begin
+            shift_poly_22_8[0] = i_poly[3] ^ i_poly[2] ^ i_poly[1];
+            shift_poly_22_8[1] = i_poly[2] ^ i_poly[4] ^ i_poly[0] ^ i_poly[3];
+            shift_poly_22_8[2] = i_poly[5] ^ i_poly[2] ^ i_poly[4];
+            shift_poly_22_8[3] = i_poly[6] ^ i_poly[0] ^ i_poly[5] ^ i_poly[2] ^ i_poly[1];
+            shift_poly_22_8[4] = i_poly[6] ^ i_poly[7];
+            shift_poly_22_8[5] = i_poly[0] ^ i_poly[7];
+            shift_poly_22_8[6] = i_poly[0] ^ i_poly[1];
+            shift_poly_22_8[7] = i_poly[0] ^ i_poly[2] ^ i_poly[1];
+            shift_poly_22_8[10:8] = 3'd0;
+        end
+    endfunction
+
+	function automatic [10:0] shift_poly_23_8;
+        input [9:0] i_poly;
+        begin
+            shift_poly_23_8[0] = i_poly[0] ^ i_poly[2] ^ i_poly[1];
+            shift_poly_23_8[1] = i_poly[3] ^ i_poly[2] ^ i_poly[1];
+            shift_poly_23_8[2] = i_poly[1] ^ i_poly[4] ^ i_poly[3];
+            shift_poly_23_8[3] = i_poly[5] ^ i_poly[0] ^ i_poly[4] ^ i_poly[1];
+            shift_poly_23_8[4] = i_poly[6] ^ i_poly[5];
+            shift_poly_23_8[5] = i_poly[6] ^ i_poly[7];
+            shift_poly_23_8[6] = i_poly[0] ^ i_poly[7];
+            shift_poly_23_8[7] = i_poly[0] ^ i_poly[1];
+            shift_poly_23_8[10:8] = 3'd0;
+        end
+    endfunction
+
+	function automatic [10:0] shift_poly_24_8;
+        input [9:0] i_poly;
+        begin
+            shift_poly_24_8[0] = i_poly[0] ^ i_poly[1];
+            shift_poly_24_8[1] = i_poly[0] ^ i_poly[2] ^ i_poly[1];
+            shift_poly_24_8[2] = i_poly[3] ^ i_poly[2] ^ i_poly[0];
+            shift_poly_24_8[3] = i_poly[0] ^ i_poly[4] ^ i_poly[3];
+            shift_poly_24_8[4] = i_poly[5] ^ i_poly[4];
+            shift_poly_24_8[5] = i_poly[6] ^ i_poly[5];
+            shift_poly_24_8[6] = i_poly[6] ^ i_poly[7];
+            shift_poly_24_8[7] = i_poly[0] ^ i_poly[7];
+            shift_poly_24_8[10:8] = 3'd0;
+        end
+    endfunction
+
+	function automatic [10:0] shift_poly_25_8;
+		input [9:0] i_poly;
+		begin
+			shift_poly_25_8[0] = i_poly[0] ^ i_poly[7];
+			shift_poly_25_8[1] = i_poly[0] ^ i_poly[1];
+			shift_poly_25_8[2] = i_poly[7] ^ i_poly[2] ^ i_poly[1];
+			shift_poly_25_8[3] = i_poly[3] ^ i_poly[2] ^ i_poly[7];
+			shift_poly_25_8[4] = i_poly[7] ^ i_poly[4] ^ i_poly[3];
+			shift_poly_25_8[5] = i_poly[5] ^ i_poly[4];
+			shift_poly_25_8[6] = i_poly[6] ^ i_poly[5];
+			shift_poly_25_8[7] = i_poly[6] ^ i_poly[7];
+			shift_poly_25_8[10:8] = 3'd0;
+		end
+	endfunction
+
+	function automatic [10:0] shift_poly_26_8;
+		input [9:0] i_poly;
+		begin
+			shift_poly_26_8[0] = i_poly[6] ^ i_poly[7];
+			shift_poly_26_8[1] = i_poly[0] ^ i_poly[7];
+			shift_poly_26_8[2] = i_poly[0] ^ i_poly[1] ^ i_poly[6] ^ i_poly[7];
+			shift_poly_26_8[3] = i_poly[6] ^ i_poly[2] ^ i_poly[1];
+			shift_poly_26_8[4] = i_poly[3] ^ i_poly[2] ^ i_poly[6];
+			shift_poly_26_8[5] = i_poly[7] ^ i_poly[4] ^ i_poly[3];
+			shift_poly_26_8[6] = i_poly[5] ^ i_poly[4];
+			shift_poly_26_8[7] = i_poly[6] ^ i_poly[5];
+			shift_poly_26_8[10:8] = 3'd0;
+		end
+	endfunction
+
+	function automatic [10:0] shift_poly_27_8;
+		input [9:0] i_poly;
+		begin
+			shift_poly_27_8[0] = i_poly[6] ^ i_poly[5];
+			shift_poly_27_8[1] = i_poly[6] ^ i_poly[7];
+			shift_poly_27_8[2] = i_poly[0] ^ i_poly[7] ^ i_poly[6] ^ i_poly[5];
+			shift_poly_27_8[3] = i_poly[0] ^ i_poly[1] ^ i_poly[5] ^ i_poly[7];
+			shift_poly_27_8[4] = i_poly[5] ^ i_poly[2] ^ i_poly[1];
+			shift_poly_27_8[5] = i_poly[3] ^ i_poly[2] ^ i_poly[6];
+			shift_poly_27_8[6] = i_poly[7] ^ i_poly[4] ^ i_poly[3];
+			shift_poly_27_8[7] = i_poly[5] ^ i_poly[4];
+			shift_poly_27_8[10:8] = 3'd0;
+		end
+	endfunction
+
+	function automatic [10:0] shift_poly_28_8;
+		input [9:0] i_poly;
+		begin
+			shift_poly_28_8[0] = i_poly[5] ^ i_poly[4];
+			shift_poly_28_8[1] = i_poly[6] ^ i_poly[5];
+			shift_poly_28_8[2] = i_poly[6] ^ i_poly[7] ^ i_poly[5] ^ i_poly[4];
+			shift_poly_28_8[3] = i_poly[0] ^ i_poly[7] ^ i_poly[6] ^ i_poly[4];
+			shift_poly_28_8[4] = i_poly[0] ^ i_poly[1] ^ i_poly[4] ^ i_poly[7];
+			shift_poly_28_8[5] = i_poly[5] ^ i_poly[2] ^ i_poly[1];
+			shift_poly_28_8[6] = i_poly[3] ^ i_poly[2] ^ i_poly[6];
+			shift_poly_28_8[7] = i_poly[7] ^ i_poly[4] ^ i_poly[3];
+			shift_poly_28_8[10:8] = 3'd0;
+		end
+	endfunction
+
+	function automatic [10:0] shift_poly_29_8;
+		input [9:0] i_poly;
+		begin
+			shift_poly_29_8[0] = i_poly[7] ^ i_poly[4] ^ i_poly[3];
+			shift_poly_29_8[1] = i_poly[5] ^ i_poly[4];
+			shift_poly_29_8[2] = i_poly[6] ^ i_poly[5] ^ i_poly[7] ^ i_poly[4] ^ i_poly[3];
+			shift_poly_29_8[3] = i_poly[6] ^ i_poly[3] ^ i_poly[5];
+			shift_poly_29_8[4] = i_poly[0] ^ i_poly[3] ^ i_poly[6];
+			shift_poly_29_8[5] = i_poly[0] ^ i_poly[1] ^ i_poly[4] ^ i_poly[7];
+			shift_poly_29_8[6] = i_poly[5] ^ i_poly[2] ^ i_poly[1];
+			shift_poly_29_8[7] = i_poly[3] ^ i_poly[2] ^ i_poly[6];
+			shift_poly_29_8[10:8] = 3'd0;
+		end
+	endfunction
+
+	function automatic [10:0] shift_poly_30_8;
+		input [9:0] i_poly;
+		begin
+			shift_poly_30_8[0] = i_poly[3] ^ i_poly[2] ^ i_poly[6];
+			shift_poly_30_8[1] = i_poly[7] ^ i_poly[4] ^ i_poly[3];
+			shift_poly_30_8[2] = i_poly[5] ^ i_poly[4] ^ i_poly[3] ^ i_poly[2] ^ i_poly[6];
+			shift_poly_30_8[3] = i_poly[2] ^ i_poly[5] ^ i_poly[7] ^ i_poly[4];
+			shift_poly_30_8[4] = i_poly[2] ^ i_poly[5];
+			shift_poly_30_8[5] = i_poly[0] ^ i_poly[3] ^ i_poly[6];
+			shift_poly_30_8[6] = i_poly[0] ^ i_poly[1] ^ i_poly[4] ^ i_poly[7];
+			shift_poly_30_8[7] = i_poly[5] ^ i_poly[2] ^ i_poly[1];
+			shift_poly_30_8[10:8] = 3'd0;
+		end
+	endfunction
+
+	function automatic [10:0] shift_poly_31_8;
+		input [9:0] i_poly;
+		begin
+			shift_poly_31_8[0] = i_poly[5] ^ i_poly[2] ^ i_poly[1];
+			shift_poly_31_8[1] = i_poly[3] ^ i_poly[2] ^ i_poly[6];
+			shift_poly_31_8[2] = i_poly[7] ^ i_poly[4] ^ i_poly[3] ^ i_poly[5] ^ i_poly[2] ^ i_poly[1];
+			shift_poly_31_8[3] = i_poly[1] ^ i_poly[4] ^ i_poly[3] ^ i_poly[6];
+			shift_poly_31_8[4] = i_poly[1] ^ i_poly[4] ^ i_poly[7];
+			shift_poly_31_8[5] = i_poly[2] ^ i_poly[5];
+			shift_poly_31_8[6] = i_poly[0] ^ i_poly[3] ^ i_poly[6];
+			shift_poly_31_8[7] = i_poly[0] ^ i_poly[1] ^ i_poly[4] ^ i_poly[7];
+			shift_poly_31_8[10:8] = 3'd0;
+		end
+	endfunction
+
+	function automatic [10:0] shift_poly_32_8;
+		input [9:0] i_poly;
+		begin
+			shift_poly_32_8[0] = i_poly[0] ^ i_poly[1] ^ i_poly[4] ^ i_poly[7];
+			shift_poly_32_8[1] = i_poly[5] ^ i_poly[2] ^ i_poly[1];
+			shift_poly_32_8[2] = i_poly[3] ^ i_poly[2] ^ i_poly[6] ^ i_poly[0] ^ i_poly[1] ^ i_poly[4] ^ i_poly[7];
+			shift_poly_32_8[3] = i_poly[0] ^ i_poly[2] ^ i_poly[3] ^ i_poly[5];
+			shift_poly_32_8[4] = i_poly[0] ^ i_poly[7] ^ i_poly[3] ^ i_poly[6];
+			shift_poly_32_8[5] = i_poly[1] ^ i_poly[4] ^ i_poly[7];
+			shift_poly_32_8[6] = i_poly[2] ^ i_poly[5];
+			shift_poly_32_8[7] = i_poly[0] ^ i_poly[3] ^ i_poly[6];
+			shift_poly_32_8[10:8] = 3'd0;
+		end
+	endfunction
 
 	function automatic [10:0] shift_poly_1_10;
         input [9:0] i_poly;
@@ -2959,6 +2897,958 @@ module bch(
             shift_poly_8_10[10] = 1'b0;
         end
     endfunction
+
+	function automatic [10:0] shift_poly_9_10;
+        input [9:0] i_poly;
+        begin
+            shift_poly_9_10[0] = i_poly[1] ^ i_poly[8];
+            shift_poly_9_10[1] = i_poly[2] ^ i_poly[9];
+            shift_poly_9_10[2] = i_poly[3];
+            shift_poly_9_10[3] = i_poly[4] ^ i_poly[1] ^ i_poly[8];
+            shift_poly_9_10[4] = i_poly[5] ^ i_poly[9] ^ i_poly[2];
+            shift_poly_9_10[5] = i_poly[6] ^ i_poly[3];
+            shift_poly_9_10[6] = i_poly[7] ^ i_poly[4];
+            shift_poly_9_10[7] = i_poly[8] ^ i_poly[5];
+            shift_poly_9_10[8] = i_poly[9] ^ i_poly[6];
+            shift_poly_9_10[9] = i_poly[0] ^ i_poly[7];
+            shift_poly_9_10[10] = 1'b0;
+        end
+    endfunction
+
+	function automatic [10:0] shift_poly_10_10;
+        input [9:0] i_poly;
+        begin
+            shift_poly_10_10[0] = i_poly[0] ^ i_poly[7];
+            shift_poly_10_10[1] = i_poly[1] ^ i_poly[8];
+            shift_poly_10_10[2] = i_poly[2] ^ i_poly[9];
+            shift_poly_10_10[3] = i_poly[3] ^ i_poly[0] ^ i_poly[7];
+            shift_poly_10_10[4] = i_poly[4] ^ i_poly[1] ^ i_poly[8];
+            shift_poly_10_10[5] = i_poly[5] ^ i_poly[9] ^ i_poly[2];
+            shift_poly_10_10[6] = i_poly[6] ^ i_poly[3];
+            shift_poly_10_10[7] = i_poly[7] ^ i_poly[4];
+            shift_poly_10_10[8] = i_poly[8] ^ i_poly[5];
+            shift_poly_10_10[9] = i_poly[9] ^ i_poly[6];
+            shift_poly_10_10[10] = 1'b0;
+        end
+    endfunction
+
+	function automatic [10:0] shift_poly_11_10;
+        input [9:0] i_poly;
+        begin
+            shift_poly_11_10[0] = i_poly[9] ^ i_poly[6];
+            shift_poly_11_10[1] = i_poly[0] ^ i_poly[7];
+            shift_poly_11_10[2] = i_poly[1] ^ i_poly[8];
+            shift_poly_11_10[3] = i_poly[2] ^ i_poly[6];
+            shift_poly_11_10[4] = i_poly[3] ^ i_poly[0] ^ i_poly[7];
+            shift_poly_11_10[5] = i_poly[4] ^ i_poly[1] ^ i_poly[8];
+            shift_poly_11_10[6] = i_poly[5] ^ i_poly[9] ^ i_poly[2];
+            shift_poly_11_10[7] = i_poly[6] ^ i_poly[3];
+            shift_poly_11_10[8] = i_poly[7] ^ i_poly[4];
+            shift_poly_11_10[9] = i_poly[8] ^ i_poly[5];
+            shift_poly_11_10[10] = 1'b0;
+        end
+    endfunction
+
+	function automatic [10:0] shift_poly_12_10;
+        input [9:0] i_poly;
+        begin
+            shift_poly_12_10[0] = i_poly[8] ^ i_poly[5];
+            shift_poly_12_10[1] = i_poly[9] ^ i_poly[6];
+            shift_poly_12_10[2] = i_poly[0] ^ i_poly[7];
+            shift_poly_12_10[3] = i_poly[1] ^ i_poly[5];
+            shift_poly_12_10[4] = i_poly[2] ^ i_poly[6];
+            shift_poly_12_10[5] = i_poly[3] ^ i_poly[0] ^ i_poly[7];
+            shift_poly_12_10[6] = i_poly[4] ^ i_poly[1] ^ i_poly[8];
+            shift_poly_12_10[7] = i_poly[5] ^ i_poly[9] ^ i_poly[2];
+            shift_poly_12_10[8] = i_poly[6] ^ i_poly[3];
+            shift_poly_12_10[9] = i_poly[7] ^ i_poly[4];
+            shift_poly_12_10[10] = 1'b0;
+        end
+    endfunction
+
+	function automatic [10:0] shift_poly_13_10;
+		input [9:0] i_poly;
+		begin
+			shift_poly_13_10[0] = i_poly[7] ^ i_poly[4];
+			shift_poly_13_10[1] = i_poly[8] ^ i_poly[5];
+			shift_poly_13_10[2] = i_poly[9] ^ i_poly[6];
+			shift_poly_13_10[3] = i_poly[0] ^ i_poly[4];
+			shift_poly_13_10[4] = i_poly[1] ^ i_poly[5];
+			shift_poly_13_10[5] = i_poly[2] ^ i_poly[6];
+			shift_poly_13_10[6] = i_poly[3] ^ i_poly[0] ^ i_poly[7];
+			shift_poly_13_10[7] = i_poly[4] ^ i_poly[1] ^ i_poly[8];
+			shift_poly_13_10[8] = i_poly[5] ^ i_poly[9] ^ i_poly[2];
+			shift_poly_13_10[9] = i_poly[6] ^ i_poly[3];
+			shift_poly_13_10[10] = 1'b0;
+		end
+	endfunction
+
+	function automatic [10:0] shift_poly_14_10;
+		input [9:0] i_poly;
+		begin
+			shift_poly_14_10[0] = i_poly[6] ^ i_poly[3];
+			shift_poly_14_10[1] = i_poly[7] ^ i_poly[4];
+			shift_poly_14_10[2] = i_poly[8] ^ i_poly[5];
+			shift_poly_14_10[3] = i_poly[9] ^ i_poly[3];
+			shift_poly_14_10[4] = i_poly[0] ^ i_poly[4];
+			shift_poly_14_10[5] = i_poly[1] ^ i_poly[5];
+			shift_poly_14_10[6] = i_poly[2] ^ i_poly[6];
+			shift_poly_14_10[7] = i_poly[3] ^ i_poly[0] ^ i_poly[7];
+			shift_poly_14_10[8] = i_poly[4] ^ i_poly[1] ^ i_poly[8];
+			shift_poly_14_10[9] = i_poly[5] ^ i_poly[9] ^ i_poly[2];
+			shift_poly_14_10[10] = 1'b0;
+		end
+	endfunction
+
+	function automatic [10:0] shift_poly_15_10;
+		input [9:0] i_poly;
+		begin
+			shift_poly_15_10[0] = i_poly[5] ^ i_poly[9] ^ i_poly[2];
+			shift_poly_15_10[1] = i_poly[6] ^ i_poly[3];
+			shift_poly_15_10[2] = i_poly[7] ^ i_poly[4];
+			shift_poly_15_10[3] = i_poly[8] ^ i_poly[2] ^ i_poly[9];
+			shift_poly_15_10[4] = i_poly[9] ^ i_poly[3];
+			shift_poly_15_10[5] = i_poly[0] ^ i_poly[4];
+			shift_poly_15_10[6] = i_poly[1] ^ i_poly[5];
+			shift_poly_15_10[7] = i_poly[2] ^ i_poly[6];
+			shift_poly_15_10[8] = i_poly[3] ^ i_poly[0] ^ i_poly[7];
+			shift_poly_15_10[9] = i_poly[4] ^ i_poly[1] ^ i_poly[8];
+			shift_poly_15_10[10] = 1'b0;
+		end
+	endfunction
+
+	function automatic [10:0] shift_poly_16_10;
+		input [9:0] i_poly;
+		begin
+			shift_poly_16_10[0] = i_poly[4] ^ i_poly[1] ^ i_poly[8];
+			shift_poly_16_10[1] = i_poly[5] ^ i_poly[9] ^ i_poly[2];
+			shift_poly_16_10[2] = i_poly[6] ^ i_poly[3];
+			shift_poly_16_10[3] = i_poly[7] ^ i_poly[1] ^ i_poly[8];
+			shift_poly_16_10[4] = i_poly[8] ^ i_poly[2] ^ i_poly[9];
+			shift_poly_16_10[5] = i_poly[9] ^ i_poly[3];
+			shift_poly_16_10[6] = i_poly[0] ^ i_poly[4];
+			shift_poly_16_10[7] = i_poly[1] ^ i_poly[5];
+			shift_poly_16_10[8] = i_poly[2] ^ i_poly[6];
+			shift_poly_16_10[9] = i_poly[3] ^ i_poly[0] ^ i_poly[7];
+			shift_poly_16_10[10] = 1'b0;
+		end
+	endfunction
+
+	function automatic [10:0] shift_poly_17_10;
+		input [9:0] i_poly;
+		begin
+			shift_poly_17_10[0] = i_poly[3] ^ i_poly[0] ^ i_poly[7];
+			shift_poly_17_10[1] = i_poly[4] ^ i_poly[1] ^ i_poly[8];
+			shift_poly_17_10[2] = i_poly[5] ^ i_poly[9] ^ i_poly[2];
+			shift_poly_17_10[3] = i_poly[6] ^ i_poly[0] ^ i_poly[7];
+			shift_poly_17_10[4] = i_poly[7] ^ i_poly[1] ^ i_poly[8];
+			shift_poly_17_10[5] = i_poly[8] ^ i_poly[2] ^ i_poly[9];
+			shift_poly_17_10[6] = i_poly[9] ^ i_poly[3];
+			shift_poly_17_10[7] = i_poly[0] ^ i_poly[4];
+			shift_poly_17_10[8] = i_poly[1] ^ i_poly[5];
+			shift_poly_17_10[9] = i_poly[2] ^ i_poly[6];
+			shift_poly_17_10[10] = 1'b0;
+		end
+	endfunction
+
+	function automatic [10:0] shift_poly_18_10;
+		input [9:0] i_poly;
+		begin
+			shift_poly_18_10[0] = i_poly[2] ^ i_poly[6];
+			shift_poly_18_10[1] = i_poly[3] ^ i_poly[0] ^ i_poly[7];
+			shift_poly_18_10[2] = i_poly[4] ^ i_poly[1] ^ i_poly[8];
+			shift_poly_18_10[3] = i_poly[5] ^ i_poly[9] ^ i_poly[6];
+			shift_poly_18_10[4] = i_poly[6] ^ i_poly[0] ^ i_poly[7];
+			shift_poly_18_10[5] = i_poly[7] ^ i_poly[1] ^ i_poly[8];
+			shift_poly_18_10[6] = i_poly[8] ^ i_poly[2] ^ i_poly[9];
+			shift_poly_18_10[7] = i_poly[9] ^ i_poly[3];
+			shift_poly_18_10[8] = i_poly[0] ^ i_poly[4];
+			shift_poly_18_10[9] = i_poly[1] ^ i_poly[5];
+			shift_poly_18_10[10] = 1'b0;
+		end
+	endfunction
+
+	function automatic [10:0] shift_poly_19_10;
+		input [9:0] i_poly;
+		begin
+			shift_poly_19_10[0] = i_poly[1] ^ i_poly[5];
+			shift_poly_19_10[1] = i_poly[2] ^ i_poly[6];
+			shift_poly_19_10[2] = i_poly[3] ^ i_poly[0] ^ i_poly[7];
+			shift_poly_19_10[3] = i_poly[4] ^ i_poly[5] ^ i_poly[8];
+			shift_poly_19_10[4] = i_poly[5] ^ i_poly[9] ^ i_poly[6];
+			shift_poly_19_10[5] = i_poly[6] ^ i_poly[0] ^ i_poly[7];
+			shift_poly_19_10[6] = i_poly[7] ^ i_poly[1] ^ i_poly[8];
+			shift_poly_19_10[7] = i_poly[8] ^ i_poly[2] ^ i_poly[9];
+			shift_poly_19_10[8] = i_poly[9] ^ i_poly[3];
+			shift_poly_19_10[9] = i_poly[0] ^ i_poly[4];
+			shift_poly_19_10[10] = 1'b0;
+		end
+	endfunction
+
+	function automatic [10:0] shift_poly_20_10;
+		input [9:0] i_poly;
+		begin
+			shift_poly_20_10[0] = i_poly[0] ^ i_poly[4];
+			shift_poly_20_10[1] = i_poly[1] ^ i_poly[5];
+			shift_poly_20_10[2] = i_poly[2] ^ i_poly[6];
+			shift_poly_20_10[3] = i_poly[3] ^ i_poly[4] ^ i_poly[7];
+			shift_poly_20_10[4] = i_poly[4] ^ i_poly[5] ^ i_poly[8];
+			shift_poly_20_10[5] = i_poly[5] ^ i_poly[9] ^ i_poly[6];
+			shift_poly_20_10[6] = i_poly[6] ^ i_poly[0] ^ i_poly[7];
+			shift_poly_20_10[7] = i_poly[7] ^ i_poly[1] ^ i_poly[8];
+			shift_poly_20_10[8] = i_poly[8] ^ i_poly[2] ^ i_poly[9];
+			shift_poly_20_10[9] = i_poly[9] ^ i_poly[3];
+			shift_poly_20_10[10] = 1'b0;
+		end
+	endfunction
+
+	function automatic [10:0] shift_poly_21_10;
+		input [9:0] i_poly;
+		begin
+			shift_poly_21_10[0] = i_poly[9] ^ i_poly[3];
+			shift_poly_21_10[1] = i_poly[0] ^ i_poly[4];
+			shift_poly_21_10[2] = i_poly[1] ^ i_poly[5];
+			shift_poly_21_10[3] = i_poly[2] ^ i_poly[6] ^ i_poly[9] ^ i_poly[3];
+			shift_poly_21_10[4] = i_poly[3] ^ i_poly[4] ^ i_poly[7];
+			shift_poly_21_10[5] = i_poly[4] ^ i_poly[5] ^ i_poly[8];
+			shift_poly_21_10[6] = i_poly[5] ^ i_poly[9] ^ i_poly[6];
+			shift_poly_21_10[7] = i_poly[6] ^ i_poly[0] ^ i_poly[7];
+			shift_poly_21_10[8] = i_poly[7] ^ i_poly[1] ^ i_poly[8];
+			shift_poly_21_10[9] = i_poly[8] ^ i_poly[2] ^ i_poly[9];
+			shift_poly_21_10[10] = 1'b0;
+		end
+	endfunction
+
+	function automatic [10:0] shift_poly_22_10;
+		input [9:0] i_poly;
+		begin
+			shift_poly_22_10[0] = i_poly[8] ^ i_poly[2] ^ i_poly[9];
+			shift_poly_22_10[1] = i_poly[9] ^ i_poly[3];
+			shift_poly_22_10[2] = i_poly[0] ^ i_poly[4];
+			shift_poly_22_10[3] = i_poly[1] ^ i_poly[5] ^ i_poly[8] ^ i_poly[2] ^ i_poly[9];
+			shift_poly_22_10[4] = i_poly[2] ^ i_poly[6] ^ i_poly[9] ^ i_poly[3];
+			shift_poly_22_10[5] = i_poly[3] ^ i_poly[4] ^ i_poly[7];
+			shift_poly_22_10[6] = i_poly[4] ^ i_poly[5] ^ i_poly[8];
+			shift_poly_22_10[7] = i_poly[5] ^ i_poly[9] ^ i_poly[6];
+			shift_poly_22_10[8] = i_poly[6] ^ i_poly[0] ^ i_poly[7];
+			shift_poly_22_10[9] = i_poly[7] ^ i_poly[1] ^ i_poly[8];
+			shift_poly_22_10[10] = 1'b0;
+		end
+	endfunction
+
+	function automatic [10:0] shift_poly_23_10;
+		input [9:0] i_poly;
+		begin
+			shift_poly_23_10[0] = i_poly[7] ^ i_poly[1] ^ i_poly[8];
+			shift_poly_23_10[1] = i_poly[8] ^ i_poly[2] ^ i_poly[9];
+			shift_poly_23_10[2] = i_poly[9] ^ i_poly[3];
+			shift_poly_23_10[3] = i_poly[0] ^ i_poly[4] ^ i_poly[7] ^ i_poly[1] ^ i_poly[8];
+			shift_poly_23_10[4] = i_poly[1] ^ i_poly[5] ^ i_poly[8] ^ i_poly[2] ^ i_poly[9];
+			shift_poly_23_10[5] = i_poly[2] ^ i_poly[6] ^ i_poly[9] ^ i_poly[3];
+			shift_poly_23_10[6] = i_poly[3] ^ i_poly[4] ^ i_poly[7];
+			shift_poly_23_10[7] = i_poly[4] ^ i_poly[5] ^ i_poly[8];
+			shift_poly_23_10[8] = i_poly[5] ^ i_poly[9] ^ i_poly[6];
+			shift_poly_23_10[9] = i_poly[6] ^ i_poly[0] ^ i_poly[7];
+			shift_poly_23_10[10] = 1'b0;
+		end
+	endfunction
+
+	function automatic [10:0] shift_poly_24_10;
+		input [9:0] i_poly;
+		begin
+			shift_poly_24_10[0] = i_poly[6] ^ i_poly[0] ^ i_poly[7];
+			shift_poly_24_10[1] = i_poly[7] ^ i_poly[1] ^ i_poly[8];
+			shift_poly_24_10[2] = i_poly[8] ^ i_poly[2] ^ i_poly[9];
+			shift_poly_24_10[3] = i_poly[9] ^ i_poly[3] ^ i_poly[6] ^ i_poly[0] ^ i_poly[7];
+			shift_poly_24_10[4] = i_poly[0] ^ i_poly[4] ^ i_poly[7] ^ i_poly[1] ^ i_poly[8];
+			shift_poly_24_10[5] = i_poly[1] ^ i_poly[5] ^ i_poly[8] ^ i_poly[2] ^ i_poly[9];
+			shift_poly_24_10[6] = i_poly[2] ^ i_poly[6] ^ i_poly[9] ^ i_poly[3];
+			shift_poly_24_10[7] = i_poly[3] ^ i_poly[4] ^ i_poly[7];
+			shift_poly_24_10[8] = i_poly[4] ^ i_poly[5] ^ i_poly[8];
+			shift_poly_24_10[9] = i_poly[5] ^ i_poly[9] ^ i_poly[6];
+			shift_poly_24_10[10] = 1'b0;
+		end
+	endfunction
+
+	function automatic [10:0] shift_poly_25_10;
+		input [9:0] i_poly;
+		begin
+			shift_poly_25_10[0] = i_poly[5] ^ i_poly[9] ^ i_poly[6];
+			shift_poly_25_10[1] = i_poly[6] ^ i_poly[0] ^ i_poly[7];
+			shift_poly_25_10[2] = i_poly[7] ^ i_poly[1] ^ i_poly[8];
+			shift_poly_25_10[3] = i_poly[8] ^ i_poly[2] ^ i_poly[5] ^ i_poly[6];
+			shift_poly_25_10[4] = i_poly[9] ^ i_poly[3] ^ i_poly[6] ^ i_poly[0] ^ i_poly[7];
+			shift_poly_25_10[5] = i_poly[0] ^ i_poly[4] ^ i_poly[7] ^ i_poly[1] ^ i_poly[8];
+			shift_poly_25_10[6] = i_poly[1] ^ i_poly[5] ^ i_poly[8] ^ i_poly[2] ^ i_poly[9];
+			shift_poly_25_10[7] = i_poly[2] ^ i_poly[6] ^ i_poly[9] ^ i_poly[3];
+			shift_poly_25_10[8] = i_poly[3] ^ i_poly[4] ^ i_poly[7];
+			shift_poly_25_10[9] = i_poly[4] ^ i_poly[5] ^ i_poly[8];
+			shift_poly_25_10[10] = 1'b0;
+		end
+	endfunction
+
+	function automatic [10:0] shift_poly_26_10;
+		input [9:0] i_poly;
+		begin
+			shift_poly_26_10[0] = i_poly[4] ^ i_poly[5] ^ i_poly[8];
+			shift_poly_26_10[1] = i_poly[5] ^ i_poly[9] ^ i_poly[6];
+			shift_poly_26_10[2] = i_poly[6] ^ i_poly[0] ^ i_poly[7];
+			shift_poly_26_10[3] = i_poly[7] ^ i_poly[1] ^ i_poly[4] ^ i_poly[5];
+			shift_poly_26_10[4] = i_poly[8] ^ i_poly[2] ^ i_poly[5] ^ i_poly[6];
+			shift_poly_26_10[5] = i_poly[9] ^ i_poly[3] ^ i_poly[6] ^ i_poly[0] ^ i_poly[7];
+			shift_poly_26_10[6] = i_poly[0] ^ i_poly[4] ^ i_poly[7] ^ i_poly[1] ^ i_poly[8];
+			shift_poly_26_10[7] = i_poly[1] ^ i_poly[5] ^ i_poly[8] ^ i_poly[2] ^ i_poly[9];
+			shift_poly_26_10[8] = i_poly[2] ^ i_poly[6] ^ i_poly[9] ^ i_poly[3];
+			shift_poly_26_10[9] = i_poly[3] ^ i_poly[4] ^ i_poly[7];
+			shift_poly_26_10[10] = 1'b0;
+		end
+	endfunction
+
+	function automatic [10:0] shift_poly_27_10;
+		input [9:0] i_poly;
+		begin
+			shift_poly_27_10[0] = i_poly[3] ^ i_poly[4] ^ i_poly[7];
+			shift_poly_27_10[1] = i_poly[4] ^ i_poly[5] ^ i_poly[8];
+			shift_poly_27_10[2] = i_poly[5] ^ i_poly[9] ^ i_poly[6];
+			shift_poly_27_10[3] = i_poly[6] ^ i_poly[0] ^ i_poly[3] ^ i_poly[4];
+			shift_poly_27_10[4] = i_poly[7] ^ i_poly[1] ^ i_poly[4] ^ i_poly[5];
+			shift_poly_27_10[5] = i_poly[8] ^ i_poly[2] ^ i_poly[5] ^ i_poly[6];
+			shift_poly_27_10[6] = i_poly[9] ^ i_poly[3] ^ i_poly[6] ^ i_poly[0] ^ i_poly[7];
+			shift_poly_27_10[7] = i_poly[0] ^ i_poly[4] ^ i_poly[7] ^ i_poly[1] ^ i_poly[8];
+			shift_poly_27_10[8] = i_poly[1] ^ i_poly[5] ^ i_poly[8] ^ i_poly[2] ^ i_poly[9];
+			shift_poly_27_10[9] = i_poly[2] ^ i_poly[6] ^ i_poly[9] ^ i_poly[3];
+			shift_poly_27_10[10] = 1'b0;
+		end
+	endfunction
+
+	function automatic [10:0] shift_poly_28_10;
+		input [9:0] i_poly;
+		begin
+			shift_poly_28_10[0] = i_poly[2] ^ i_poly[6] ^ i_poly[9] ^ i_poly[3];
+			shift_poly_28_10[1] = i_poly[3] ^ i_poly[4] ^ i_poly[7];
+			shift_poly_28_10[2] = i_poly[4] ^ i_poly[5] ^ i_poly[8];
+			shift_poly_28_10[3] = i_poly[5] ^ i_poly[2] ^ i_poly[3];
+			shift_poly_28_10[4] = i_poly[6] ^ i_poly[0] ^ i_poly[3] ^ i_poly[4];
+			shift_poly_28_10[5] = i_poly[7] ^ i_poly[1] ^ i_poly[4] ^ i_poly[5];
+			shift_poly_28_10[6] = i_poly[8] ^ i_poly[2] ^ i_poly[5] ^ i_poly[6];
+			shift_poly_28_10[7] = i_poly[9] ^ i_poly[3] ^ i_poly[6] ^ i_poly[0] ^ i_poly[7];
+			shift_poly_28_10[8] = i_poly[0] ^ i_poly[4] ^ i_poly[7] ^ i_poly[1] ^ i_poly[8];
+			shift_poly_28_10[9] = i_poly[1] ^ i_poly[5] ^ i_poly[8] ^ i_poly[2] ^ i_poly[9];
+			shift_poly_28_10[10] = 1'b0;
+		end
+	endfunction
+
+	function automatic [10:0] shift_poly_29_10;
+		input [9:0] i_poly;
+		begin
+			shift_poly_29_10[0] = i_poly[1] ^ i_poly[5] ^ i_poly[8] ^ i_poly[2] ^ i_poly[9];
+			shift_poly_29_10[1] = i_poly[2] ^ i_poly[6] ^ i_poly[9] ^ i_poly[3];
+			shift_poly_29_10[2] = i_poly[3] ^ i_poly[4] ^ i_poly[7];
+			shift_poly_29_10[3] = i_poly[4] ^ i_poly[1] ^ i_poly[2] ^ i_poly[9];
+			shift_poly_29_10[4] = i_poly[5] ^ i_poly[2] ^ i_poly[3];
+			shift_poly_29_10[5] = i_poly[6] ^ i_poly[0] ^ i_poly[3] ^ i_poly[4];
+			shift_poly_29_10[6] = i_poly[7] ^ i_poly[1] ^ i_poly[4] ^ i_poly[5];
+			shift_poly_29_10[7] = i_poly[8] ^ i_poly[2] ^ i_poly[5] ^ i_poly[6];
+			shift_poly_29_10[8] = i_poly[9] ^ i_poly[3] ^ i_poly[6] ^ i_poly[0] ^ i_poly[7];
+			shift_poly_29_10[9] = i_poly[0] ^ i_poly[4] ^ i_poly[7] ^ i_poly[1] ^ i_poly[8];
+			shift_poly_29_10[10] = 1'b0;
+		end
+	endfunction
+
+	function automatic [10:0] shift_poly_30_10;
+		input [9:0] i_poly;
+		begin
+			shift_poly_30_10[0] = i_poly[0] ^ i_poly[4] ^ i_poly[7] ^ i_poly[1] ^ i_poly[8];
+			shift_poly_30_10[1] = i_poly[1] ^ i_poly[5] ^ i_poly[8] ^ i_poly[2] ^ i_poly[9];
+			shift_poly_30_10[2] = i_poly[2] ^ i_poly[6] ^ i_poly[9] ^ i_poly[3];
+			shift_poly_30_10[3] = i_poly[3] ^ i_poly[0] ^ i_poly[1] ^ i_poly[8];
+			shift_poly_30_10[4] = i_poly[4] ^ i_poly[1] ^ i_poly[2] ^ i_poly[9];
+			shift_poly_30_10[5] = i_poly[5] ^ i_poly[2] ^ i_poly[3];
+			shift_poly_30_10[6] = i_poly[6] ^ i_poly[0] ^ i_poly[3] ^ i_poly[4];
+			shift_poly_30_10[7] = i_poly[7] ^ i_poly[1] ^ i_poly[4] ^ i_poly[5];
+			shift_poly_30_10[8] = i_poly[8] ^ i_poly[2] ^ i_poly[5] ^ i_poly[6];
+			shift_poly_30_10[9] = i_poly[9] ^ i_poly[3] ^ i_poly[6] ^ i_poly[0] ^ i_poly[7];
+			shift_poly_30_10[10] = 1'b0;
+		end
+	endfunction
+
+	function automatic [10:0] shift_poly_31_10;
+		input [9:0] i_poly;
+		begin
+			shift_poly_31_10[0] = i_poly[9] ^ i_poly[3] ^ i_poly[6] ^ i_poly[0] ^ i_poly[7];
+			shift_poly_31_10[1] = i_poly[0] ^ i_poly[4] ^ i_poly[7] ^ i_poly[1] ^ i_poly[8];
+			shift_poly_31_10[2] = i_poly[1] ^ i_poly[5] ^ i_poly[8] ^ i_poly[2] ^ i_poly[9];
+			shift_poly_31_10[3] = i_poly[2] ^ i_poly[0] ^ i_poly[7];
+			shift_poly_31_10[4] = i_poly[3] ^ i_poly[0] ^ i_poly[1] ^ i_poly[8];
+			shift_poly_31_10[5] = i_poly[4] ^ i_poly[1] ^ i_poly[2] ^ i_poly[9];
+			shift_poly_31_10[6] = i_poly[5] ^ i_poly[2] ^ i_poly[3];
+			shift_poly_31_10[7] = i_poly[6] ^ i_poly[0] ^ i_poly[3] ^ i_poly[4];
+			shift_poly_31_10[8] = i_poly[7] ^ i_poly[1] ^ i_poly[4] ^ i_poly[5];
+			shift_poly_31_10[9] = i_poly[8] ^ i_poly[2] ^ i_poly[5] ^ i_poly[6];
+			shift_poly_31_10[10] = 1'b0;
+		end
+	endfunction
+
+	function automatic [10:0] shift_poly_32_10;
+		input [9:0] i_poly;
+		begin
+			shift_poly_32_10[0] = i_poly[8] ^ i_poly[2] ^ i_poly[5] ^ i_poly[6];
+			shift_poly_32_10[1] = i_poly[9] ^ i_poly[3] ^ i_poly[6] ^ i_poly[0] ^ i_poly[7];
+			shift_poly_32_10[2] = i_poly[0] ^ i_poly[4] ^ i_poly[7] ^ i_poly[1] ^ i_poly[8];
+			shift_poly_32_10[3] = i_poly[1] ^ i_poly[9] ^ i_poly[6];
+			shift_poly_32_10[4] = i_poly[2] ^ i_poly[0] ^ i_poly[7];
+			shift_poly_32_10[5] = i_poly[3] ^ i_poly[0] ^ i_poly[1] ^ i_poly[8];
+			shift_poly_32_10[6] = i_poly[4] ^ i_poly[1] ^ i_poly[2] ^ i_poly[9];
+			shift_poly_32_10[7] = i_poly[5] ^ i_poly[2] ^ i_poly[3];
+			shift_poly_32_10[8] = i_poly[6] ^ i_poly[0] ^ i_poly[3] ^ i_poly[4];
+			shift_poly_32_10[9] = i_poly[7] ^ i_poly[1] ^ i_poly[4] ^ i_poly[5];
+			shift_poly_32_10[10] = 1'b0;
+		end
+	endfunction
+
+	function automatic [10:0] shift_poly_33_10;
+		input [9:0] i_poly;
+		begin
+			shift_poly_33_10[0] = i_poly[7] ^ i_poly[1] ^ i_poly[4] ^ i_poly[5];
+			shift_poly_33_10[1] = i_poly[8] ^ i_poly[2] ^ i_poly[5] ^ i_poly[6];
+			shift_poly_33_10[2] = i_poly[9] ^ i_poly[3] ^ i_poly[6] ^ i_poly[0] ^ i_poly[7];
+			shift_poly_33_10[3] = i_poly[0] ^ i_poly[8] ^ i_poly[5];
+			shift_poly_33_10[4] = i_poly[1] ^ i_poly[9] ^ i_poly[6];
+			shift_poly_33_10[5] = i_poly[2] ^ i_poly[0] ^ i_poly[7];
+			shift_poly_33_10[6] = i_poly[3] ^ i_poly[0] ^ i_poly[1] ^ i_poly[8];
+			shift_poly_33_10[7] = i_poly[4] ^ i_poly[1] ^ i_poly[2] ^ i_poly[9];
+			shift_poly_33_10[8] = i_poly[5] ^ i_poly[2] ^ i_poly[3];
+			shift_poly_33_10[9] = i_poly[6] ^ i_poly[0] ^ i_poly[3] ^ i_poly[4];
+			shift_poly_33_10[10] = 1'b0;
+		end
+	endfunction
+
+	function automatic [10:0] shift_poly_34_10;
+		input [9:0] i_poly;
+		begin
+			shift_poly_34_10[0] = i_poly[6] ^ i_poly[0] ^ i_poly[3] ^ i_poly[4];
+			shift_poly_34_10[1] = i_poly[7] ^ i_poly[1] ^ i_poly[4] ^ i_poly[5];
+			shift_poly_34_10[2] = i_poly[8] ^ i_poly[2] ^ i_poly[5] ^ i_poly[6];
+			shift_poly_34_10[3] = i_poly[9] ^ i_poly[7] ^ i_poly[4];
+			shift_poly_34_10[4] = i_poly[0] ^ i_poly[8] ^ i_poly[5];
+			shift_poly_34_10[5] = i_poly[1] ^ i_poly[9] ^ i_poly[6];
+			shift_poly_34_10[6] = i_poly[2] ^ i_poly[0] ^ i_poly[7];
+			shift_poly_34_10[7] = i_poly[3] ^ i_poly[0] ^ i_poly[1] ^ i_poly[8];
+			shift_poly_34_10[8] = i_poly[4] ^ i_poly[1] ^ i_poly[2] ^ i_poly[9];
+			shift_poly_34_10[9] = i_poly[5] ^ i_poly[2] ^ i_poly[3];
+			shift_poly_34_10[10] = 1'b0;
+		end
+	endfunction
+
+	function automatic [10:0] shift_poly_35_10;
+		input [9:0] i_poly;
+		begin
+			shift_poly_35_10[0] = i_poly[5] ^ i_poly[2] ^ i_poly[3];
+			shift_poly_35_10[1] = i_poly[6] ^ i_poly[0] ^ i_poly[3] ^ i_poly[4];
+			shift_poly_35_10[2] = i_poly[7] ^ i_poly[1] ^ i_poly[4] ^ i_poly[5];
+			shift_poly_35_10[3] = i_poly[8] ^ i_poly[6] ^ i_poly[3];
+			shift_poly_35_10[4] = i_poly[9] ^ i_poly[7] ^ i_poly[4];
+			shift_poly_35_10[5] = i_poly[0] ^ i_poly[8] ^ i_poly[5];
+			shift_poly_35_10[6] = i_poly[1] ^ i_poly[9] ^ i_poly[6];
+			shift_poly_35_10[7] = i_poly[2] ^ i_poly[0] ^ i_poly[7];
+			shift_poly_35_10[8] = i_poly[3] ^ i_poly[0] ^ i_poly[1] ^ i_poly[8];
+			shift_poly_35_10[9] = i_poly[4] ^ i_poly[1] ^ i_poly[2] ^ i_poly[9];
+			shift_poly_35_10[10] = 1'b0;
+		end
+	endfunction
+
+	function automatic [10:0] shift_poly_36_10;
+		input [9:0] i_poly;
+		begin
+			shift_poly_36_10[0] = i_poly[4] ^ i_poly[1] ^ i_poly[2] ^ i_poly[9];
+			shift_poly_36_10[1] = i_poly[5] ^ i_poly[2] ^ i_poly[3];
+			shift_poly_36_10[2] = i_poly[6] ^ i_poly[0] ^ i_poly[3] ^ i_poly[4];
+			shift_poly_36_10[3] = i_poly[7] ^ i_poly[5] ^ i_poly[9] ^ i_poly[2];
+			shift_poly_36_10[4] = i_poly[8] ^ i_poly[6] ^ i_poly[3];
+			shift_poly_36_10[5] = i_poly[9] ^ i_poly[7] ^ i_poly[4];
+			shift_poly_36_10[6] = i_poly[0] ^ i_poly[8] ^ i_poly[5];
+			shift_poly_36_10[7] = i_poly[1] ^ i_poly[9] ^ i_poly[6];
+			shift_poly_36_10[8] = i_poly[2] ^ i_poly[0] ^ i_poly[7];
+			shift_poly_36_10[9] = i_poly[3] ^ i_poly[0] ^ i_poly[1] ^ i_poly[8];
+			shift_poly_36_10[10] = 1'b0;
+		end
+	endfunction
+
+	function automatic [10:0] shift_poly_37_10;
+		input [9:0] i_poly;
+		begin
+			shift_poly_37_10[0] = i_poly[3] ^ i_poly[0] ^ i_poly[1] ^ i_poly[8];
+			shift_poly_37_10[1] = i_poly[4] ^ i_poly[1] ^ i_poly[2] ^ i_poly[9];
+			shift_poly_37_10[2] = i_poly[5] ^ i_poly[2] ^ i_poly[3];
+			shift_poly_37_10[3] = i_poly[6] ^ i_poly[4] ^ i_poly[1] ^ i_poly[8];
+			shift_poly_37_10[4] = i_poly[7] ^ i_poly[5] ^ i_poly[2] ^ i_poly[9];
+			shift_poly_37_10[5] = i_poly[8] ^ i_poly[6] ^ i_poly[3];
+			shift_poly_37_10[6] = i_poly[9] ^ i_poly[7] ^ i_poly[4];
+			shift_poly_37_10[7] = i_poly[0] ^ i_poly[8] ^ i_poly[5];
+			shift_poly_37_10[8] = i_poly[1] ^ i_poly[9] ^ i_poly[6];
+			shift_poly_37_10[9] = i_poly[2] ^ i_poly[0] ^ i_poly[7];
+			shift_poly_37_10[10] = 1'b0;
+		end
+	endfunction
+
+	function automatic [10:0] shift_poly_38_10;
+		input [9:0] i_poly;
+		begin
+			shift_poly_38_10[0] = i_poly[2] ^ i_poly[0] ^ i_poly[7];
+			shift_poly_38_10[1] = i_poly[3] ^ i_poly[0] ^ i_poly[1] ^ i_poly[8];
+			shift_poly_38_10[2] = i_poly[4] ^ i_poly[1] ^ i_poly[2] ^ i_poly[9];
+			shift_poly_38_10[3] = i_poly[5] ^ i_poly[3] ^ i_poly[0] ^ i_poly[7];
+			shift_poly_38_10[4] = i_poly[6] ^ i_poly[4] ^ i_poly[1] ^ i_poly[8];
+			shift_poly_38_10[5] = i_poly[7] ^ i_poly[5] ^ i_poly[2] ^ i_poly[9];
+			shift_poly_38_10[6] = i_poly[8] ^ i_poly[6] ^ i_poly[3];
+			shift_poly_38_10[7] = i_poly[9] ^ i_poly[7] ^ i_poly[4];
+			shift_poly_38_10[8] = i_poly[0] ^ i_poly[8] ^ i_poly[5];
+			shift_poly_38_10[9] = i_poly[1] ^ i_poly[9] ^ i_poly[6];
+			shift_poly_38_10[10] = 1'b0;
+		end
+	endfunction
+
+	function automatic [10:0] shift_poly_39_10;
+		input [9:0] i_poly;
+		begin
+			shift_poly_39_10[0] = i_poly[1] ^ i_poly[9] ^ i_poly[6];
+			shift_poly_39_10[1] = i_poly[2] ^ i_poly[0] ^ i_poly[7];
+			shift_poly_39_10[2] = i_poly[3] ^ i_poly[0] ^ i_poly[1] ^ i_poly[8];
+			shift_poly_39_10[3] = i_poly[4] ^ i_poly[2] ^ i_poly[6];
+			shift_poly_39_10[4] = i_poly[5] ^ i_poly[3] ^ i_poly[0] ^ i_poly[7];
+			shift_poly_39_10[5] = i_poly[6] ^ i_poly[4] ^ i_poly[1] ^ i_poly[8];
+			shift_poly_39_10[6] = i_poly[7] ^ i_poly[5] ^ i_poly[2] ^ i_poly[9];
+			shift_poly_39_10[7] = i_poly[8] ^ i_poly[6] ^ i_poly[3];
+			shift_poly_39_10[8] = i_poly[9] ^ i_poly[7] ^ i_poly[4];
+			shift_poly_39_10[9] = i_poly[0] ^ i_poly[8] ^ i_poly[5];
+			shift_poly_39_10[10] = 1'b0;
+		end
+	endfunction
+
+	function automatic [10:0] shift_poly_40_10;
+		input [9:0] i_poly;
+		begin
+			shift_poly_40_10[0] = i_poly[0] ^ i_poly[8] ^ i_poly[5];
+			shift_poly_40_10[1] = i_poly[1] ^ i_poly[9] ^ i_poly[6];
+			shift_poly_40_10[2] = i_poly[2] ^ i_poly[0] ^ i_poly[7];
+			shift_poly_40_10[3] = i_poly[3] ^ i_poly[1] ^ i_poly[5];
+			shift_poly_40_10[4] = i_poly[4] ^ i_poly[2] ^ i_poly[6];
+			shift_poly_40_10[5] = i_poly[5] ^ i_poly[3] ^ i_poly[0] ^ i_poly[7];
+			shift_poly_40_10[6] = i_poly[6] ^ i_poly[4] ^ i_poly[1] ^ i_poly[8];
+			shift_poly_40_10[7] = i_poly[7] ^ i_poly[5] ^ i_poly[2] ^ i_poly[9];
+			shift_poly_40_10[8] = i_poly[8] ^ i_poly[6] ^ i_poly[3];
+			shift_poly_40_10[9] = i_poly[9] ^ i_poly[7] ^ i_poly[4];
+			shift_poly_40_10[10] = 1'b0;
+		end
+	endfunction
+
+	function automatic [10:0] shift_poly_41_10;
+		input [9:0] i_poly;
+		begin
+			shift_poly_41_10[0] = i_poly[9] ^ i_poly[7] ^ i_poly[4];
+			shift_poly_41_10[1] = i_poly[0] ^ i_poly[8] ^ i_poly[5];
+			shift_poly_41_10[2] = i_poly[1] ^ i_poly[9] ^ i_poly[6];
+			shift_poly_41_10[3] = i_poly[2] ^ i_poly[0] ^ i_poly[4] ^ i_poly[9];
+			shift_poly_41_10[4] = i_poly[3] ^ i_poly[1] ^ i_poly[5];
+			shift_poly_41_10[5] = i_poly[4] ^ i_poly[2] ^ i_poly[6];
+			shift_poly_41_10[6] = i_poly[5] ^ i_poly[3] ^ i_poly[0] ^ i_poly[7];
+			shift_poly_41_10[7] = i_poly[6] ^ i_poly[4] ^ i_poly[1] ^ i_poly[8];
+			shift_poly_41_10[8] = i_poly[7] ^ i_poly[5] ^ i_poly[2] ^ i_poly[9];
+			shift_poly_41_10[9] = i_poly[8] ^ i_poly[6] ^ i_poly[3];
+			shift_poly_41_10[10] = 1'b0;
+		end
+	endfunction
+
+	function automatic [10:0] shift_poly_42_10;
+		input [9:0] i_poly;
+		begin
+			shift_poly_42_10[0] = i_poly[8] ^ i_poly[6] ^ i_poly[3];
+			shift_poly_42_10[1] = i_poly[9] ^ i_poly[7] ^ i_poly[4];
+			shift_poly_42_10[2] = i_poly[0] ^ i_poly[8] ^ i_poly[5];
+			shift_poly_42_10[3] = i_poly[1] ^ i_poly[9] ^ i_poly[3] ^ i_poly[8];
+			shift_poly_42_10[4] = i_poly[2] ^ i_poly[0] ^ i_poly[4] ^ i_poly[9];
+			shift_poly_42_10[5] = i_poly[3] ^ i_poly[1] ^ i_poly[5];
+			shift_poly_42_10[6] = i_poly[4] ^ i_poly[2] ^ i_poly[6];
+			shift_poly_42_10[7] = i_poly[5] ^ i_poly[3] ^ i_poly[0] ^ i_poly[7];
+			shift_poly_42_10[8] = i_poly[6] ^ i_poly[4] ^ i_poly[1] ^ i_poly[8];
+			shift_poly_42_10[9] = i_poly[7] ^ i_poly[5] ^ i_poly[2] ^ i_poly[9];
+			shift_poly_42_10[10] = 1'b0;
+		end
+	endfunction
+
+	function automatic [10:0] shift_poly_43_10;
+		input [9:0] i_poly;
+		begin
+			shift_poly_43_10[0] = i_poly[7] ^ i_poly[5] ^ i_poly[2] ^ i_poly[9];
+			shift_poly_43_10[1] = i_poly[8] ^ i_poly[6] ^ i_poly[3];
+			shift_poly_43_10[2] = i_poly[9] ^ i_poly[7] ^ i_poly[4];
+			shift_poly_43_10[3] = i_poly[0] ^ i_poly[8] ^ i_poly[2] ^ i_poly[7] ^ i_poly[9];
+			shift_poly_43_10[4] = i_poly[1] ^ i_poly[9] ^ i_poly[3] ^ i_poly[8];
+			shift_poly_43_10[5] = i_poly[2] ^ i_poly[0] ^ i_poly[4] ^ i_poly[9];
+			shift_poly_43_10[6] = i_poly[3] ^ i_poly[1] ^ i_poly[5];
+			shift_poly_43_10[7] = i_poly[4] ^ i_poly[2] ^ i_poly[6];
+			shift_poly_43_10[8] = i_poly[5] ^ i_poly[3] ^ i_poly[0] ^ i_poly[7];
+			shift_poly_43_10[9] = i_poly[6] ^ i_poly[4] ^ i_poly[1] ^ i_poly[8];
+			shift_poly_43_10[10] = 1'b0;
+		end
+	endfunction
+
+	function automatic [10:0] shift_poly_44_10;
+		input [9:0] i_poly;
+		begin
+			shift_poly_44_10[0] = i_poly[6] ^ i_poly[4] ^ i_poly[1] ^ i_poly[8];
+			shift_poly_44_10[1] = i_poly[7] ^ i_poly[5] ^ i_poly[2] ^ i_poly[9];
+			shift_poly_44_10[2] = i_poly[8] ^ i_poly[6] ^ i_poly[3];
+			shift_poly_44_10[3] = i_poly[9] ^ i_poly[7] ^ i_poly[1] ^ i_poly[6] ^ i_poly[8];
+			shift_poly_44_10[4] = i_poly[0] ^ i_poly[8] ^ i_poly[2] ^ i_poly[7] ^ i_poly[9];
+			shift_poly_44_10[5] = i_poly[1] ^ i_poly[9] ^ i_poly[3] ^ i_poly[8];
+			shift_poly_44_10[6] = i_poly[2] ^ i_poly[0] ^ i_poly[4] ^ i_poly[9];
+			shift_poly_44_10[7] = i_poly[3] ^ i_poly[1] ^ i_poly[5];
+			shift_poly_44_10[8] = i_poly[4] ^ i_poly[2] ^ i_poly[6];
+			shift_poly_44_10[9] = i_poly[5] ^ i_poly[3] ^ i_poly[0] ^ i_poly[7];
+			shift_poly_44_10[10] = 1'b0;
+		end
+	endfunction
+
+	function automatic [10:0] shift_poly_45_10;
+		input [9:0] i_poly;
+		begin
+			shift_poly_45_10[0] = i_poly[5] ^ i_poly[3] ^ i_poly[0] ^ i_poly[7];
+			shift_poly_45_10[1] = i_poly[6] ^ i_poly[4] ^ i_poly[1] ^ i_poly[8];
+			shift_poly_45_10[2] = i_poly[7] ^ i_poly[5] ^ i_poly[2] ^ i_poly[9];
+			shift_poly_45_10[3] = i_poly[8] ^ i_poly[6] ^ i_poly[0] ^ i_poly[5] ^ i_poly[7];
+			shift_poly_45_10[4] = i_poly[9] ^ i_poly[7] ^ i_poly[1] ^ i_poly[6] ^ i_poly[8];
+			shift_poly_45_10[5] = i_poly[0] ^ i_poly[8] ^ i_poly[2] ^ i_poly[7] ^ i_poly[9];
+			shift_poly_45_10[6] = i_poly[1] ^ i_poly[9] ^ i_poly[3] ^ i_poly[8];
+			shift_poly_45_10[7] = i_poly[2] ^ i_poly[0] ^ i_poly[4] ^ i_poly[9];
+			shift_poly_45_10[8] = i_poly[3] ^ i_poly[1] ^ i_poly[5];
+			shift_poly_45_10[9] = i_poly[4] ^ i_poly[2] ^ i_poly[6];
+			shift_poly_45_10[10] = 1'b0;
+		end
+	endfunction
+
+	function automatic [10:0] shift_poly_46_10;
+		input [9:0] i_poly;
+		begin
+			shift_poly_46_10[0] = i_poly[4] ^ i_poly[2] ^ i_poly[6];
+			shift_poly_46_10[1] = i_poly[5] ^ i_poly[3] ^ i_poly[0] ^ i_poly[7];
+			shift_poly_46_10[2] = i_poly[6] ^ i_poly[4] ^ i_poly[1] ^ i_poly[8];
+			shift_poly_46_10[3] = i_poly[7] ^ i_poly[5] ^ i_poly[9] ^ i_poly[4] ^ i_poly[6];
+			shift_poly_46_10[4] = i_poly[8] ^ i_poly[6] ^ i_poly[0] ^ i_poly[5] ^ i_poly[7];
+			shift_poly_46_10[5] = i_poly[9] ^ i_poly[7] ^ i_poly[1] ^ i_poly[6] ^ i_poly[8];
+			shift_poly_46_10[6] = i_poly[0] ^ i_poly[8] ^ i_poly[2] ^ i_poly[7] ^ i_poly[9];
+			shift_poly_46_10[7] = i_poly[1] ^ i_poly[9] ^ i_poly[3] ^ i_poly[8];
+			shift_poly_46_10[8] = i_poly[2] ^ i_poly[0] ^ i_poly[4] ^ i_poly[9];
+			shift_poly_46_10[9] = i_poly[3] ^ i_poly[1] ^ i_poly[5];
+			shift_poly_46_10[10] = 1'b0;
+		end
+	endfunction
+
+	function automatic [10:0] shift_poly_47_10;
+		input [9:0] i_poly;
+		begin
+			shift_poly_47_10[0] = i_poly[3] ^ i_poly[1] ^ i_poly[5];
+			shift_poly_47_10[1] = i_poly[4] ^ i_poly[2] ^ i_poly[6];
+			shift_poly_47_10[2] = i_poly[5] ^ i_poly[3] ^ i_poly[0] ^ i_poly[7];
+			shift_poly_47_10[3] = i_poly[6] ^ i_poly[4] ^ i_poly[8] ^ i_poly[3] ^ i_poly[5];
+			shift_poly_47_10[4] = i_poly[7] ^ i_poly[5] ^ i_poly[9] ^ i_poly[4] ^ i_poly[6];
+			shift_poly_47_10[5] = i_poly[8] ^ i_poly[6] ^ i_poly[0] ^ i_poly[5] ^ i_poly[7];
+			shift_poly_47_10[6] = i_poly[9] ^ i_poly[7] ^ i_poly[1] ^ i_poly[6] ^ i_poly[8];
+			shift_poly_47_10[7] = i_poly[0] ^ i_poly[8] ^ i_poly[2] ^ i_poly[7] ^ i_poly[9];
+			shift_poly_47_10[8] = i_poly[1] ^ i_poly[9] ^ i_poly[3] ^ i_poly[8];
+			shift_poly_47_10[9] = i_poly[2] ^ i_poly[0] ^ i_poly[4] ^ i_poly[9];
+			shift_poly_47_10[10] = 1'b0;
+		end
+	endfunction
+
+	function automatic [10:0] shift_poly_48_10;
+		input [9:0] i_poly;
+		begin
+			shift_poly_48_10[0] = i_poly[2] ^ i_poly[0] ^ i_poly[4] ^ i_poly[9];
+			shift_poly_48_10[1] = i_poly[3] ^ i_poly[1] ^ i_poly[5];
+			shift_poly_48_10[2] = i_poly[4] ^ i_poly[2] ^ i_poly[6];
+			shift_poly_48_10[3] = i_poly[5] ^ i_poly[3] ^ i_poly[7] ^ i_poly[2] ^ i_poly[4] ^ i_poly[9];
+			shift_poly_48_10[4] = i_poly[6] ^ i_poly[4] ^ i_poly[8] ^ i_poly[3] ^ i_poly[5];
+			shift_poly_48_10[5] = i_poly[7] ^ i_poly[5] ^ i_poly[9] ^ i_poly[4] ^ i_poly[6];
+			shift_poly_48_10[6] = i_poly[8] ^ i_poly[6] ^ i_poly[0] ^ i_poly[5] ^ i_poly[7];
+			shift_poly_48_10[7] = i_poly[9] ^ i_poly[7] ^ i_poly[1] ^ i_poly[6] ^ i_poly[8];
+			shift_poly_48_10[8] = i_poly[0] ^ i_poly[8] ^ i_poly[2] ^ i_poly[7] ^ i_poly[9];
+			shift_poly_48_10[9] = i_poly[1] ^ i_poly[9] ^ i_poly[3] ^ i_poly[8];
+			shift_poly_48_10[10] = 1'b0;
+		end
+	endfunction
+
+	function automatic [10:0] shift_poly_49_10;
+		input [9:0] i_poly;
+		begin
+			shift_poly_49_10[0] = i_poly[1] ^ i_poly[9] ^ i_poly[3] ^ i_poly[8];
+			shift_poly_49_10[1] = i_poly[2] ^ i_poly[0] ^ i_poly[4] ^ i_poly[9];
+			shift_poly_49_10[2] = i_poly[3] ^ i_poly[1] ^ i_poly[5];
+			shift_poly_49_10[3] = i_poly[4] ^ i_poly[2] ^ i_poly[6] ^ i_poly[1] ^ i_poly[3] ^ i_poly[8] ^ i_poly[9];
+			shift_poly_49_10[4] = i_poly[5] ^ i_poly[3] ^ i_poly[7] ^ i_poly[2] ^ i_poly[4] ^ i_poly[9];
+			shift_poly_49_10[5] = i_poly[6] ^ i_poly[4] ^ i_poly[8] ^ i_poly[3] ^ i_poly[5];
+			shift_poly_49_10[6] = i_poly[7] ^ i_poly[5] ^ i_poly[9] ^ i_poly[4] ^ i_poly[6];
+			shift_poly_49_10[7] = i_poly[8] ^ i_poly[6] ^ i_poly[0] ^ i_poly[5] ^ i_poly[7];
+			shift_poly_49_10[8] = i_poly[9] ^ i_poly[7] ^ i_poly[1] ^ i_poly[6] ^ i_poly[8];
+			shift_poly_49_10[9] = i_poly[0] ^ i_poly[8] ^ i_poly[2] ^ i_poly[7] ^ i_poly[9];
+			shift_poly_49_10[10] = 1'b0;
+		end
+	endfunction
+
+	function automatic [10:0] shift_poly_50_10;
+		input [9:0] i_poly;
+		begin
+			shift_poly_50_10[0] = i_poly[0] ^ i_poly[8] ^ i_poly[2] ^ i_poly[7] ^ i_poly[9];
+			shift_poly_50_10[1] = i_poly[1] ^ i_poly[9] ^ i_poly[3] ^ i_poly[8];
+			shift_poly_50_10[2] = i_poly[2] ^ i_poly[0] ^ i_poly[4] ^ i_poly[9];
+			shift_poly_50_10[3] = i_poly[3] ^ i_poly[1] ^ i_poly[5] ^ i_poly[0] ^ i_poly[8] ^ i_poly[2] ^ i_poly[7] ^ i_poly[9];
+			shift_poly_50_10[4] = i_poly[4] ^ i_poly[2] ^ i_poly[6] ^ i_poly[1] ^ i_poly[9] ^ i_poly[3] ^ i_poly[8];
+			shift_poly_50_10[5] = i_poly[5] ^ i_poly[3] ^ i_poly[7] ^ i_poly[2] ^ i_poly[4] ^ i_poly[9];
+			shift_poly_50_10[6] = i_poly[6] ^ i_poly[4] ^ i_poly[8] ^ i_poly[3] ^ i_poly[5];
+			shift_poly_50_10[7] = i_poly[7] ^ i_poly[5] ^ i_poly[9] ^ i_poly[4] ^ i_poly[6];
+			shift_poly_50_10[8] = i_poly[8] ^ i_poly[6] ^ i_poly[0] ^ i_poly[5] ^ i_poly[7];
+			shift_poly_50_10[9] = i_poly[9] ^ i_poly[7] ^ i_poly[1] ^ i_poly[6] ^ i_poly[8];
+			shift_poly_50_10[10] = 1'b0;
+		end
+	endfunction
+
+	function automatic [10:0] shift_poly_51_10;
+		input [9:0] i_poly;
+		begin
+			shift_poly_51_10[0] = i_poly[9] ^ i_poly[7] ^ i_poly[1] ^ i_poly[6] ^ i_poly[8];
+			shift_poly_51_10[1] = i_poly[0] ^ i_poly[8] ^ i_poly[2] ^ i_poly[7] ^ i_poly[9];
+			shift_poly_51_10[2] = i_poly[1] ^ i_poly[9] ^ i_poly[3] ^ i_poly[8];
+			shift_poly_51_10[3] = i_poly[2] ^ i_poly[0] ^ i_poly[4] ^ i_poly[7] ^ i_poly[1] ^ i_poly[6] ^ i_poly[8];
+			shift_poly_51_10[4] = i_poly[3] ^ i_poly[1] ^ i_poly[5] ^ i_poly[0] ^ i_poly[8] ^ i_poly[2] ^ i_poly[7] ^ i_poly[9];
+			shift_poly_51_10[5] = i_poly[4] ^ i_poly[2] ^ i_poly[6] ^ i_poly[1] ^ i_poly[9] ^ i_poly[3] ^ i_poly[8];
+			shift_poly_51_10[6] = i_poly[5] ^ i_poly[3] ^ i_poly[7] ^ i_poly[2] ^ i_poly[4] ^ i_poly[9];
+			shift_poly_51_10[7] = i_poly[6] ^ i_poly[4] ^ i_poly[8] ^ i_poly[3] ^ i_poly[5];
+			shift_poly_51_10[8] = i_poly[7] ^ i_poly[5] ^ i_poly[9] ^ i_poly[4] ^ i_poly[6];
+			shift_poly_51_10[9] = i_poly[8] ^ i_poly[6] ^ i_poly[0] ^ i_poly[5] ^ i_poly[7];
+			shift_poly_51_10[10] = 1'b0;
+		end
+	endfunction
+
+	function automatic [10:0] shift_poly_52_10;
+		input [9:0] i_poly;
+		begin
+			shift_poly_52_10[0] = i_poly[8] ^ i_poly[6] ^ i_poly[0] ^ i_poly[5] ^ i_poly[7];
+			shift_poly_52_10[1] = i_poly[9] ^ i_poly[7] ^ i_poly[1] ^ i_poly[6] ^ i_poly[8];
+			shift_poly_52_10[2] = i_poly[0] ^ i_poly[8] ^ i_poly[2] ^ i_poly[7] ^ i_poly[9];
+			shift_poly_52_10[3] = i_poly[1] ^ i_poly[9] ^ i_poly[3] ^ i_poly[6] ^ i_poly[0] ^ i_poly[5] ^ i_poly[7];
+			shift_poly_52_10[4] = i_poly[2] ^ i_poly[0] ^ i_poly[4] ^ i_poly[7] ^ i_poly[1] ^ i_poly[6] ^ i_poly[8];
+			shift_poly_52_10[5] = i_poly[3] ^ i_poly[1] ^ i_poly[5] ^ i_poly[0] ^ i_poly[8] ^ i_poly[2] ^ i_poly[7] ^ i_poly[9];
+			shift_poly_52_10[6] = i_poly[4] ^ i_poly[2] ^ i_poly[6] ^ i_poly[1] ^ i_poly[9] ^ i_poly[3] ^ i_poly[8];
+			shift_poly_52_10[7] = i_poly[5] ^ i_poly[3] ^ i_poly[7] ^ i_poly[2] ^ i_poly[4] ^ i_poly[9];
+			shift_poly_52_10[8] = i_poly[6] ^ i_poly[4] ^ i_poly[8] ^ i_poly[3] ^ i_poly[5];
+			shift_poly_52_10[9] = i_poly[7] ^ i_poly[5] ^ i_poly[9] ^ i_poly[4] ^ i_poly[6];
+			shift_poly_52_10[10] = 1'b0;
+		end
+	endfunction
+
+	function automatic [10:0] shift_poly_53_10;
+		input [9:0] i_poly;
+		begin
+			shift_poly_53_10[0] = i_poly[7] ^ i_poly[5] ^ i_poly[9] ^ i_poly[4] ^ i_poly[6];
+			shift_poly_53_10[1] = i_poly[8] ^ i_poly[6] ^ i_poly[0] ^ i_poly[5] ^ i_poly[7];
+			shift_poly_53_10[2] = i_poly[9] ^ i_poly[7] ^ i_poly[1] ^ i_poly[6] ^ i_poly[8];
+			shift_poly_53_10[3] = i_poly[0] ^ i_poly[8] ^ i_poly[2] ^ i_poly[5] ^ i_poly[4] ^ i_poly[6];
+			shift_poly_53_10[4] = i_poly[1] ^ i_poly[9] ^ i_poly[3] ^ i_poly[6] ^ i_poly[0] ^ i_poly[5] ^ i_poly[7];
+			shift_poly_53_10[5] = i_poly[2] ^ i_poly[0] ^ i_poly[4] ^ i_poly[7] ^ i_poly[1] ^ i_poly[6] ^ i_poly[8];
+			shift_poly_53_10[6] = i_poly[3] ^ i_poly[1] ^ i_poly[5] ^ i_poly[0] ^ i_poly[8] ^ i_poly[2] ^ i_poly[7] ^ i_poly[9];
+			shift_poly_53_10[7] = i_poly[4] ^ i_poly[2] ^ i_poly[6] ^ i_poly[1] ^ i_poly[9] ^ i_poly[3] ^ i_poly[8];
+			shift_poly_53_10[8] = i_poly[5] ^ i_poly[3] ^ i_poly[7] ^ i_poly[2] ^ i_poly[4] ^ i_poly[9];
+			shift_poly_53_10[9] = i_poly[6] ^ i_poly[4] ^ i_poly[8] ^ i_poly[3] ^ i_poly[5];
+			shift_poly_53_10[10] = 1'b0;
+		end
+	endfunction
+
+	function automatic [10:0] shift_poly_54_10;
+		input [9:0] i_poly;
+		begin
+			shift_poly_54_10[0] = i_poly[6] ^ i_poly[4] ^ i_poly[8] ^ i_poly[3] ^ i_poly[5];
+			shift_poly_54_10[1] = i_poly[7] ^ i_poly[5] ^ i_poly[9] ^ i_poly[4] ^ i_poly[6];
+			shift_poly_54_10[2] = i_poly[8] ^ i_poly[6] ^ i_poly[0] ^ i_poly[5] ^ i_poly[7];
+			shift_poly_54_10[3] = i_poly[9] ^ i_poly[7] ^ i_poly[1] ^ i_poly[4] ^ i_poly[3] ^ i_poly[5];
+			shift_poly_54_10[4] = i_poly[0] ^ i_poly[8] ^ i_poly[2] ^ i_poly[5] ^ i_poly[4] ^ i_poly[6];
+			shift_poly_54_10[5] = i_poly[1] ^ i_poly[9] ^ i_poly[3] ^ i_poly[6] ^ i_poly[0] ^ i_poly[5] ^ i_poly[7];
+			shift_poly_54_10[6] = i_poly[2] ^ i_poly[0] ^ i_poly[4] ^ i_poly[7] ^ i_poly[1] ^ i_poly[6] ^ i_poly[8];
+			shift_poly_54_10[7] = i_poly[3] ^ i_poly[1] ^ i_poly[5] ^ i_poly[0] ^ i_poly[8] ^ i_poly[2] ^ i_poly[7] ^ i_poly[9];
+			shift_poly_54_10[8] = i_poly[4] ^ i_poly[2] ^ i_poly[6] ^ i_poly[1] ^ i_poly[9] ^ i_poly[3] ^ i_poly[8];
+			shift_poly_54_10[9] = i_poly[5] ^ i_poly[3] ^ i_poly[7] ^ i_poly[2] ^ i_poly[4] ^ i_poly[9];
+			shift_poly_54_10[10] = 1'b0;
+		end
+	endfunction
+
+	function automatic [10:0] shift_poly_55_10;
+		input [9:0] i_poly;
+		begin
+			shift_poly_55_10[0] = i_poly[5] ^ i_poly[3] ^ i_poly[7] ^ i_poly[2] ^ i_poly[4] ^ i_poly[9];
+			shift_poly_55_10[1] = i_poly[6] ^ i_poly[4] ^ i_poly[8] ^ i_poly[3] ^ i_poly[5];
+			shift_poly_55_10[2] = i_poly[7] ^ i_poly[5] ^ i_poly[9] ^ i_poly[4] ^ i_poly[6];
+			shift_poly_55_10[3] = i_poly[8] ^ i_poly[6] ^ i_poly[0] ^ i_poly[3] ^ i_poly[2] ^ i_poly[4] ^ i_poly[9];
+			shift_poly_55_10[4] = i_poly[9] ^ i_poly[7] ^ i_poly[1] ^ i_poly[4] ^ i_poly[3] ^ i_poly[5];
+			shift_poly_55_10[5] = i_poly[0] ^ i_poly[8] ^ i_poly[2] ^ i_poly[5] ^ i_poly[4] ^ i_poly[6];
+			shift_poly_55_10[6] = i_poly[1] ^ i_poly[9] ^ i_poly[3] ^ i_poly[6] ^ i_poly[0] ^ i_poly[5] ^ i_poly[7];
+			shift_poly_55_10[7] = i_poly[2] ^ i_poly[0] ^ i_poly[4] ^ i_poly[7] ^ i_poly[1] ^ i_poly[6] ^ i_poly[8];
+			shift_poly_55_10[8] = i_poly[3] ^ i_poly[1] ^ i_poly[5] ^ i_poly[0] ^ i_poly[8] ^ i_poly[2] ^ i_poly[7] ^ i_poly[9];
+			shift_poly_55_10[9] = i_poly[4] ^ i_poly[2] ^ i_poly[6] ^ i_poly[1] ^ i_poly[9] ^ i_poly[3] ^ i_poly[8];
+			shift_poly_55_10[10] = 1'b0;
+		end
+	endfunction
+
+	function automatic [10:0] shift_poly_56_10;
+		input [9:0] i_poly;
+		begin
+			shift_poly_56_10[0] = i_poly[4] ^ i_poly[2] ^ i_poly[6] ^ i_poly[1] ^ i_poly[9] ^ i_poly[3] ^ i_poly[8];
+			shift_poly_56_10[1] = i_poly[5] ^ i_poly[3] ^ i_poly[7] ^ i_poly[2] ^ i_poly[4] ^ i_poly[9];
+			shift_poly_56_10[2] = i_poly[6] ^ i_poly[4] ^ i_poly[8] ^ i_poly[3] ^ i_poly[5];
+			shift_poly_56_10[3] = i_poly[7] ^ i_poly[5] ^ i_poly[2] ^ i_poly[1] ^ i_poly[3] ^ i_poly[8];
+			shift_poly_56_10[4] = i_poly[8] ^ i_poly[6] ^ i_poly[0] ^ i_poly[3] ^ i_poly[2] ^ i_poly[4] ^ i_poly[9];
+			shift_poly_56_10[5] = i_poly[9] ^ i_poly[7] ^ i_poly[1] ^ i_poly[4] ^ i_poly[3] ^ i_poly[5];
+			shift_poly_56_10[6] = i_poly[0] ^ i_poly[8] ^ i_poly[2] ^ i_poly[5] ^ i_poly[4] ^ i_poly[6];
+			shift_poly_56_10[7] = i_poly[1] ^ i_poly[9] ^ i_poly[3] ^ i_poly[6] ^ i_poly[0] ^ i_poly[5] ^ i_poly[7];
+			shift_poly_56_10[8] = i_poly[2] ^ i_poly[0] ^ i_poly[4] ^ i_poly[7] ^ i_poly[1] ^ i_poly[6] ^ i_poly[8];
+			shift_poly_56_10[9] = i_poly[3] ^ i_poly[1] ^ i_poly[5] ^ i_poly[0] ^ i_poly[8] ^ i_poly[2] ^ i_poly[7] ^ i_poly[9];
+			shift_poly_56_10[10] = 1'b0;
+		end
+	endfunction
+
+	function automatic [10:0] shift_poly_57_10;
+		input [9:0] i_poly;
+		begin
+			shift_poly_57_10[0] = i_poly[3] ^ i_poly[1] ^ i_poly[5] ^ i_poly[0] ^ i_poly[8] ^ i_poly[2] ^ i_poly[7] ^ i_poly[9];
+			shift_poly_57_10[1] = i_poly[4] ^ i_poly[2] ^ i_poly[6] ^ i_poly[1] ^ i_poly[9] ^ i_poly[3] ^ i_poly[8];
+			shift_poly_57_10[2] = i_poly[5] ^ i_poly[3] ^ i_poly[7] ^ i_poly[2] ^ i_poly[4] ^ i_poly[9];
+			shift_poly_57_10[3] = i_poly[6] ^ i_poly[4] ^ i_poly[1] ^ i_poly[0] ^ i_poly[2] ^ i_poly[7] ^ i_poly[9];
+			shift_poly_57_10[4] = i_poly[7] ^ i_poly[5] ^ i_poly[2] ^ i_poly[1] ^ i_poly[3] ^ i_poly[8];
+			shift_poly_57_10[5] = i_poly[8] ^ i_poly[6] ^ i_poly[0] ^ i_poly[3] ^ i_poly[2] ^ i_poly[4] ^ i_poly[9];
+			shift_poly_57_10[6] = i_poly[9] ^ i_poly[7] ^ i_poly[1] ^ i_poly[4] ^ i_poly[3] ^ i_poly[5];
+			shift_poly_57_10[7] = i_poly[0] ^ i_poly[8] ^ i_poly[2] ^ i_poly[5] ^ i_poly[4] ^ i_poly[6];
+			shift_poly_57_10[8] = i_poly[1] ^ i_poly[9] ^ i_poly[3] ^ i_poly[6] ^ i_poly[0] ^ i_poly[5] ^ i_poly[7];
+			shift_poly_57_10[9] = i_poly[2] ^ i_poly[0] ^ i_poly[4] ^ i_poly[7] ^ i_poly[1] ^ i_poly[6] ^ i_poly[8];
+			shift_poly_57_10[10] = 1'b0;
+		end
+	endfunction
+
+	function automatic [10:0] shift_poly_58_10;
+		input [9:0] i_poly;
+		begin
+			shift_poly_58_10[0] = i_poly[2] ^ i_poly[0] ^ i_poly[4] ^ i_poly[7] ^ i_poly[1] ^ i_poly[6] ^ i_poly[8];
+			shift_poly_58_10[1] = i_poly[3] ^ i_poly[1] ^ i_poly[5] ^ i_poly[0] ^ i_poly[8] ^ i_poly[2] ^ i_poly[7] ^ i_poly[9];
+			shift_poly_58_10[2] = i_poly[4] ^ i_poly[2] ^ i_poly[6] ^ i_poly[1] ^ i_poly[9] ^ i_poly[3] ^ i_poly[8];
+			shift_poly_58_10[3] = i_poly[5] ^ i_poly[3] ^ i_poly[9] ^ i_poly[0] ^ i_poly[1] ^ i_poly[6] ^ i_poly[8];
+			shift_poly_58_10[4] = i_poly[6] ^ i_poly[4] ^ i_poly[1] ^ i_poly[0] ^ i_poly[2] ^ i_poly[7] ^ i_poly[9];
+			shift_poly_58_10[5] = i_poly[7] ^ i_poly[5] ^ i_poly[2] ^ i_poly[1] ^ i_poly[3] ^ i_poly[8];
+			shift_poly_58_10[6] = i_poly[8] ^ i_poly[6] ^ i_poly[0] ^ i_poly[3] ^ i_poly[2] ^ i_poly[4] ^ i_poly[9];
+			shift_poly_58_10[7] = i_poly[9] ^ i_poly[7] ^ i_poly[1] ^ i_poly[4] ^ i_poly[3] ^ i_poly[5];
+			shift_poly_58_10[8] = i_poly[0] ^ i_poly[8] ^ i_poly[2] ^ i_poly[5] ^ i_poly[4] ^ i_poly[6];
+			shift_poly_58_10[9] = i_poly[1] ^ i_poly[9] ^ i_poly[3] ^ i_poly[6] ^ i_poly[0] ^ i_poly[5] ^ i_poly[7];
+			shift_poly_58_10[10] = 1'b0;
+		end
+	endfunction
+
+	function automatic [10:0] shift_poly_59_10;
+		input [9:0] i_poly;
+		begin
+			shift_poly_59_10[0] = i_poly[1] ^ i_poly[9] ^ i_poly[3] ^ i_poly[6] ^ i_poly[0] ^ i_poly[5] ^ i_poly[7];
+			shift_poly_59_10[1] = i_poly[2] ^ i_poly[0] ^ i_poly[4] ^ i_poly[7] ^ i_poly[1] ^ i_poly[6] ^ i_poly[8];
+			shift_poly_59_10[2] = i_poly[3] ^ i_poly[1] ^ i_poly[5] ^ i_poly[0] ^ i_poly[8] ^ i_poly[2] ^ i_poly[7] ^ i_poly[9];
+			shift_poly_59_10[3] = i_poly[4] ^ i_poly[2] ^ i_poly[8] ^ i_poly[0] ^ i_poly[5] ^ i_poly[7];
+			shift_poly_59_10[4] = i_poly[5] ^ i_poly[3] ^ i_poly[9] ^ i_poly[0] ^ i_poly[1] ^ i_poly[6] ^ i_poly[8];
+			shift_poly_59_10[5] = i_poly[6] ^ i_poly[4] ^ i_poly[1] ^ i_poly[0] ^ i_poly[2] ^ i_poly[7] ^ i_poly[9];
+			shift_poly_59_10[6] = i_poly[7] ^ i_poly[5] ^ i_poly[2] ^ i_poly[1] ^ i_poly[3] ^ i_poly[8];
+			shift_poly_59_10[7] = i_poly[8] ^ i_poly[6] ^ i_poly[0] ^ i_poly[3] ^ i_poly[2] ^ i_poly[4] ^ i_poly[9];
+			shift_poly_59_10[8] = i_poly[9] ^ i_poly[7] ^ i_poly[1] ^ i_poly[4] ^ i_poly[3] ^ i_poly[5];
+			shift_poly_59_10[9] = i_poly[0] ^ i_poly[8] ^ i_poly[2] ^ i_poly[5] ^ i_poly[4] ^ i_poly[6];
+			shift_poly_59_10[10] = 1'b0;
+		end
+	endfunction
+
+	function automatic [10:0] shift_poly_60_10;
+		input [9:0] i_poly;
+		begin
+			shift_poly_60_10[0] = i_poly[0] ^ i_poly[8] ^ i_poly[2] ^ i_poly[5] ^ i_poly[4] ^ i_poly[6];
+			shift_poly_60_10[1] = i_poly[1] ^ i_poly[9] ^ i_poly[3] ^ i_poly[6] ^ i_poly[0] ^ i_poly[5] ^ i_poly[7];
+			shift_poly_60_10[2] = i_poly[2] ^ i_poly[0] ^ i_poly[4] ^ i_poly[7] ^ i_poly[1] ^ i_poly[6] ^ i_poly[8];
+			shift_poly_60_10[3] = i_poly[3] ^ i_poly[1] ^ i_poly[7] ^ i_poly[9] ^ i_poly[4] ^ i_poly[6];
+			shift_poly_60_10[4] = i_poly[4] ^ i_poly[2] ^ i_poly[8] ^ i_poly[0] ^ i_poly[5] ^ i_poly[7];
+			shift_poly_60_10[5] = i_poly[5] ^ i_poly[3] ^ i_poly[9] ^ i_poly[0] ^ i_poly[1] ^ i_poly[6] ^ i_poly[8];
+			shift_poly_60_10[6] = i_poly[6] ^ i_poly[4] ^ i_poly[1] ^ i_poly[0] ^ i_poly[2] ^ i_poly[7] ^ i_poly[9];
+			shift_poly_60_10[7] = i_poly[7] ^ i_poly[5] ^ i_poly[2] ^ i_poly[1] ^ i_poly[3] ^ i_poly[8];
+			shift_poly_60_10[8] = i_poly[8] ^ i_poly[6] ^ i_poly[0] ^ i_poly[3] ^ i_poly[2] ^ i_poly[4] ^ i_poly[9];
+			shift_poly_60_10[9] = i_poly[9] ^ i_poly[7] ^ i_poly[1] ^ i_poly[4] ^ i_poly[3] ^ i_poly[5];
+			shift_poly_60_10[10] = 1'b0;
+		end
+	endfunction
+
+	function automatic [10:0] shift_poly_61_10;
+		input [9:0] i_poly;
+		begin
+			shift_poly_61_10[0] = i_poly[9] ^ i_poly[7] ^ i_poly[1] ^ i_poly[4] ^ i_poly[3] ^ i_poly[5];
+			shift_poly_61_10[1] = i_poly[0] ^ i_poly[8] ^ i_poly[2] ^ i_poly[5] ^ i_poly[4] ^ i_poly[6];
+			shift_poly_61_10[2] = i_poly[1] ^ i_poly[9] ^ i_poly[3] ^ i_poly[6] ^ i_poly[0] ^ i_poly[5] ^ i_poly[7];
+			shift_poly_61_10[3] = i_poly[2] ^ i_poly[0] ^ i_poly[6] ^ i_poly[8] ^ i_poly[9] ^ i_poly[3] ^ i_poly[5];
+			shift_poly_61_10[4] = i_poly[3] ^ i_poly[1] ^ i_poly[7] ^ i_poly[9] ^ i_poly[4] ^ i_poly[6];
+			shift_poly_61_10[5] = i_poly[4] ^ i_poly[2] ^ i_poly[8] ^ i_poly[0] ^ i_poly[5] ^ i_poly[7];
+			shift_poly_61_10[6] = i_poly[5] ^ i_poly[3] ^ i_poly[9] ^ i_poly[0] ^ i_poly[1] ^ i_poly[6] ^ i_poly[8];
+			shift_poly_61_10[7] = i_poly[6] ^ i_poly[4] ^ i_poly[1] ^ i_poly[0] ^ i_poly[2] ^ i_poly[7] ^ i_poly[9];
+			shift_poly_61_10[8] = i_poly[7] ^ i_poly[5] ^ i_poly[2] ^ i_poly[1] ^ i_poly[3] ^ i_poly[8];
+			shift_poly_61_10[9] = i_poly[8] ^ i_poly[6] ^ i_poly[0] ^ i_poly[3] ^ i_poly[2] ^ i_poly[4] ^ i_poly[9];
+			shift_poly_61_10[10] = 1'b0;
+		end
+	endfunction
+
+	function automatic [10:0] shift_poly_62_10;
+		input [9:0] i_poly;
+		begin
+			shift_poly_62_10[0] = i_poly[8] ^ i_poly[6] ^ i_poly[0] ^ i_poly[3] ^ i_poly[2] ^ i_poly[4] ^ i_poly[9];
+			shift_poly_62_10[1] = i_poly[9] ^ i_poly[7] ^ i_poly[1] ^ i_poly[4] ^ i_poly[3] ^ i_poly[5];
+			shift_poly_62_10[2] = i_poly[0] ^ i_poly[8] ^ i_poly[2] ^ i_poly[5] ^ i_poly[4] ^ i_poly[6];
+			shift_poly_62_10[3] = i_poly[1] ^ i_poly[5] ^ i_poly[7] ^ i_poly[8] ^ i_poly[2] ^ i_poly[4];
+			shift_poly_62_10[4] = i_poly[2] ^ i_poly[0] ^ i_poly[6] ^ i_poly[8] ^ i_poly[9] ^ i_poly[3] ^ i_poly[5];
+			shift_poly_62_10[5] = i_poly[3] ^ i_poly[1] ^ i_poly[7] ^ i_poly[9] ^ i_poly[4] ^ i_poly[6];
+			shift_poly_62_10[6] = i_poly[4] ^ i_poly[2] ^ i_poly[8] ^ i_poly[0] ^ i_poly[5] ^ i_poly[7];
+			shift_poly_62_10[7] = i_poly[5] ^ i_poly[3] ^ i_poly[9] ^ i_poly[0] ^ i_poly[1] ^ i_poly[6] ^ i_poly[8];
+			shift_poly_62_10[8] = i_poly[6] ^ i_poly[4] ^ i_poly[1] ^ i_poly[0] ^ i_poly[2] ^ i_poly[7] ^ i_poly[9];
+			shift_poly_62_10[9] = i_poly[7] ^ i_poly[5] ^ i_poly[2] ^ i_poly[1] ^ i_poly[3] ^ i_poly[8];
+			shift_poly_62_10[10] = 1'b0;
+		end
+	endfunction
+
+	function automatic [10:0] shift_poly_63_10;
+		input [9:0] i_poly;
+		begin
+			shift_poly_63_10[0] = i_poly[7] ^ i_poly[5] ^ i_poly[2] ^ i_poly[1] ^ i_poly[3] ^ i_poly[8];
+			shift_poly_63_10[1] = i_poly[8] ^ i_poly[6] ^ i_poly[0] ^ i_poly[3] ^ i_poly[2] ^ i_poly[4] ^ i_poly[9];
+			shift_poly_63_10[2] = i_poly[9] ^ i_poly[7] ^ i_poly[1] ^ i_poly[4] ^ i_poly[3] ^ i_poly[5];
+			shift_poly_63_10[3] = i_poly[0] ^ i_poly[4] ^ i_poly[6] ^ i_poly[7] ^ i_poly[1] ^ i_poly[3];
+			shift_poly_63_10[4] = i_poly[1] ^ i_poly[5] ^ i_poly[7] ^ i_poly[8] ^ i_poly[2] ^ i_poly[4];
+			shift_poly_63_10[5] = i_poly[2] ^ i_poly[0] ^ i_poly[6] ^ i_poly[8] ^ i_poly[9] ^ i_poly[3] ^ i_poly[5];
+			shift_poly_63_10[6] = i_poly[3] ^ i_poly[1] ^ i_poly[7] ^ i_poly[9] ^ i_poly[4] ^ i_poly[6];
+			shift_poly_63_10[7] = i_poly[4] ^ i_poly[2] ^ i_poly[8] ^ i_poly[0] ^ i_poly[5] ^ i_poly[7];
+			shift_poly_63_10[8] = i_poly[5] ^ i_poly[3] ^ i_poly[9] ^ i_poly[0] ^ i_poly[1] ^ i_poly[6] ^ i_poly[8];
+			shift_poly_63_10[9] = i_poly[6] ^ i_poly[4] ^ i_poly[1] ^ i_poly[0] ^ i_poly[2] ^ i_poly[7] ^ i_poly[9];
+			shift_poly_63_10[10] = 1'b0;
+		end
+	endfunction
+
+	function automatic [10:0] shift_poly_64_10;
+		input [9:0] i_poly;
+		begin
+			shift_poly_64_10[0] = i_poly[6] ^ i_poly[4] ^ i_poly[1] ^ i_poly[0] ^ i_poly[2] ^ i_poly[7] ^ i_poly[9];
+			shift_poly_64_10[1] = i_poly[7] ^ i_poly[5] ^ i_poly[2] ^ i_poly[1] ^ i_poly[3] ^ i_poly[8];
+			shift_poly_64_10[2] = i_poly[8] ^ i_poly[6] ^ i_poly[0] ^ i_poly[3] ^ i_poly[2] ^ i_poly[4] ^ i_poly[9];
+			shift_poly_64_10[3] = i_poly[3] ^ i_poly[5] ^ i_poly[6] ^ i_poly[0] ^ i_poly[2];
+			shift_poly_64_10[4] = i_poly[0] ^ i_poly[4] ^ i_poly[6] ^ i_poly[7] ^ i_poly[1] ^ i_poly[3];
+			shift_poly_64_10[5] = i_poly[1] ^ i_poly[5] ^ i_poly[7] ^ i_poly[8] ^ i_poly[2] ^ i_poly[4];
+			shift_poly_64_10[6] = i_poly[2] ^ i_poly[0] ^ i_poly[6] ^ i_poly[8] ^ i_poly[9] ^ i_poly[3] ^ i_poly[5];
+			shift_poly_64_10[7] = i_poly[3] ^ i_poly[1] ^ i_poly[7] ^ i_poly[9] ^ i_poly[4] ^ i_poly[6];
+			shift_poly_64_10[8] = i_poly[4] ^ i_poly[2] ^ i_poly[8] ^ i_poly[0] ^ i_poly[5] ^ i_poly[7];
+			shift_poly_64_10[9] = i_poly[5] ^ i_poly[3] ^ i_poly[9] ^ i_poly[0] ^ i_poly[1] ^ i_poly[6] ^ i_poly[8];
+			shift_poly_64_10[10] = 1'b0;
+		end
+	endfunction
 
 	function automatic [10:0] shift_poly_1;
 		input [9:0] i_poly;
