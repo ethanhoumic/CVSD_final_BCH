@@ -601,7 +601,7 @@ module bch(
 					end
 				end
 				else begin
-					if (cnt_r < 12) begin
+					if (cnt_r < 16) begin
 						cnt_w = cnt_r + 1;
 						if (!cnt_r[0]) begin
 							if (d_r[0] == 0) begin
@@ -688,7 +688,7 @@ module bch(
 						end
 					end
 					else begin
-						if (cnt_r < 12) begin
+						if (cnt_r < 16) begin
 							cnt_w = cnt_r + 1;
 							if (!cnt_r[0]) begin
 								if (d_r[i] == 0) begin
