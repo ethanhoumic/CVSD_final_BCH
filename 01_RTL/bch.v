@@ -86,9 +86,8 @@ module bch(
 	wire [4:0] ber_cnt_max_w = ((code_r != 3) ? 5'd8 : 5'd16);
 
 	// chien search
-	reg [10:0] stage1_buff_r [0:2][0:7][0:4], stage1_buff_w [0:2][0:7][0:4]; // first index: big parallel number, second index: small parallel number
 	reg [2:0]  root_cnt_r [0:3], root_cnt_w [0:3];
-	reg [10:0] temp_root_w [0:2][0:7];
+	reg [10:0] temp_root_r [0:2][0:7], temp_root_w [0:2][0:7];
 	reg [2:0]  temp_root_cnt_w [0:2][0:7];
 	reg [9:0]  root_r [0:3][0:3], root_w [0:3][0:3];
 	reg [10:0] delta_poly_w [0:2][0:7][0:4];    // first index: parallel number, second index: degree
@@ -122,14 +121,13 @@ module bch(
 	integer i, j, l;
 
 	// clock gating
-	wire data_low_en = (state_r == S_LOAD || state_r == S_CHI_SOFT1 || state_r == S_CHI_SOFT2);
-	wire data_mid_en = data_low_en && (code_r != 1);
-	wire data_high_en = (data_low_en && code_r == 3);
-	wire alpha_en = (state_r == S_CHI_SOFT1 || state_r == S_BER_SOFT1);
-	wire stage_en = (state_r == S_CHI_SOFT2 || state_r == S_CHI_HARD || state_r == S_CHI_SOFT1);
-	wire syn_low_en  = (state_r == S_LOAD || state_r == S_CHI_HARD || state_r == S_CHI_SOFT1);
-	wire syn_high_en = syn_low_en && (code_r == 3);
-	wire corr_en = (state_r == S_CORR_1 || state_r == S_CORR_2 || state_r == S_CHI_SOFT1);
+	wire data_low_en = mode_r;
+	wire data_mid_en = mode_r && (code_r != 3);
+	wire data_high_en = mode_r && (code_r == 3);
+	// wire alpha_en = (state_r == S_CHI_SOFT1 || state_r == S_BER_SOFT1);
+	// wire syn_low_en  = (state_r == S_LOAD || state_r == S_CHI_HARD || state_r == S_CHI_SOFT1);
+	// wire syn_high_en = syn_low_en && (code_r == 3);
+	// wire corr_en = (state_r == S_CORR_1 || state_r == S_CORR_2 || state_r == S_CHI_SOFT1);
 
 	assign ready = ready_r;
 
@@ -355,7 +353,7 @@ module bch(
 		end
 		for (i = 0; i < 8; i = i + 1) begin
 			for (j = 0; j < 3; j = j + 1) begin
-				temp_root_w[j][i] = 1;
+				temp_root_w[j][i] = temp_root_r[j][i];
 				temp_root_cnt_w[j][i] = 0;
 				S_w[j][i] = S_r[j][i];
 			end
@@ -388,9 +386,6 @@ module bch(
 			for (j = 0; j < 8; j = j + 1) begin
 				temp_root_w[i][j] = 1;
 				temp_corr_w[i][j] = 0;
-				for (l = 0; l < 5; l = l + 1) begin
-					stage1_buff_w[i][j][l] = stage1_buff_r[i][j][l];
-				end
 			end
 		end
 		case (state_r) // synopsys parallel_case
@@ -648,21 +643,20 @@ module bch(
 				end
 			end
 			S_CHI_HARD, S_CHI_SOFT1: begin
+				for (i = 0; i < 8; i = i + 1) temp_root_w[0][i] = (code_r != 3) ? delta_poly_w[0][i][0] ^ delta_poly_w[0][i][1] ^ delta_poly_w[0][i][2] : delta_poly_w[0][i][0] ^ delta_poly_w[0][i][1] ^ delta_poly_w[0][i][2] ^ delta_poly_w[0][i][3] ^ delta_poly_w[0][i][4];
 				if (cnt_r == chien_cnt_max_w) begin
-
+					
 				end
 				else begin
-					temp_root_w[0][0] = (code_r != 3) ? stage1_buff_r[0][0][0] ^ stage1_buff_r[0][0][1] ^ stage1_buff_r[0][0][2] : stage1_buff_r[0][0][0] ^ stage1_buff_r[0][0][1] ^ stage1_buff_r[0][0][2] ^ stage1_buff_r[0][0][3] ^ stage1_buff_r[0][0][4];
 					if (cnt_r == chien_cnt_max_w - 1) begin end
-					else if (temp_root_w[0][0] == 0) begin
+					else if (temp_root_r[0][0] == 0) begin
 						root_w[0][root_cnt_r[0]] = root_index_w[0];
 						temp_root_cnt_w[0][0] = root_cnt_r[0] + 1;
 						corr_cand_w[0][root_cnt_r[0]] = data_r[7];
 					end
 					else temp_root_cnt_w[0][0] = root_cnt_r[0];
 					for (i = 1; i < 8; i = i + 1) begin
-						temp_root_w[0][i] = (code_r != 3) ? stage1_buff_r[0][i][0] ^ stage1_buff_r[0][i][1] ^ stage1_buff_r[0][i][2] : stage1_buff_r[0][i][0] ^ stage1_buff_r[0][i][1] ^ stage1_buff_r[0][i][2] ^ stage1_buff_r[0][i][3] ^ stage1_buff_r[0][i][4];
-						if (temp_root_w[0][i] == 0) begin
+						if (temp_root_r[0][i] == 0) begin
 							temp_root_cnt_w[0][i] = temp_root_cnt_w[0][i - 1] + 1;
 							root_w[0][temp_root_cnt_w[0][i - 1]] = root_index_w[i];
 							corr_cand_w[0][temp_root_cnt_w[0][i - 1]] = data_r[7 - i];
@@ -682,11 +676,6 @@ module bch(
 				end
 				else begin
 					cnt_w = cnt_r - 1;
-					for (i = 0; i < 8; i = i + 1) begin
-						for (j = 0; j < 5; j = j + 1) begin
-							stage1_buff_w[0][i][j] = delta_poly_w[0][i][j];
-						end
-					end
 					case (code_r)
 						1: begin
 							delta_w[0][0] = delta_r[0][0];
@@ -721,11 +710,6 @@ module bch(
 							S_w[1][i] = S_r[0][i] ^ alpha_r[1][i];
 							S_w[2][i] = S_w[0][i] ^ alpha_r[1][i];
 						end
-						for (i = 0; i < 8; i = i + 1) begin
-							for (j = 0; j < 5; j = j + 1) begin
-								stage1_buff_w[0][i][j] = 0;
-							end
-						end
 						for (i = 0; i < 3; i = i + 1) begin
 							delta_w[i][0] = 1;
 							delta_rho_w[i][0] = 1;
@@ -744,15 +728,15 @@ module bch(
 			end
 			S_CHI_SOFT2: begin
 				for (l = 0; l < 3; l = l + 1) begin
+					for (i = 0; i < 8; i = i + 1) temp_root_w[l][i] = (code_r != 3) ? delta_poly_w[l][i][0] ^ delta_poly_w[l][i][1] ^ delta_poly_w[l][i][2] : delta_poly_w[l][i][0] ^ delta_poly_w[l][i][1] ^ delta_poly_w[l][i][2] ^ delta_poly_w[l][i][3] ^ delta_poly_w[l][i][4];
 					if (cnt_r == chien_cnt_max_w) begin
 
 					end
 					else begin
-						temp_root_w[l][0] = (code_r != 3) ? stage1_buff_r[l][0][0] ^ stage1_buff_r[l][0][1] ^ stage1_buff_r[l][0][2] : stage1_buff_r[l][0][0] ^ stage1_buff_r[l][0][1] ^ stage1_buff_r[l][0][2] ^ stage1_buff_r[l][0][3] ^ stage1_buff_r[l][0][4];
 						if (cnt_r == chien_cnt_max_w - 1) begin
 
 						end
-						else if (temp_root_w[l][0] == 0) begin
+						else if (temp_root_r[l][0] == 0) begin
 							temp_root_cnt_w[l][0] = root_cnt_r[l + 1] + 1;
 							root_w[l + 1][root_cnt_r[l + 1]] = root_index_w[0];
 							corr_cand_w[l + 1][root_cnt_r[l + 1]] = data_r[7];
@@ -761,8 +745,7 @@ module bch(
 							temp_root_cnt_w[l][0] = root_cnt_r[l + 1];
 						end 
 						for (i = 1; i < 8; i = i + 1) begin
-							temp_root_w[l][i] = (code_r != 3) ? stage1_buff_r[l][i][0] ^ stage1_buff_r[l][i][1] ^ stage1_buff_r[l][i][2] : stage1_buff_r[l][i][0] ^ stage1_buff_r[l][i][1] ^ stage1_buff_r[l][i][2] ^ stage1_buff_r[l][i][3] ^ stage1_buff_r[l][i][4];
-							if (temp_root_w[l][i] == 0) begin
+							if (temp_root_r[l][i] == 0) begin
 								temp_root_cnt_w[l][i] = temp_root_cnt_w[l][i - 1] + 1;
 								root_w[l + 1][temp_root_cnt_w[l][i - 1]] = root_index_w[i];
 								corr_cand_w[l + 1][temp_root_cnt_w[l][i - 1]] = data_r[7 - i];
@@ -774,11 +757,6 @@ module bch(
 					end
 					root_cnt_w[l + 1] = temp_root_cnt_w[l][7];
 					cnt_w = cnt_r - 1;
-					for (i = 0; i < 8; i = i + 1) begin
-						for (j = 0; j < 5; j = j + 1) begin
-							stage1_buff_w[l][i][j] = delta_poly_w[l][i][j];
-						end
-					end
 					case (code_r)
 						1: begin
 							delta_w[l][0] = delta_r[l][0];
@@ -1657,12 +1635,57 @@ module bch(
 		end
 	end
 
+	// gated
+	wire gated_data_low_en = data_low_en | (!rstn);
+	wire gated_data_mid_en = data_mid_en | (!rstn);
+	wire gated_data_high_en = data_high_en | (!rstn);
+	wire data_low_clk = gated_data_low_en & clk;
+	wire data_mid_clk = gated_data_mid_en & clk;
+	wire data_high_clk = gated_data_high_en & clk;
+
+	always @(posedge data_low_clk) begin
+		if (!rstn) begin
+			for (i = 0; i < 64; i = i + 1) begin
+				data_r[i] <= 0;
+			end
+		end
+		else begin
+			for (i = 0; i < 64; i = i + 1) begin
+				data_r[i] <= data_w[i];
+			end
+		end
+	end
+
+	always @(posedge data_mid_clk) begin
+		if (!rstn) begin
+			for (i = 64; i < 256; i = i + 1) begin
+				data_r[i] <= 0;
+			end
+		end
+		else begin
+			for (i = 64; i < 256; i = i + 1) begin
+				data_r[i] <= data_w[i];
+			end
+		end
+	end
+
+	always @(posedge data_high_clk) begin
+		if (!rstn) begin
+			for (i = 256; i < 1024; i = i + 1) begin
+				data_r[i] <= 0;
+			end
+		end
+		else begin
+			for (i = 256; i < 1024; i = i + 1) begin
+				data_r[i] <= data_w[i];
+			end
+		end
+	end
+
+
 	always @(posedge clk) begin
 		if (!rstn) begin
 			state_r <= S_IDLE;
-			for (i = 0; i < 1024; i = i + 1) begin
-				data_r[i] <= 0;
-			end
 			for (i = 0; i < 8; i = i + 1)begin
 				alpha_r[0][i] <= 0;
 				alpha_r[1][i] <= 0;
@@ -1704,10 +1727,8 @@ module bch(
 					delta_rho_r[i][j] <= 0;
 				end
 				for (j = 0; j < 8; j = j + 1) begin
+					temp_root_r[i][j] <= 0;
 					S_r[i][j] <= 0;
-					for (l = 0; l < 5; l = l + 1) begin
-						stage1_buff_r[i][j][l] <= 0;
-					end
 				end
 			end
 		end
@@ -1725,33 +1746,14 @@ module bch(
 			index2_temp_r <= index2_temp_w;
 			corr_sel_r <= corr_sel_w;
 			flipped_stack_ptr_r <= flipped_stack_ptr_w;
-			if (data_low_en) begin
-				for (i = 0; i < 64; i = i + 1) begin
-					data_r[i] <= data_w[i];
+			for (i = 4; i < 8; i = i + 1) begin
+				for (j = 0; j < 3; j = j + 1) begin
+					S_r[j][i] <= S_w[j][i];
 				end
 			end
-			if (data_mid_en) begin
-				for (i = 64; i < 256; i = i + 1) begin
-					data_r[i] <= data_w[i];
-				end
-			end
-			if (data_high_en) begin
-				for (i = 256; i < 1024; i = i + 1) begin
-					data_r[i] <= data_w[i];
-				end
-			end
-			if (syn_high_en) begin
-				for (i = 4; i < 8; i = i + 1) begin
-					for (j = 0; j < 3; j = j + 1) begin
-						S_r[j][i] <= S_w[j][i];
-					end
-				end
-			end
-			if (syn_low_en) begin
-				for (i = 0; i < 4; i = i + 1) begin
-					for (j = 0; j < 3; j = j + 1) begin
-						S_r[j][i] <= S_w[j][i];
-					end
+			for (i = 0; i < 4; i = i + 1) begin
+				for (j = 0; j < 3; j = j + 1) begin
+					S_r[j][i] <= S_w[j][i];
 				end
 			end
 			for (i = 0; i < 3; i = i + 1) begin
@@ -1768,11 +1770,9 @@ module bch(
 			for (i = 0; i < 2; i = i + 1) begin
 				flipped_stack_r[i] <= flipped_stack_w[i];
 			end
-			if (alpha_en) begin
-				for (i = 0; i < 8; i = i + 1)begin
-					alpha_r[0][i] <= alpha_w[0][i];
-					alpha_r[1][i] <= alpha_w[1][i];
-				end
+			for (i = 0; i < 8; i = i + 1)begin
+				alpha_r[0][i] <= alpha_w[0][i];
+				alpha_r[1][i] <= alpha_w[1][i];
 			end
 			for (i = 0; i < 4; i = i + 1) begin
 				power_r[i] <= power_w[i];
@@ -1784,18 +1784,14 @@ module bch(
 					root_r[i][j] <= root_w[i][j];
 				end
 			end
-			if (stage_en) begin
-				for (i = 0; i < 3; i = i + 1) begin
-					for (j = 0; j < 8; j = j + 1) begin
-						for (l = 0; l < 5; l = l + 1) begin
-							stage1_buff_r[i][j][l] <= stage1_buff_w[i][j][l];
-						end
-					end
-				end
-			end
 			for (i = 0; i < 4; i = i + 1) begin
 				for (j = 0; j < 4; j = j + 1) begin
 					corr_cand_r[i][j] <= corr_cand_w[i][j];
+				end
+			end
+			for (i = 0; i < 3; i = i + 1) begin
+				for (j = 0; j < 8; j = j + 1) begin
+					temp_root_r[i][j] <= temp_root_w[i][j];
 				end
 			end
 			odata_r <= odata_w;
