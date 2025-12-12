@@ -122,12 +122,8 @@ module bch(
 
 	// clock gating
 	wire data_low_en = mode_r;
-	wire data_mid_en = mode_r && (code_r != 3);
+	wire data_mid_en = mode_r && (code_r != 1);
 	wire data_high_en = mode_r && (code_r == 3);
-	// wire alpha_en = (state_r == S_CHI_SOFT1 || state_r == S_BER_SOFT1);
-	// wire syn_low_en  = (state_r == S_LOAD || state_r == S_CHI_HARD || state_r == S_CHI_SOFT1);
-	// wire syn_high_en = syn_low_en && (code_r == 3);
-	// wire corr_en = (state_r == S_CORR_1 || state_r == S_CORR_2 || state_r == S_CHI_SOFT1);
 
 	assign ready = ready_r;
 
