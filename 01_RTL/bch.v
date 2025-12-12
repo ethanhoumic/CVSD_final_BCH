@@ -83,6 +83,7 @@ module bch(
 	reg [3:0]  rho_r [0:2], rho_w [0:2];
 	reg [3:0]  cnt_temp_w [0:2];
 	reg [2:0]  power_r [0:3], power_w [0:3];
+	wire [4:0] ber_cnt_max_w = ((code_r != 3) ? 5'd8 : 5'd16);
 
 	// chien search
 	reg [10:0] stage1_buff_r [0:2][0:7][0:4], stage1_buff_w [0:2][0:7][0:4]; // first index: big parallel number, second index: small parallel number
@@ -549,186 +550,100 @@ module bch(
 					end
 				end
 				else begin
-					if (delta_r[0][4] != 0) power_r[0] = 4;
-					else if (delta_r[0][3] != 0) power_r[0] = 3;
-					else if (delta_r[0][2] != 0) power_r[0] = 2;
-					else if (delta_r[0][1] != 0) power_r[0] = 1;
-					else power_r[0] = 0;
+					if (delta_r[0][4] != 0) power_w[0] = 4;
+					else if (delta_r[0][3] != 0) power_w[0] = 3;
+					else if (delta_r[0][2] != 0) power_w[0] = 2;
+					else if (delta_r[0][1] != 0) power_w[0] = 1;
+					else power_w[0] = 0;
 					state_w = (mode_r) ? S_CHI_SOFT1 : S_CHI_HARD;
 					cnt_w = 128;
 				end
 			end
 			S_BER_SOFT1: begin
-				if (code_r != 3) begin
-					if (cnt_r < 8) begin
-						cnt_w = cnt_r + 1;
-						if (!cnt_r[0]) begin
-							if (d_r[0] == 0) begin
-								for (i = 0; i < 5; i = i + 1) delta_w[0][i] = delta_r[0][i];
-								l_w[0] = l_r[0];
-							end
-							else begin
-								cnt_temp_w[0] = cnt_r >> 1;
-								for (i = 0; i < 5; i = i + 1) temp1_w[0][i] = element_mul(d_rho_r[0], delta_r[0][i]);
-								for (i = 0; i < 5; i = i + 1) begin
-									if ($signed(i[3:0]) - $signed(cnt_temp_w[0]) + $signed(rho_r[0]) >= 0) temp2_w[0][i] = delta_rho_r[0][$signed(i[3:0]) - $signed(cnt_temp_w[0]) + $signed(rho_r[0])];
-									else temp2_w[0][i] = 11'b0;
-								end
-								for (i = 0; i < 5; i = i + 1) temp3_w[0][i] = element_mul(d_r[0], temp2_w[0][i]);
-								for (i = 0; i < 5; i = i + 1) delta_w[0][i] = temp1_w[0][i] ^ temp3_w[0][i];
-								l_w[0] = ($signed(l_r[0]) > $signed(cnt_temp_w[0]) + $signed(l_rho_r[0]) - $signed(rho_r[0])) ? $signed(l_r[0]) : $signed(cnt_temp_w[0]) + $signed(l_rho_r[0]) - $signed(rho_r[0]);
-							end
-							if (d_r[0] != 0 && $signed(cnt_temp_w[0]) - $signed(l_r[0]) > $signed(rho_r[0]) - $signed(l_rho_r[0])) begin
-								rho_w[0] = cnt_temp_w[0];
-								l_rho_w[0] = l_r[0];
-								d_rho_w[0] = d_r[0];
-								for (i = 0; i < 5; i = i + 1) delta_rho_w[0][i] = delta_r[0][i];
-							end
+				if (cnt_r < ber_cnt_max_w) begin
+					cnt_w = cnt_r + 1;
+					if (!cnt_r[0]) begin
+						if (d_r[0] == 0) begin
+							for (i = 0; i < 7; i = i + 1) delta_w[0][i] = delta_r[0][i];
+							l_w[0] = l_r[0];
 						end
 						else begin
-							cnt_temp_w[0] = (cnt_r >> 1) + 3'd1;
-							d_w[0] = compute_d(cnt_temp_w[0], l_r[0], 2'd0);  // mu + 1 and l_{mu + 1}
+							cnt_temp_w[0] = cnt_r >> 1;
+							for (i = 0; i < 7; i = i + 1) temp1_w[0][i] = element_mul(d_rho_r[0], delta_r[0][i]);
+							for (i = 0; i < 7; i = i + 1) begin
+								if ($signed(i[3:0]) - $signed(cnt_temp_w[0]) + $signed(rho_r[0]) >= 0) temp2_w[0][i] = delta_rho_r[0][$signed(i[3:0]) - $signed(cnt_temp_w[0]) + $signed(rho_r[0])];
+								else temp2_w[0][i] = 11'b0;
+							end
+							for (i = 0; i < 7; i = i + 1) temp3_w[0][i] = element_mul(d_r[0], temp2_w[0][i]);
+							for (i = 0; i < 7; i = i + 1) delta_w[0][i] = temp1_w[0][i] ^ temp3_w[0][i];
+							l_w[0] = ($signed(l_r[0]) > $signed(cnt_temp_w[0]) + $signed(l_rho_r[0]) - $signed(rho_r[0])) ? $signed(l_r[0]) : $signed(cnt_temp_w[0]) + $signed(l_rho_r[0]) - $signed(rho_r[0]);
+						end
+						if (d_r[0] != 0 && $signed(cnt_temp_w[0]) - $signed(l_r[0]) > $signed(rho_r[0]) - $signed(l_rho_r[0])) begin
+							rho_w[0] = cnt_temp_w[0];
+							l_rho_w[0] = l_r[0];
+							d_rho_w[0] = d_r[0];
+							for (i = 0; i < 7; i = i + 1) delta_rho_w[0][i] = delta_r[0][i];
 						end
 					end
 					else begin
-						if (delta_r[0][4] != 0) power_r[0] = 4;
-						else if (delta_r[0][3] != 0) power_r[0] = 3;
-						else if (delta_r[0][2] != 0) power_r[0] = 2;
-						else if (delta_r[0][1] != 0) power_r[0] = 1;
-						else power_r[0] = 0;
-						state_w = S_CHI_SOFT1;
-						cnt_w = (code_r == 1) ? 8 : 32;
+						cnt_temp_w[0] = (cnt_r >> 1) + 3'd1;
+						d_w[0] = compute_d(cnt_temp_w[0], l_r[0], 2'd0);  // mu + 1 and l_{mu + 1}
 					end
 				end
 				else begin
-					if (cnt_r < 16) begin
-						cnt_w = cnt_r + 1;
-						if (!cnt_r[0]) begin
-							if (d_r[0] == 0) begin
-								for (i = 0; i < 7; i = i + 1) delta_w[0][i] = delta_r[0][i];
-								l_w[0] = l_r[0];
-							end
-							else begin
-								cnt_temp_w[0] = cnt_r >> 1;
-								for (i = 0; i < 7; i = i + 1) temp1_w[0][i] = element_mul(d_rho_r[0], delta_r[0][i]);
-								for (i = 0; i < 7; i = i + 1) begin
-									if ($signed(i[3:0]) - $signed(cnt_temp_w[0]) + $signed(rho_r[0]) >= 0) temp2_w[0][i] = delta_rho_r[0][$signed(i[3:0]) - $signed(cnt_temp_w[0]) + $signed(rho_r[0])];
-									else temp2_w[0][i] = 11'b0;
-								end
-								for (i = 0; i < 7; i = i + 1) temp3_w[0][i] = element_mul(d_r[0], temp2_w[0][i]);
-								for (i = 0; i < 7; i = i + 1) delta_w[0][i] = temp1_w[0][i] ^ temp3_w[0][i];
-								l_w[0] = ($signed(l_r[0]) > $signed(cnt_temp_w[0]) + $signed(l_rho_r[0]) - $signed(rho_r[0])) ? $signed(l_r[0]) : $signed(cnt_temp_w[0]) + $signed(l_rho_r[0]) - $signed(rho_r[0]);
-							end
-							if (d_r[0] != 0 && $signed(cnt_temp_w[0]) - $signed(l_r[0]) > $signed(rho_r[0]) - $signed(l_rho_r[0])) begin
-								rho_w[0] = cnt_temp_w[0];
-								l_rho_w[0] = l_r[0];
-								d_rho_w[0] = d_r[0];
-								for (i = 0; i < 7; i = i + 1) delta_rho_w[0][i] = delta_r[0][i];
-							end
-						end
-						else begin
-							cnt_temp_w[0] = (cnt_r >> 1) + 3'd1;
-							d_w[0] = compute_d(cnt_temp_w[0], l_r[0], 2'd0);  // mu + 1 and l_{mu + 1}
-						end
-					end
-					else begin
-						if (delta_r[0][6] != 0) power_r[0] = 6;
-						else if (delta_r[0][5] != 0) power_r[0] = 5;
-						else if (delta_r[0][4] != 0) power_r[0] = 4;
-						else if (delta_r[0][3] != 0) power_r[0] = 3;
-						else if (delta_r[0][2] != 0) power_r[0] = 2;
-						else if (delta_r[0][1] != 0) power_r[0] = 1;
-						else power_r[0] = 0;
-						state_w = S_CHI_SOFT1;
-						cnt_w = 128;
-					end
+					if (delta_r[0][6] != 0) power_w[0] = 6;
+					else if (delta_r[0][5] != 0) power_w[0] = 5;
+					else if (delta_r[0][4] != 0) power_w[0] = 4;
+					else if (delta_r[0][3] != 0) power_w[0] = 3;
+					else if (delta_r[0][2] != 0) power_w[0] = 2;
+					else if (delta_r[0][1] != 0) power_w[0] = 1;
+					else power_w[0] = 0;
+					state_w = S_CHI_SOFT1;
+					cnt_w = chien_cnt_max_w;
 				end
 			end
 			S_BER_SOFT2: begin
 				for (i = 0; i < 3; i = i + 1) begin
-					if (code_r != 3) begin
-						if (cnt_r < 8) begin
-							cnt_w = cnt_r + 1;
-							if (!cnt_r[0]) begin
-								if (d_r[i] == 0) begin
-									for (j = 0; j < 5; j = j + 1) delta_w[i][j] = delta_r[i][j];
-									l_w[i] = l_r[i];
-								end
-								else begin
-									cnt_temp_w[i] = cnt_r >> 1;
-									for (j = 0; j < 5; j = j + 1) temp1_w[i][j] = element_mul(d_rho_r[i], delta_r[i][j]);
-									for (j = 0; j < 5; j = j + 1) begin
-										if ($signed(j[3:0]) - $signed(cnt_temp_w[i]) + $signed(rho_r[i]) >= 0) temp2_w[i][j] = delta_rho_r[i][$signed(j[3:0]) - $signed(cnt_temp_w[i]) + $signed(rho_r[i])];
-										else temp2_w[i][j] = 11'b0;
-									end
-									for (j = 0; j < 5; j = j + 1) temp3_w[i][j] = element_mul(d_r[i], temp2_w[i][j]);
-									for (j = 0; j < 5; j = j + 1) delta_w[i][j] = temp1_w[i][j] ^ temp3_w[i][j];
-									l_w[i] = ($signed(l_r[i]) > $signed(cnt_temp_w[i]) + $signed(l_rho_r[i]) - $signed(rho_r[i])) ? $signed(l_r[i]) : $signed(cnt_temp_w[i]) + $signed(l_rho_r[i]) - $signed(rho_r[i]);
-								end
-								if (d_r[i] != 0 && $signed(cnt_temp_w[i]) - $signed(l_r[i]) > $signed(rho_r[i]) - $signed(l_rho_r[i])) begin
-									rho_w[i] = cnt_temp_w[i];
-									l_rho_w[i] = l_r[i];
-									d_rho_w[i] = d_r[i];
-									for (j = 0; j < 5; j = j + 1) delta_rho_w[i][j] = delta_r[i][j];
-								end
+					if (cnt_r < ber_cnt_max_w) begin
+						cnt_w = cnt_r + 1;
+						if (!cnt_r[0]) begin
+							if (d_r[i] == 0) begin
+								for (j = 0; j < 7; j = j + 1) delta_w[i][j] = delta_r[i][j];
+								l_w[i] = l_r[i];
 							end
 							else begin
-								cnt_temp_w[i] = (cnt_r >> 1) + 3'd1;
-								d_w[i] = compute_d(cnt_temp_w[i], l_r[i], i[2:0]);  // mu + 1 and l_{mu + 1}
+								cnt_temp_w[i] = cnt_r >> 1;
+								for (j = 0; j < 7; j = j + 1) temp1_w[i][j] = element_mul(d_rho_r[i], delta_r[i][j]);
+								for (j = 0; j < 7; j = j + 1) begin
+									if ($signed(j[3:0]) - $signed(cnt_temp_w[i]) + $signed(rho_r[i]) >= 0) temp2_w[i][j] = delta_rho_r[i][$signed(j[3:0]) - $signed(cnt_temp_w[i]) + $signed(rho_r[i])];
+									else temp2_w[i][j] = 11'b0;
+								end
+								for (j = 0; j < 7; j = j + 1) temp3_w[i][j] = element_mul(d_r[i], temp2_w[i][j]);
+								for (j = 0; j < 7; j = j + 1) delta_w[i][j] = temp1_w[i][j] ^ temp3_w[i][j];
+								l_w[i] = ($signed(l_r[i]) > $signed(cnt_temp_w[i]) + $signed(l_rho_r[i]) - $signed(rho_r[i])) ? $signed(l_r[i]) : $signed(cnt_temp_w[i]) + $signed(l_rho_r[i]) - $signed(rho_r[i]);
+							end
+							if (d_r[i] != 0 && $signed(cnt_temp_w[i]) - $signed(l_r[i]) > $signed(rho_r[i]) - $signed(l_rho_r[i])) begin
+								rho_w[i] = cnt_temp_w[i];
+								l_rho_w[i] = l_r[i];
+								d_rho_w[i] = d_r[i];
+								for (j = 0; j < 7; j = j + 1) delta_rho_w[i][j] = delta_r[i][j];
 							end
 						end
 						else begin
-							if (delta_r[i][4] != 0) power_r[i + 1] = 4;
-							else if (delta_r[i][3] != 0) power_r[i + 1] = 3;
-							else if (delta_r[i][2] != 0) power_r[i + 1] = 2;
-							else if (delta_r[i][1] != 0) power_r[i + 1] = 1;
-							else power_r[i + 1] = 0;
-							state_w = S_CHI_SOFT2;
-							cnt_w = chien_cnt_max_w;
+							cnt_temp_w[i] = (cnt_r >> 1) + 3'd1;
+							d_w[i] = compute_d(cnt_temp_w[i], l_r[i], i[1:0]);  // mu + 1 and l_{mu + 1}
 						end
 					end
 					else begin
-						if (cnt_r < 16) begin
-							cnt_w = cnt_r + 1;
-							if (!cnt_r[0]) begin
-								if (d_r[i] == 0) begin
-									for (j = 0; j < 7; j = j + 1) delta_w[i][j] = delta_r[i][j];
-									l_w[i] = l_r[i];
-								end
-								else begin
-									cnt_temp_w[i] = cnt_r >> 1;
-									for (j = 0; j < 7; j = j + 1) temp1_w[i][j] = element_mul(d_rho_r[i], delta_r[i][j]);
-									for (j = 0; j < 7; j = j + 1) begin
-										if ($signed(j[3:0]) - $signed(cnt_temp_w[i]) + $signed(rho_r[i]) >= 0) temp2_w[i][j] = delta_rho_r[i][$signed(j[3:0]) - $signed(cnt_temp_w[i]) + $signed(rho_r[i])];
-										else temp2_w[i][j] = 11'b0;
-									end
-									for (j = 0; j < 7; j = j + 1) temp3_w[i][j] = element_mul(d_r[i], temp2_w[i][j]);
-									for (j = 0; j < 7; j = j + 1) delta_w[i][j] = temp1_w[i][j] ^ temp3_w[i][j];
-									l_w[i] = ($signed(l_r[i]) > $signed(cnt_temp_w[i]) + $signed(l_rho_r[i]) - $signed(rho_r[i])) ? $signed(l_r[i]) : $signed(cnt_temp_w[i]) + $signed(l_rho_r[i]) - $signed(rho_r[i]);
-								end
-								if (d_r[i] != 0 && $signed(cnt_temp_w[i]) - $signed(l_r[i]) > $signed(rho_r[i]) - $signed(l_rho_r[i])) begin
-									rho_w[i] = cnt_temp_w[i];
-									l_rho_w[i] = l_r[i];
-									d_rho_w[i] = d_r[i];
-									for (j = 0; j < 7; j = j + 1) delta_rho_w[i][j] = delta_r[i][j];
-								end
-							end
-							else begin
-								cnt_temp_w[i] = (cnt_r >> 1) + 3'd1;
-								d_w[i] = compute_d(cnt_temp_w[i], l_r[i], i[1:0]);  // mu + 1 and l_{mu + 1}
-							end
-						end
-						else begin
-							state_w = S_CHI_SOFT2;
-							if (delta_r[i][6] != 0) power_r[i + 1] = 6;
-							else if (delta_r[i][5] != 0) power_r[i + 1] = 5;
-							else if (delta_r[i][4] != 0) power_r[i + 1] = 4;
-							else if (delta_r[i][3] != 0) power_r[i + 1] = 3;
-							else if (delta_r[i][2] != 0) power_r[i + 1] = 2;
-							else if (delta_r[i][1] != 0) power_r[i + 1] = 1;
-							else power_r[i + 1] = 0;
-							cnt_w = chien_cnt_max_w;
-						end
+						state_w = S_CHI_SOFT2;
+						if (delta_r[i][6] != 0) power_w[i + 1] = 6;
+						else if (delta_r[i][5] != 0) power_w[i + 1] = 5;
+						else if (delta_r[i][4] != 0) power_w[i + 1] = 4;
+						else if (delta_r[i][3] != 0) power_w[i + 1] = 3;
+						else if (delta_r[i][2] != 0) power_w[i + 1] = 2;
+						else if (delta_r[i][1] != 0) power_w[i + 1] = 1;
+						else power_w[i + 1] = 0;
+						cnt_w = chien_cnt_max_w;
 					end
 				end
 			end
@@ -3909,52 +3824,27 @@ module bch(
 	endfunction
 
 	function automatic [10:0] element_mul;
-		input [10:0] i_element1;
-		input [10:0] i_element2;
-		
-		reg [10:0] shift;
-		reg [10:0] temp;
-		integer i;
-		
-		begin
-			shift = i_element1;
-			element_mul = 0;
-			
-			case (code_r)  // Select reduction function ONCE
-				2'd1: begin  // GF(2^6)
-					for (i = 0; i < 11; i = i + 1) begin
-						if (i_element2[i]) element_mul = element_mul ^ shift;
-						temp = shift << 1;
-						shift = poly_reduce_6(temp);
-					end
-				end
-				
-				2'd2: begin  // GF(2^8)
-					for (i = 0; i < 11; i = i + 1) begin
-						if (i_element2[i]) element_mul = element_mul ^ shift;
-						temp = shift << 1;
-						shift = poly_reduce_8(temp);
-					end
-				end
-				
-				2'd3: begin  // GF(2^10)
-					for (i = 0; i < 11; i = i + 1) begin
-						if (i_element2[i]) element_mul = element_mul ^ shift;
-						temp = shift << 1;
-						shift = poly_reduce_10(temp);
-					end
-				end
-				
-				default: begin
-					for (i = 0; i < 11; i = i + 1) begin
-						if (i_element2[i]) element_mul = element_mul ^ shift;
-						temp = shift << 1;
-						shift = temp;
-					end
-				end
-			endcase
-		end
-	endfunction
+        input [10:0] i_element1;
+        input [10:0] i_element2;
+        reg [10:0] shift;
+        reg [10:0] temp;
+        integer i;
+        begin
+            shift = i_element1;
+            element_mul = 0;
+            temp = 0;
+            for (i = 0; i < 11; i = i + 1) begin
+                if (i_element2[i]) element_mul = element_mul ^ shift;
+                temp = shift << 1;
+                case (code_r) // synopsys parallel_case
+                    1: shift = poly_reduce_6(temp);
+                    2: shift = poly_reduce_8(temp);
+                    3: shift = poly_reduce_10(temp);
+                    default: shift = temp;
+                endcase
+            end
+        end
+    endfunction
 
 	function automatic [10:0] compute_d;
 		input [3:0] i_mu_plus_1; // mu + 1
